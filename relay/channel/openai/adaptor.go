@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/textproto"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/QuantumNous/new-api/common"
@@ -411,125 +412,271 @@ func (a *Adaptor) ConvertAudioRequest(c *gin.Context, info *relaycommon.RelayInf
 func (a *Adaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInfo, request dto.ImageRequest) (any, error) {
 	switch info.RelayMode {
 	case relayconstant.RelayModeImagesEdits:
+		// 检查 Content-Type 是否为 multipart/form-data
+		contentType := c.GetHeader("Content-Type")
+		if strings.Contains(contentType, "multipart/form-data") {
+			// 处理 multipart/form-data 请求
+			var requestBody bytes.Buffer
+			writer := multipart.NewWriter(&requestBody)
 
-		var requestBody bytes.Buffer
-		writer := multipart.NewWriter(&requestBody)
-
-		writer.WriteField("model", request.Model)
-		// 使用已解析的 multipart 表单，避免重复解析
-		mf := c.Request.MultipartForm
-		if mf == nil {
-			if _, err := c.MultipartForm(); err != nil {
-				return nil, errors.New("failed to parse multipart form")
-			}
-			mf = c.Request.MultipartForm
-		}
-
-		// 写入所有非文件字段
-		if mf != nil {
-			for key, values := range mf.Value {
-				if key == "model" {
-					continue
+			writer.WriteField("model", request.Model)
+			// 使用已解析的 multipart 表单，避免重复解析
+			mf := c.Request.MultipartForm
+			if mf == nil {
+				if _, err := c.MultipartForm(); err != nil {
+					return nil, errors.New("failed to parse multipart form")
 				}
-				for _, value := range values {
-					writer.WriteField(key, value)
+				mf = c.Request.MultipartForm
+			}
+
+			// 写入所有非文件字段
+			if mf != nil {
+				for key, values := range mf.Value {
+					if key == "model" {
+						continue
+					}
+					for _, value := range values {
+						writer.WriteField(key, value)
+					}
 				}
 			}
-		}
 
-		if mf != nil && mf.File != nil {
-			// Check if "image" field exists in any form, including array notation
-			var imageFiles []*multipart.FileHeader
-			var exists bool
+			if mf != nil && mf.File != nil {
+				// Check if "image" or "input_reference" field exists
+				var imageFiles []*multipart.FileHeader
+				var inputRefFiles []*multipart.FileHeader
+				var imageExists, inputRefExists bool
 
-			// First check for standard "image" field
-			if imageFiles, exists = mf.File["image"]; !exists || len(imageFiles) == 0 {
-				// If not found, check for "image[]" field
-				if imageFiles, exists = mf.File["image[]"]; !exists || len(imageFiles) == 0 {
-					// If still not found, iterate through all fields to find any that start with "image["
-					foundArrayImages := false
-					for fieldName, files := range mf.File {
-						if strings.HasPrefix(fieldName, "image[") && len(files) > 0 {
-							foundArrayImages = true
-							imageFiles = append(imageFiles, files...)
+				// Check for image files
+				if imageFiles, imageExists = mf.File["image"]; !imageExists || len(imageFiles) == 0 {
+					// If not found, check for "image[]" field
+					if imageFiles, imageExists = mf.File["image[]"]; !imageExists || len(imageFiles) == 0 {
+						// If still not found, iterate through all fields to find any that start with "image["
+						foundArrayImages := false
+						for fieldName, files := range mf.File {
+							if strings.HasPrefix(fieldName, "image[") && len(files) > 0 {
+								foundArrayImages = true
+								imageFiles = append(imageFiles, files...)
+							}
 						}
-					}
-
-					// If no image fields found at all
-					if !foundArrayImages && (len(imageFiles) == 0) {
-						return nil, errors.New("image is required")
+						imageExists = foundArrayImages
 					}
 				}
+
+				// Check for input_reference files
+				if inputRefFiles, inputRefExists = mf.File["input_reference"]; !inputRefExists || len(inputRefFiles) == 0 {
+					// If not found, check for "input_reference[]" field
+					if inputRefFiles, inputRefExists = mf.File["input_reference[]"]; !inputRefExists || len(inputRefFiles) == 0 {
+						// If still not found, iterate through all fields to find any that start with "input_reference["
+						foundArrayInputRefs := false
+						for fieldName, files := range mf.File {
+							if strings.HasPrefix(fieldName, "input_reference[") && len(files) > 0 {
+								foundArrayInputRefs = true
+								inputRefFiles = append(inputRefFiles, files...)
+							}
+						}
+						inputRefExists = foundArrayInputRefs
+					}
+				}
+
+				// Check if at least one attachment (image or input_reference) is provided
+				if !imageExists && !inputRefExists {
+					return nil, errors.New("at least one attachment (image or input_reference) is required")
+				}
+
+				// Process all image files
+				if imageExists {
+					for i, fileHeader := range imageFiles {
+						file, err := fileHeader.Open()
+						if err != nil {
+							return nil, fmt.Errorf("failed to open image file %d: %w", i, err)
+						}
+
+						// If multiple images, use image[] as the field name
+						fieldName := "image"
+						if len(imageFiles) > 1 {
+							fieldName = "image[]"
+						}
+
+						// Determine MIME type based on file extension
+						mimeType := detectImageMimeType(fileHeader.Filename)
+
+						// Create a form file with the appropriate content type
+						h := make(textproto.MIMEHeader)
+						h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, fieldName, fileHeader.Filename))
+						h.Set("Content-Type", mimeType)
+
+						part, err := writer.CreatePart(h)
+						if err != nil {
+							return nil, fmt.Errorf("create form part failed for image %d: %w", i, err)
+						}
+
+						if _, err := io.Copy(part, file); err != nil {
+							return nil, fmt.Errorf("copy file failed for image %d: %w", i, err)
+						}
+
+						// 复制完立即关闭，避免在循环内使用 defer 占用资源
+						_ = file.Close()
+					}
+				}
+
+				// Process all input_reference files
+				if inputRefExists {
+					for i, fileHeader := range inputRefFiles {
+						file, err := fileHeader.Open()
+						if err != nil {
+							return nil, fmt.Errorf("failed to open input_reference file %d: %w", i, err)
+						}
+
+						// If multiple input_reference files, use input_reference[] as the field name
+						fieldName := "input_reference"
+						if len(inputRefFiles) > 1 {
+							fieldName = "input_reference[]"
+						}
+
+						// Determine MIME type based on file extension
+						mimeType := detectImageMimeType(fileHeader.Filename)
+
+						// Create a form file with the appropriate content type
+						h := make(textproto.MIMEHeader)
+						h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, fieldName, fileHeader.Filename))
+						h.Set("Content-Type", mimeType)
+
+						part, err := writer.CreatePart(h)
+						if err != nil {
+							return nil, fmt.Errorf("create form part failed for input_reference %d: %w", i, err)
+						}
+
+						if _, err := io.Copy(part, file); err != nil {
+							return nil, fmt.Errorf("copy file failed for input_reference %d: %w", i, err)
+						}
+
+						// 复制完立即关闭，避免在循环内使用 defer 占用资源
+						_ = file.Close()
+					}
+				}
+
+				// Handle mask file if present
+				if maskFiles, exists := mf.File["mask"]; exists && len(maskFiles) > 0 {
+					maskFile, err := maskFiles[0].Open()
+					if err != nil {
+						return nil, errors.New("failed to open mask file")
+					}
+					// 复制完立即关闭，避免在循环内使用 defer 占用资源
+
+					// Determine MIME type for mask file
+					mimeType := detectImageMimeType(maskFiles[0].Filename)
+
+					// Create a form file with the appropriate content type
+					h := make(textproto.MIMEHeader)
+					h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="mask"; filename="%s"`, maskFiles[0].Filename))
+					h.Set("Content-Type", mimeType)
+
+					maskPart, err := writer.CreatePart(h)
+					if err != nil {
+						return nil, errors.New("create form file failed for mask")
+					}
+
+					if _, err := io.Copy(maskPart, maskFile); err != nil {
+						return nil, errors.New("copy mask file failed")
+					}
+					_ = maskFile.Close()
+				}
+			} else {
+				return nil, errors.New("no multipart form data found")
 			}
 
-			// Process all image files
-			for i, fileHeader := range imageFiles {
-				file, err := fileHeader.Open()
-				if err != nil {
-					return nil, fmt.Errorf("failed to open image file %d: %w", i, err)
-				}
-
-				// If multiple images, use image[] as the field name
-				fieldName := "image"
-				if len(imageFiles) > 1 {
-					fieldName = "image[]"
-				}
-
-				// Determine MIME type based on file extension
-				mimeType := detectImageMimeType(fileHeader.Filename)
-
-				// Create a form file with the appropriate content type
-				h := make(textproto.MIMEHeader)
-				h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, fieldName, fileHeader.Filename))
-				h.Set("Content-Type", mimeType)
-
-				part, err := writer.CreatePart(h)
-				if err != nil {
-					return nil, fmt.Errorf("create form part failed for image %d: %w", i, err)
-				}
-
-				if _, err := io.Copy(part, file); err != nil {
-					return nil, fmt.Errorf("copy file failed for image %d: %w", i, err)
-				}
-
-				// 复制完立即关闭，避免在循环内使用 defer 占用资源
-				_ = file.Close()
-			}
-
-			// Handle mask file if present
-			if maskFiles, exists := mf.File["mask"]; exists && len(maskFiles) > 0 {
-				maskFile, err := maskFiles[0].Open()
-				if err != nil {
-					return nil, errors.New("failed to open mask file")
-				}
-				// 复制完立即关闭，避免在循环内使用 defer 占用资源
-
-				// Determine MIME type for mask file
-				mimeType := detectImageMimeType(maskFiles[0].Filename)
-
-				// Create a form file with the appropriate content type
-				h := make(textproto.MIMEHeader)
-				h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="mask"; filename="%s"`, maskFiles[0].Filename))
-				h.Set("Content-Type", mimeType)
-
-				maskPart, err := writer.CreatePart(h)
-				if err != nil {
-					return nil, errors.New("create form file failed for mask")
-				}
-
-				if _, err := io.Copy(maskPart, maskFile); err != nil {
-					return nil, errors.New("copy mask file failed")
-				}
-				_ = maskFile.Close()
-			}
+			// 关闭 multipart 编写器以设置分界线
+			writer.Close()
+			c.Request.Header.Set("Content-Type", writer.FormDataContentType())
+			return &requestBody, nil
 		} else {
-			return nil, errors.New("no multipart form data found")
-		}
+			// 处理 application/json 请求
+			// 将 JSON 请求转换为 multipart/form-data 格式
+			var requestBody bytes.Buffer
+			writer := multipart.NewWriter(&requestBody)
 
-		// 关闭 multipart 编写器以设置分界线
-		writer.Close()
-		c.Request.Header.Set("Content-Type", writer.FormDataContentType())
-		return &requestBody, nil
+			// 写入所有字段
+			writer.WriteField("model", request.Model)
+			writer.WriteField("prompt", request.Prompt)
+
+			// 写入可选字段
+			if request.N != 0 {
+				writer.WriteField("n", strconv.FormatUint(uint64(request.N), 10))
+			}
+			if request.Size != "" {
+				writer.WriteField("size", request.Size)
+			}
+			if request.Quality != "" {
+				writer.WriteField("quality", request.Quality)
+			}
+			if request.ResponseFormat != "" {
+				writer.WriteField("response_format", request.ResponseFormat)
+			}
+			if request.Style != nil {
+				if styleStr, err := request.Style.MarshalJSON(); err == nil {
+					writer.WriteField("style", string(styleStr))
+				}
+			}
+			if request.User != nil {
+				if userStr, err := request.User.MarshalJSON(); err == nil {
+					writer.WriteField("user", string(userStr))
+				}
+			}
+			if request.Seconds != "" {
+				writer.WriteField("seconds", request.Seconds)
+			}
+			if request.Watermark != nil {
+				writer.WriteField("watermark", strconv.FormatBool(*request.Watermark))
+			}
+
+			// 处理 image 字段
+			if request.Image != nil {
+				var imageData map[string]interface{}
+				if err := json.Unmarshal(request.Image, &imageData); err == nil {
+					// 处理 URL 类型的 image
+					if url, ok := imageData["url"].(string); ok && url != "" {
+						writer.WriteField("image", url)
+					}
+				}
+			}
+
+			// 处理 input_reference 字段
+			if request.InputReference != nil {
+				var inputRefData map[string]interface{}
+				if err := json.Unmarshal(request.InputReference, &inputRefData); err == nil {
+					// 处理 URL 类型的 input_reference
+					if url, ok := inputRefData["url"].(string); ok && url != "" {
+						writer.WriteField("input_reference", url)
+					}
+				} else {
+					// 处理字符串类型的 input_reference
+					var inputRefStr string
+					if err := json.Unmarshal(request.InputReference, &inputRefStr); err == nil && inputRefStr != "" {
+						writer.WriteField("input_reference", inputRefStr)
+					}
+				}
+			}
+
+			// 检查是否至少有一个附件（image 或 input_reference）
+			if request.Image == nil && request.InputReference == nil {
+				return nil, errors.New("at least one attachment (image or input_reference) is required")
+			}
+
+			// 处理 Extra 字段
+			if request.Extra != nil {
+				for key, value := range request.Extra {
+					if valueStr, err := value.MarshalJSON(); err == nil {
+						writer.WriteField(key, string(valueStr))
+					}
+				}
+			}
+
+			// 关闭 multipart 编写器以设置分界线
+			writer.Close()
+			c.Request.Header.Set("Content-Type", writer.FormDataContentType())
+			return &requestBody, nil
+		}
 
 	default:
 		return request, nil

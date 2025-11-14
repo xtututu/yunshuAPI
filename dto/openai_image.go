@@ -26,9 +26,11 @@ type ImageRequest struct {
 	OutputFormat      json.RawMessage `json:"output_format,omitempty"`
 	OutputCompression json.RawMessage `json:"output_compression,omitempty"`
 	PartialImages     json.RawMessage `json:"partial_images,omitempty"`
+	Seconds           string          `json:"seconds,omitempty"`
 	// Stream            bool            `json:"stream,omitempty"`
-	Watermark *bool           `json:"watermark,omitempty"`
-	Image     json.RawMessage `json:"image,omitempty"`
+	Watermark       *bool           `json:"watermark,omitempty"`
+	Image           json.RawMessage `json:"image,omitempty"`
+	InputReference  json.RawMessage `json:"input_reference,omitempty"`
 	// 用匿名参数接收额外参数
 	Extra map[string]json.RawMessage `json:"-"`
 }
