@@ -158,6 +158,11 @@ func AddToken(c *gin.Context) {
 		common.SysLog("failed to generate token key: " + err.Error())
 		return
 	}
+	// 如果分组为空，自动设置为"default"
+	if token.Group == "" {
+		token.Group = "default"
+	}
+
 	cleanToken := model.Token{
 		UserId:             c.GetInt("id"),
 		Name:               token.Name,

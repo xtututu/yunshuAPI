@@ -133,31 +133,37 @@ func GetAndValidOpenAIImageRequest(c *gin.Context, relayMode int) (*dto.ImageReq
 		if strings.Contains(c.Request.Header.Get("Content-Type"), "multipart/form-data") {
 			_, err := c.MultipartForm()
 			if err != nil {
-				return nil, fmt.Errorf("failed to parse image edit form request: %w", err)
-			}
-			formData := c.Request.PostForm
-			imageRequest.Prompt = formData.Get("prompt")
-			imageRequest.Model = formData.Get("model")
-			imageRequest.N = uint(common.String2Int(formData.Get("n")))
-			imageRequest.Quality = formData.Get("quality")
-			imageRequest.Size = formData.Get("size")
-			if imageValue := formData.Get("image"); imageValue != "" {
-				imageRequest.Image, _ = json.Marshal(imageValue)
-			}
-
-			if imageRequest.Model == "gpt-image-1" {
-				if imageRequest.Quality == "" {
-					imageRequest.Quality = "standard"
+				// 如果 multipart form 解析失败，尝试使用 JSON 解析
+				err = common.UnmarshalBodyReusable(c, imageRequest)
+				if err != nil {
+					return nil, fmt.Errorf("failed to parse image edit request: %w", err)
 				}
-			}
-			if imageRequest.N == 0 {
-				imageRequest.N = 1
-			}
+			} else {
+				// 成功解析 multipart form
+				formData := c.Request.PostForm
+				imageRequest.Prompt = formData.Get("prompt")
+				imageRequest.Model = formData.Get("model")
+				imageRequest.N = uint(common.String2Int(formData.Get("n")))
+				imageRequest.Quality = formData.Get("quality")
+				imageRequest.Size = formData.Get("size")
+				if imageValue := formData.Get("image"); imageValue != "" {
+					imageRequest.Image, _ = json.Marshal(imageValue)
+				}
 
-			hasWatermark := formData.Has("watermark")
-			if hasWatermark {
-				watermark := formData.Get("watermark") == "true"
-				imageRequest.Watermark = &watermark
+				if imageRequest.Model == "gpt-image-1" {
+					if imageRequest.Quality == "" {
+						imageRequest.Quality = "standard"
+					}
+				}
+				if imageRequest.N == 0 {
+					imageRequest.N = 1
+				}
+
+				hasWatermark := formData.Has("watermark")
+				if hasWatermark {
+					watermark := formData.Get("watermark") == "true"
+					imageRequest.Watermark = &watermark
+				}
 			}
 			break
 		}

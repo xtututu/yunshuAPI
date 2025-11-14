@@ -14,7 +14,6 @@ import (
 	"github.com/QuantumNous/new-api/logger"
 	"github.com/QuantumNous/new-api/model"
 	"github.com/QuantumNous/new-api/service"
-	"github.com/QuantumNous/new-api/setting"
 
 	"github.com/QuantumNous/new-api/constant"
 
@@ -242,20 +241,18 @@ func Register(c *gin.Context) {
 			common.SysLog("failed to generate token key: " + err.Error())
 			return
 		}
-		// 生成默认令牌
+		// 生成默认令牌 - 符合用户需求：分组为"default"，名称为"default"，无限额度为是，永不过期
 		token := model.Token{
 			UserId:             insertedUser.Id, // 使用插入后的用户ID
-			Name:               cleanUser.Username + "的初始令牌",
+			Name:               "default",
 			Key:                key,
 			CreatedTime:        common.GetTimestamp(),
 			AccessedTime:       common.GetTimestamp(),
-			ExpiredTime:        -1,     // 永不过期
-			RemainQuota:        500000, // 示例额度
-			UnlimitedQuota:     true,
+			ExpiredTime:        -1,   // 永不过期
+			RemainQuota:        0,    // 由于是无限额度，设为0
+			UnlimitedQuota:     true, // 无限额度
 			ModelLimitsEnabled: false,
-		}
-		if setting.DefaultUseAutoGroup {
-			token.Group = "auto"
+			Group:              "default", // 分组为"default"
 		}
 		if err := token.Insert(); err != nil {
 			c.JSON(http.StatusOK, gin.H{
