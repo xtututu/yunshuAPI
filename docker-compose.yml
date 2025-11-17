@@ -34,6 +34,7 @@ services:
       - ERROR_LOG_ENABLED=true # 是否启用错误日志记录 (Whether to enable error log recording)
       - BATCH_UPDATE_ENABLED=true  # 是否启用批量更新 (Whether to enable batch update)
       - GENERATE_DEFAULT_TOKEN=true  # 启用用户注册后自动生成默认令牌
+      - TASK_PRICE_PATCH=sora-2,sora-2-hd,sora-2-pro,veo3,veo3-pro,veo3.1,veo3.1-pro  # Sora渠道扣费修复：将sora模型添加到价格补丁列表，跳过seconds参数计算
 #      - STREAMING_TIMEOUT=300  # 流模式无响应超时时间，单位秒，默认120秒，如果出现空补全可以尝试改为更大值 （Streaming timeout in seconds, default is 120s. Increase if experiencing empty completions）
 #      - SESSION_SECRET=random_string  # 多机部署时设置，必须修改这个随机字符串！！ （multi-node deployment, set this to a random string!!!!!!!）
 #      - SYNC_FREQUENCY=60  # Uncomment if regular database syncing is needed
