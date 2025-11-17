@@ -114,7 +114,7 @@ var ChannelBaseURLs = []string{
 	"https://api.vidu.cn",                       //52
 	"https://llm.submodel.ai",                   //53
 	"https://ark.cn-beijing.volces.com",         //54
-	"https://api.openai.com",                    //55
+	"https://api.chatfire.cn",                   //55
 	"https://api.replicate.com",                 //56
 }
 
