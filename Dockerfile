@@ -37,6 +37,9 @@ RUN apk upgrade --no-cache \
 # 复制编译好的 Go 程序
 COPY --from=builder2 /build/new-api /
 
+# 复制docs目录到容器中
+COPY --from=builder2 /build/docs /docs
+
 # 暴露应用端口
 EXPOSE 3000
 

@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - 易尚云视频生成接口</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --secondary-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --dark-bg: #1f2937;
+            --light-bg: #f9fafb;
+            --border-color: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --code-bg: #2d3748;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .docs-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 40px rgba(0,0,0,0.1);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--dark-bg);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            padding: 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .api-section {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .api-section:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .method-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .method-post {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .method-get {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .endpoint-path {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            position: relative;
+            margin: 1rem 0;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .param-table th,
+        .param-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .param-table th {
+            background: var(--light-bg);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .required {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+
+        .optional {
+            color: var(--text-secondary);
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-item.active {
+            background: rgba(255,255,255,0.15);
+            border-left-color: var(--primary-color);
+        }
+
+        .response-example {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .error-code {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .success-code {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: var(--secondary-color);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1000;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 999;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        .tab-container {
+            margin: 1rem 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 1rem 0;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-online {
+            background: var(--secondary-color);
+        }
+
+        .status-offline {
+            background: var(--danger-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="docs-container">
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="p-6">
+                <h2 class="text-2xl font-bold mb-6">
+                    <i class="fas fa-book mr-2"></i>
+                    API 文档
+                </h2>
+                <div class="mb-4">
+                    <div class="status-indicator status-online"></div>
+                    <span class="text-sm">服务状态: 在线</span>
+                </div>
+                <nav class="space-y-2">
+                    <div class="nav-item active" onclick="scrollToSection('overview')">
+                        <i class="fas fa-home mr-2"></i> 概述
+                    </div>
+                    <div class="nav-item" onclick="scrollToSection('authentication')">
+                        <i class="fas fa-key mr-2"></i> 认证方式
+                    </div>
+                    <div class="nav-item" onclick="scrollToSection('endpoints')">
+                        <i class="fas fa-plug mr-2"></i> 接口列表
+                    </div>
+                    <div class="nav-item" onclick="scrollToSection('post-videos')">
+                        <i class="fas fa-video mr-2"></i> POST /v1/videos
+                    </div>
+                    <div class="nav-item" onclick="scrollToSection('get-videos')">
+                        <i class="fas fa-search mr-2"></i> GET /v1/videos/:task_id
+                    </div>
+                    <div class="nav-item" onclick="scrollToSection('errors')">
+                        <i class="fas fa-exclamation-triangle mr-2"></i> 错误码
+                    </div>
+                    <div class="nav-item" onclick="scrollToSection('examples')">
+                        <i class="fas fa-code mr-2"></i> 示例代码
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1 class="text-3xl font-bold mb-2">易尚云视频生成 API</h1>
+                <p class="text-blue-100">强大、灵活的视频生成服务接口文档</p>
+                <div class="mt-4 flex flex-wrap gap-4">
+                    <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">
+                        <i class="fas fa-check-circle mr-1"></i> RESTful API
+                    </span>
+                    <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">
+                        <i class="fas fa-check-circle mr-1"></i> JSON 格式
+                    </span>
+                    <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">
+                        <i class="fas fa-check-circle mr-1"></i> 异步处理
+                    </span>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Overview Section -->
+                <section id="overview" class="api-section">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold mb-4 gradient-text">概述</h2>
+                        <p class="text-gray-600 mb-4">
+                            易尚云视频生成 API 提供了强大的视频生成服务，支持文本到视频、图像到视频等多种生成模式。
+                            本 API 采用 RESTful 架构设计，使用 JSON 格式进行数据交换，支持异步任务处理。
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-blue-900 mb-2">
+                                    <i class="fas fa-rocket mr-2"></i> 高性能
+                                </h3>
+                                <p class="text-blue-700 text-sm">采用分布式架构，支持大规模并发请求</p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-green-900 mb-2">
+                                    <i class="fas fa-shield-alt mr-2"></i> 安全可靠
+                                </h3>
+                                <p class="text-green-700 text-sm">完整的认证授权机制，保障数据安全</p>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-purple-900 mb-2">
+                                    <i class="fas fa-puzzle-piece mr-2"></i> 易于集成
+                                </h3>
+                                <p class="text-purple-700 text-sm">标准化的接口设计，快速集成到现有系统</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Authentication Section -->
+                <section id="authentication" class="api-section">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold mb-4 gradient-text">认证方式</h2>
+                        <p class="text-gray-600 mb-4">
+                            API 使用 Bearer Token 认证方式。您需要在请求头中包含有效的认证令牌。
+                        </p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyToClipboard(this)">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <pre><code class="language-http">Authorization: Bearer sk-your-api-key-here</code></pre>
+                        </div>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+                            <h4 class="font-semibold text-yellow-800 mb-2">
+                                <i class="fas fa-exclamation-triangle mr-2"></i> 安全提示
+                            </h4>
+                            <ul class="text-yellow-700 text-sm space-y-1">
+                                <li>• 请妥善保管您的 API 密钥，不要在客户端代码中暴露</li>
+                                <li>• 建议定期轮换 API 密钥以提高安全性</li>
+                                <li>• 为不同的应用场景使用不同的 API 密钥</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Endpoints Section -->
+                <section id="endpoints" class="api-section">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold mb-4 gradient-text">接口列表</h2>
+                        <div class="space-y-4">
+                            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="method-badge method-post">POST</span>
+                                        <span class="endpoint-path">/v1/videos</span>
+                                    </div>
+                                    <button class="text-blue-600 hover:text-blue-800" onclick="scrollToSection('post-videos')">
+                                        <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                                <p class="text-gray-600 text-sm">提交视频生成任务</p>
+                            </div>
+                            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="method-badge method-get">GET</span>
+                                        <span class="endpoint-path">/v1/videos/:task_id</span>
+                                    </div>
+                                    <button class="text-blue-600 hover:text-blue-800" onclick="scrollToSection('get-videos')">
+                                        <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                                <p class="text-gray-600 text-sm">查询视频生成任务状态和结果</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- POST /v1/videos Section -->
+                <section id="post-videos" class="api-section">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-2xl font-bold gradient-text">POST /v1/videos</h2>
+                            <div class="flex items-center space-x-3">
+                                <span class="method-badge method-post">POST</span>
+                                <span class="endpoint-path">/v1/videos</span>
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-600 mb-6">提交视频生成任务，支持文本到视频和图像到视频两种模式。</p>
+
+                        <!-- Request Parameters -->
+                        <h3 class="text-lg font-semibold mb-3">请求参数</h3>
+                        <div class="tab-container">
+                            <div class="tab-buttons">
+                                <button class="tab-btn active" onclick="switchTab('text2video')">视频生成</button>
+                            </div>
+                            
+                            <div id="text2video" class="tab-content active">
+                                <table class="param-table">
+                                    <thead>
+                                        <tr>
+                                            <th>参数名</th>
+                                            <th>类型</th>
+                                            <th>必填</th>
+                                            <th>说明</th>
+                                            <th>示例</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><code>model</code></td>
+                                            <td>string</td>
+                                            <td class="required">是</td>
+                                            <td>视频生成模型名称</td>
+                                            <td>sora-2,sora-2-hd,sora-2-pro,veo3,veo3-pro,veo3.1,veo3.1-pro</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>prompt</code></td>
+                                            <td>string</td>
+                                            <td class="required">是</td>
+                                            <td>视频描述文本</td>
+                                            <td>A cat playing piano</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>seconds</code></td>
+                                            <td>string</td>
+                                            <td class="optional">否</td>
+                                            <td>时长</td>
+                                            <td>10,15</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>size</code></td>
+                                            <td>string</td>
+                                            <td class="optional">否</td>
+                                            <td>视频宽高比</td>
+                                            <td>720x1280,1280x720</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>seconds</code></td>
+                                            <td>file</td>
+                                            <td class="input_reference">否</td>
+                                            <td>参考附件</td>
+                                            <td></td>
+                                        </tr>
+                                       
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                           
+                        </div>
+
+                        <!-- Request Example -->
+                        <h3 class="text-lg font-semibold mb-3 mt-6">请求示例</h3>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyToClipboard(this)">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <pre><code class="language-bash">curl -X POST "https://api.example.com/v1/videos" \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "sora-2",
+    "prompt": "A cat playing piano in the garden",
+    "size": "720x1280",
+    "seconds": "5",
+    "input_reference": ["https://example.com/image.jpg"]
+  }'</code></pre>
+                        </div>
+
+                        <!-- Response Example -->
+                        <h3 class="text-lg font-semibold mb-3 mt-6">响应示例</h3>
+                        <div class="response-example">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="success-code">200 OK</span>
+                                <span class="text-sm text-gray-600">任务提交成功</span>
+                            </div>
+                            <div class="code-block">
+                                <button class="copy-btn" onclick="copyToClipboard(this)">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <pre><code class="language-json">{
+  "task_id": "task_123456789",
+  "status": "queued",
+  "message": "视频生成任务已提交，正在处理中"
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- GET /v1/videos/:task_id Section -->
+                <section id="get-videos" class="api-section">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-2xl font-bold gradient-text">GET /v1/videos/:task_id</h2>
+                            <div class="flex items-center space-x-3">
+                                <span class="method-badge method-get">GET</span>
+                                <span class="endpoint-path">/v1/videos/:task_id</span>
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-600 mb-6">根据任务ID查询视频生成任务的状态和结果。</p>
+
+                        <!-- Path Parameters -->
+                        <h3 class="text-lg font-semibold mb-3">路径参数</h3>
+                        <table class="param-table">
+                            <thead>
+                                <tr>
+                                    <th>参数名</th>
+                                    <th>类型</th>
+                                    <th>必填</th>
+                                    <th>说明</th>
+                                    <th>示例</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>task_id</code></td>
+                                    <td>string</td>
+                                    <td class="required">是</td>
+                                    <td>任务ID</td>
+                                    <td>task_123456789</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Request Example -->
+                        <h3 class="text-lg font-semibold mb-3 mt-6">请求示例</h3>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyToClipboard(this)">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <pre><code class="language-bash">curl -X GET "https://api.example.com/v1/videos/task_123456789" \
+  -H "Authorization: Bearer sk-your-api-key"</code></pre>
+                        </div>
+
+                        <!-- Response Examples -->
+                        <h3 class="text-lg font-semibold mb-3 mt-6">响应示例</h3>
+                        
+                        <div class="space-y-4">
+                            <!-- Processing Response -->
+                            <div class="response-example">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="success-code">200 OK</span>
+                                    <span class="text-sm text-gray-600">任务处理中</span>
+                                </div>
+                                <div class="code-block">
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <pre><code class="language-json">{
+  "task_id": "task_123456789",
+  "status": "processing",
+  "progress": 45,
+  "message": "视频生成中，已完成45%"
+}</code></pre>
+                                </div>
+                            </div>
+
+                            <!-- Completed Response -->
+                            <div class="response-example">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="success-code">200 OK</span>
+                                    <span class="text-sm text-gray-600">任务完成</span>
+                                </div>
+                                <div class="code-block">
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <pre><code class="language-json">{
+  "task_id": "task_123456789",
+  "status": "completed",
+  "progress": 100,
+  "video_url": "https://cdn.example.com/videos/task_123456789.mp4",
+  "thumbnail_url": "https://cdn.example.com/thumbnails/task_123456789.jpg",
+  "seconds": 5.2,
+  "width": 1920,
+  "height": 1080,
+  "file_size": 15728640,
+  "created_at": "2024-01-15T10:30:00Z",
+  "completed_at": "2024-01-15T10:35:12Z"
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Error Codes Section -->
+                <section id="errors" class="api-section">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold mb-4 gradient-text">错误码</h2>
+                        <p class="text-gray-600 mb-6">API 使用标准的 HTTP 状态码，并在响应体中提供详细的错误信息。</p>
+                        
+                        <div class="space-y-4">
+                            <div class="border rounded-lg p-4">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <span class="error-code">400</span>
+                                    <span class="font-semibold">Bad Request</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-2">请求参数错误或格式不正确</p>
+                                <div class="code-block">
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <pre><code class="language-json">{
+  "error": {
+    "message": "prompt field is required",
+    "type": "invalid_request_error",
+    "code": "missing_parameter"
+  }
+}</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="border rounded-lg p-4">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <span class="error-code">401</span>
+                                    <span class="font-semibold">Unauthorized</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-2">认证失败或API密钥无效</p>
+                                <div class="code-block">
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <pre><code class="language-json">{
+  "error": {
+    "message": "Invalid API key provided",
+    "type": "authentication_error",
+    "code": "invalid_api_key"
+  }
+}</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="border rounded-lg p-4">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <span class="error-code">403</span>
+                                    <span class="font-semibold">Forbidden</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-2">权限不足或配额已用完</p>
+                                <div class="code-block">
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <pre><code class="language-json">{
+  "error": {
+    "message": "Insufficient quota",
+    "type": "permission_error",
+    "code": "insufficient_quota"
+  }
+}</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="border rounded-lg p-4">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <span class="error-code">404</span>
+                                    <span class="font-semibold">Not Found</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-2">任务不存在或已过期</p>
+                                <div class="code-block">
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <pre><code class="language-json">{
+  "error": {
+    "message": "Task not found",
+    "type": "not_found_error",
+    "code": "task_not_found"
+  }
+}</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="border rounded-lg p-4">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <span class="error-code">429</span>
+                                    <span class="font-semibold">Too Many Requests</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-2">请求频率超限</p>
+                                <div class="code-block">
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <pre><code class="language-json">{
+  "error": {
+    "message": "Rate limit exceeded",
+    "type": "rate_limit_error",
+    "code": "rate_limit_exceeded"
+  }
+}</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="border rounded-lg p-4">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <span class="error-code">500</span>
+                                    <span class="font-semibold">Internal Server Error</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-2">服务器内部错误</p>
+                                <div class="code-block">
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <pre><code class="language-json">{
+  "error": {
+    "message": "Internal server error",
+    "type": "server_error",
+    "code": "internal_error"
+  }
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+               
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    
+    <script>
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Scroll to section
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+                
+                // Update active nav item
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                
+                // Close sidebar on mobile
+                if (window.innerWidth <= 768) {
+                    document.getElementById('sidebar').classList.remove('active');
+                }
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tabId) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Switch example tabs
+        function switchExampleTab(tabId) {
+            // Update tab buttons
+            document.querySelectorAll('#examples .tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('#examples .tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(button) {
+            const codeBlock = button.parentElement.querySelector('code');
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                button.style.color = '#10b981';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.style.color = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        // Update active nav item on scroll
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section[id]');
+            const scrollY = window.pageYOffset;
+
+            sections.forEach(section => {
+                const sectionHeight = section.offsetHeight;
+                const sectionTop = section.offsetTop - 100;
+                const sectionId = section.getAttribute('id');
+
+                if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+                    document.querySelectorAll('.nav-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    document.querySelector(`.nav-item[onclick="scrollToSection('${sectionId}')"]`)?.classList.add('active');
+                }
+            });
+        });
+
+        // Initialize Prism.js
+        Prism.highlightAll();
+    </script>
+</body>
+</html>
