@@ -30,6 +30,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  base: '/',
   plugins: [
     {
       name: 'treat-js-files-as-jsx',
