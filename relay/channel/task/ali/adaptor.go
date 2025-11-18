@@ -252,12 +252,29 @@ func (a *TaskAdaptor) convertToAliRequest(info *relaycommon.RelayInfo, req relay
 		Model: req.Model,
 		Input: AliVideoInput{
 			Prompt: req.Prompt,
-			ImgURL: req.InputReference,
 		},
 		Parameters: &AliVideoParameters{
 			PromptExtend: true, // 默认开启智能改写
 			Watermark:    false,
 		},
+	}
+
+	// 处理 input_reference 字段
+	if req.InputReference != nil {
+		switch v := req.InputReference.(type) {
+		case string:
+			aliReq.Input.ImgURL = v
+		case []string:
+			if len(v) > 0 {
+				aliReq.Input.ImgURL = v[0] // 取第一个URL
+			}
+		case []interface{}:
+			if len(v) > 0 {
+				if str, ok := v[0].(string); ok {
+					aliReq.Input.ImgURL = str
+				}
+			}
+		}
 	}
 
 	// 处理分辨率映射

@@ -83,11 +83,15 @@ func (a *TaskAdaptor) BuildRequestHeader(c *gin.Context, req *http.Request, info
 }
 
 func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayInfo) (io.Reader, error) {
+	// 统一使用缓存的请求体，避免重复读取
 	cachedBody, err := common.GetRequestBody(c)
 	if err != nil {
 		return nil, errors.Wrap(err, "get_request_body_failed")
 	}
-	return bytes.NewReader(cachedBody), nil
+	
+	// 创建一个新的 bytes.Buffer 来支持多次读取
+	bodyCopy := bytes.NewBuffer(cachedBody)
+	return bodyCopy, nil
 }
 
 // DoRequest delegates to common helper.

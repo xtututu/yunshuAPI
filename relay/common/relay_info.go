@@ -486,16 +486,16 @@ type TaskRelayInfo struct {
 }
 
 type TaskSubmitReq struct {
-	Prompt         string                 `json:"prompt"`
-	Model          string                 `json:"model,omitempty"`
-	Mode           string                 `json:"mode,omitempty"`
-	Image          string                 `json:"image,omitempty"`
-	Images         []string               `json:"images,omitempty"`
-	Size           string                 `json:"size,omitempty"`
-	Duration       int                    `json:"duration,omitempty"`
-	Seconds        string                 `json:"seconds,omitempty"`
-	InputReference string                 `json:"input_reference,omitempty"`
-	Metadata       map[string]interface{} `json:"metadata,omitempty"`
+	Prompt         string                 `json:"prompt" form:"prompt"`
+	Model          string                 `json:"model,omitempty" form:"model"`
+	Mode           string                 `json:"mode,omitempty" form:"mode"`
+	Image          string                 `json:"image,omitempty" form:"image"`
+	Images         []string               `json:"images,omitempty" form:"images"`
+	Size           string                 `json:"size,omitempty" form:"size"`
+	Duration       int                    `json:"duration,omitempty" form:"duration"`
+	Seconds        string                 `json:"seconds,omitempty" form:"seconds"`
+	InputReference interface{}            `json:"input_reference,omitempty" form:"input_reference"` // 支持字符串或数组
+	Metadata       map[string]interface{} `json:"metadata,omitempty" form:"metadata"`
 }
 
 func (t TaskSubmitReq) GetPrompt() string {
@@ -503,7 +503,24 @@ func (t TaskSubmitReq) GetPrompt() string {
 }
 
 func (t TaskSubmitReq) HasImage() bool {
-	return len(t.Images) > 0
+	// 检查 Images 字段
+	if len(t.Images) > 0 {
+		return true
+	}
+	
+	// 检查 InputReference 字段
+	if t.InputReference != nil {
+		switch v := t.InputReference.(type) {
+		case string:
+			return v != ""
+		case []string:
+			return len(v) > 0
+		case []interface{}:
+			return len(v) > 0
+		}
+	}
+	
+	return false
 }
 
 func (t *TaskSubmitReq) UnmarshalJSON(data []byte) error {

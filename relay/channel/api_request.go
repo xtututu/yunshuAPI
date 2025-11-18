@@ -1,6 +1,7 @@
 package channel
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -307,8 +308,27 @@ func DoTaskApiRequest(a TaskAdaptor, c *gin.Context, info *common.RelayInfo, req
 	if err != nil {
 		return nil, fmt.Errorf("new request failed: %w", err)
 	}
-	req.GetBody = func() (io.ReadCloser, error) {
-		return io.NopCloser(requestBody), nil
+	
+	// 确保 GetBody 能够正确创建新的请求体
+	// 只有当 requestBody 不是 nil 时才设置 GetBody
+	if requestBody != nil {
+		// 尝试将 requestBody 转换为已知类型来设置 GetBody
+		if buffer, ok := requestBody.(*bytes.Buffer); ok {
+			bodyBytes := buffer.Bytes()
+			req.GetBody = func() (io.ReadCloser, error) {
+				return io.NopCloser(bytes.NewReader(bodyBytes)), nil
+			}
+		} else if reader, ok := requestBody.(*bytes.Reader); ok {
+			bodyBytes, err := io.ReadAll(reader)
+			if err != nil {
+				return nil, fmt.Errorf("read request body failed: %w", err)
+			}
+			req.GetBody = func() (io.ReadCloser, error) {
+				return io.NopCloser(bytes.NewReader(bodyBytes)), nil
+			}
+			// 重置 reader
+			reader.Seek(0, io.SeekStart)
+		}
 	}
 
 	err = a.BuildRequestHeader(c, req, info)

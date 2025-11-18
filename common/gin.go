@@ -2,6 +2,7 @@ package common
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -128,14 +129,19 @@ func ParseMultipartFormReusable(c *gin.Context) (*multipart.Form, error) {
 	}
 
 	contentType := c.Request.Header.Get("Content-Type")
+	fmt.Printf("DEBUG ParseMultipartFormReusable: Content-Type: %s, Body length: %d\n", contentType, len(requestBody))
+	fmt.Printf("DEBUG ParseMultipartFormReusable: Body preview: %s\n", string(requestBody[:min(200, len(requestBody))]))
+	
 	boundary := ""
 	if idx := strings.Index(contentType, "boundary="); idx != -1 {
 		boundary = contentType[idx+9:]
+		fmt.Printf("DEBUG ParseMultipartFormReusable: Extracted boundary: %s\n", boundary)
 	}
 
 	reader := multipart.NewReader(bytes.NewReader(requestBody), boundary)
 	form, err := reader.ReadForm(32 << 20) // 32 MB max memory
 	if err != nil {
+		fmt.Printf("DEBUG ParseMultipartFormReusable: ReadForm error: %v\n", err)
 		return nil, err
 	}
 
