@@ -18,3 +18,6 @@
  
  electron/node_modules 
  electron/dist
+ web/dist
+ web/node_modules
+ web/.eslintcache

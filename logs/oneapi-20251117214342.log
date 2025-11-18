@@ -1,0 +1,26 @@
+[SYS] 2025/11/17 - 21:43:42 | initializing token encoders 
+[SYS] 2025/11/17 - 21:43:42 | token encoders initialized 
+[SYS] 2025/11/17 - 21:43:42 | using MySQL as database 
+[SYS] 2025/11/17 - 21:43:42 | database migration started 
+[SYS] 2025/11/17 - 21:43:42 | system is already initialized at: 2025-11-13 18:51:02 +0800 CST 
+[SYS] 2025/11/17 - 21:43:42 | SYNC_FREQUENCY not set, use default value 60 
+[SYS] 2025/11/17 - 21:43:42 | Redis is enabled 
+[SYS] 2025/11/17 - 21:43:42 | New API  started 
+[SYS] 2025/11/17 - 21:43:42 | memory cache enabled 
+[SYS] 2025/11/17 - 21:43:42 | sync frequency: 60 seconds 
+[SYS] 2025/11/17 - 21:43:42 | channels synced from database 
+[SYS] 2025/11/17 - 21:43:42 | batch update enabled with interval 5s 
+[SYS] 2025/11/17 - 21:43:42 | 正在更新数据看板数据... 
+[SYS] 2025/11/17 - 21:43:42 | 保存数据看板数据成功，共保存0条数据 
+
+  [32mNew API [0m  ready in 120 ms
+
+  ➜  [1mNetwork:[0m http://172.20.0.4:3000/
+
+[SYS] 2025/11/17 - 21:43:57 | 任务进度轮询开始 
+[SYS] 2025/11/17 - 21:43:57 | 任务进度轮询完成 
+[SYS] 2025/11/17 - 21:44:12 | 任务进度轮询开始 
+[SYS] 2025/11/17 - 21:44:12 | 任务进度轮询完成 
+[GIN] 2025/11/17 - 21:44:12 | 20251117214412493124252Y5eJYiE1 | 200 |    1.813291ms |             ::1 |     GET /api/status
+[SYS] 2025/11/17 - 21:44:27 | 任务进度轮询开始 
+[SYS] 2025/11/17 - 21:44:27 | 任务进度轮询完成 

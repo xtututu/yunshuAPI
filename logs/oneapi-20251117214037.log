@@ -1,0 +1,39 @@
+[SYS] 2025/11/17 - 21:40:37 | initializing token encoders 
+[SYS] 2025/11/17 - 21:40:37 | token encoders initialized 
+[SYS] 2025/11/17 - 21:40:37 | SQL_DSN not set, using SQLite as database 
+[SYS] 2025/11/17 - 21:40:37 | database migration started 
+[SYS] 2025/11/17 - 21:40:37 | system is not initialized and no root user exists 
+[SYS] 2025/11/17 - 21:40:37 | REDIS_CONN_STRING not set, Redis is not enabled 
+[SYS] 2025/11/17 - 21:40:37 | New API v0.0.0 started 
+[SYS] 2025/11/17 - 21:40:37 | memory cache enabled 
+[SYS] 2025/11/17 - 21:40:37 | sync frequency: 60 seconds 
+[SYS] 2025/11/17 - 21:40:37 | channels synced from database 
+[SYS] 2025/11/17 - 21:40:37 | 正在更新数据看板数据... 
+[SYS] 2025/11/17 - 21:40:37 | 保存数据看板数据成功，共保存0条数据 
+
+  [32mNew API v0.0.0[0m  ready in 42 ms
+
+  ➜  [1mLocal:[0m   http://localhost:3000/
+  ➜  [1mNetwork:[0m http://192.168.5.44:3000/
+
+[GIN] 2025/11/17 - 21:40:44 | 20251117214044793828000bOhSFHcv | 200 |    2.806625ms |             ::1 |     GET /?ide_webview_request_time=1763386844732
+[GIN] 2025/11/17 - 21:40:44 | 20251117214044909042000QPKZ9hqS | 200 |    6.514459ms |             ::1 |     GET /assets/i18n-DtDg0QRU.js
+[GIN] 2025/11/17 - 21:40:44 | 20251117214044908963000hsz1gQeg | 200 |   13.208875ms |             ::1 |     GET /assets/tools-DtssO_uI.js
+[GIN] 2025/11/17 - 21:40:44 | 20251117214044908873000IhMYVk6i | 200 |    24.88825ms |             ::1 |     GET /assets/semi-ui-BtT6vzgQ.css
+[GIN] 2025/11/17 - 21:40:44 | 20251117214044912618000PohtKadK | 200 |   24.361833ms |             ::1 |     GET /assets/index-BWyGV_Q1.css
+[GIN] 2025/11/17 - 21:40:44 | 20251117214044908955000FgxRbvX8 | 200 |   67.083375ms |             ::1 |     GET /assets/semi-ui-BgjDhHiv.js
+[GIN] 2025/11/17 - 21:40:45 | 20251117214044908471000IcRatDfW | 200 |  180.948209ms |             ::1 |     GET /assets/index-BjD6yqvQ.js
+[GIN] 2025/11/17 - 21:40:45 | 20251117214045295379000gdnPLaLS | 200 |      250.75µs |             ::1 |     GET /assets/index-Cz03B3Ck.js
+[GIN] 2025/11/17 - 21:40:45 | 20251117214045340278000IunCxGYi | 200 |     405.041µs |             ::1 |     GET /api/status
+[GIN] 2025/11/17 - 21:40:45 | 20251117214045357052000v2hiNi5K | 200 |     131.792µs |             ::1 |     GET /setup
+[GIN] 2025/11/17 - 21:40:45 | 20251117214045357157000yGKvhC3y | 200 |      62.584µs |             ::1 |     GET /api/home_page_content
+[GIN] 2025/11/17 - 21:40:45 | 202511172140453571300003iorJMXG | 200 |     128.875µs |             ::1 |     GET /api/notice
+[GIN] 2025/11/17 - 21:40:45 | 20251117214045425244000WTOfKOm6 | 200 |     215.917µs |             ::1 |     GET /api/status
+[GIN] 2025/11/17 - 21:40:45 | 20251117214045425208000zfO6wKop | 200 |      319.25µs |             ::1 |     GET /api/setup
+[GIN] 2025/11/17 - 21:40:46 | 20251117214046210724000xps09W73 | 200 |     169.375µs |             ::1 |     GET /@vite/client
+[SYS] 2025/11/17 - 21:40:52 | 任务进度轮询开始 
+[SYS] 2025/11/17 - 21:40:52 | 任务进度轮询完成 
+[SYS] 2025/11/17 - 21:41:07 | 任务进度轮询开始 
+[SYS] 2025/11/17 - 21:41:07 | 任务进度轮询完成 
+[SYS] 2025/11/17 - 21:41:22 | 任务进度轮询开始 
+[SYS] 2025/11/17 - 21:41:22 | 任务进度轮询完成 
