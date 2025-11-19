@@ -11,11 +11,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/QuantumNous/new-api/logger"
+	"yishangyunApi/logger"
 
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/setting/ratio_setting"
+	"yishangyunApi/dto"
+	"yishangyunApi/model"
+	"yishangyunApi/setting/ratio_setting"
 
 	"github.com/gin-gonic/gin"
 )

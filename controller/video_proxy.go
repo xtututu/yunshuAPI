@@ -7,9 +7,9 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/model"
+	"yishangyunApi/constant"
+	"yishangyunApi/logger"
+	"yishangyunApi/model"
 
 	"github.com/gin-gonic/gin"
 )

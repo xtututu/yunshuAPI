@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/constant"
+	"yishangyunApi/constant"
 
 	"github.com/gin-gonic/gin"
 )

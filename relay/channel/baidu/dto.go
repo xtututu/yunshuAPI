@@ -3,7 +3,7 @@ package baidu
 import (
 	"time"
 
-	"github.com/QuantumNous/new-api/dto"
+	"yishangyunApi/dto"
 )
 
 type BaiduMessage struct {

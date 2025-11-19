@@ -5,12 +5,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/setting"
-	"github.com/QuantumNous/new-api/setting/config"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
-	"github.com/QuantumNous/new-api/setting/ratio_setting"
-	"github.com/QuantumNous/new-api/setting/system_setting"
+	"yishangyunApi/common"
+	"yishangyunApi/setting"
+	"yishangyunApi/setting/config"
+	"yishangyunApi/setting/operation_setting"
+	"yishangyunApi/setting/ratio_setting"
+	"yishangyunApi/setting/system_setting"
 )
 
 type Option struct {

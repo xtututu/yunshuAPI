@@ -15,12 +15,12 @@ import (
 	"sync"
 	"unicode/utf8"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/dto"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	constant2 "github.com/QuantumNous/new-api/relay/constant"
-	"github.com/QuantumNous/new-api/types"
+	"yishangyunApi/common"
+	"yishangyunApi/constant"
+	"yishangyunApi/dto"
+	relaycommon "yishangyunApi/relay/common"
+	constant2 "yishangyunApi/relay/constant"
+	"yishangyunApi/types"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tiktoken-go/tokenizer"

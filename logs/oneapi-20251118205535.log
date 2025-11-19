@@ -1,0 +1,32 @@
+[SYS] 2025/11/18 - 20:55:35 | initializing token encoders 
+[SYS] 2025/11/18 - 20:55:35 | token encoders initialized 
+[SYS] 2025/11/18 - 20:55:35 | using MySQL as database 
+[SYS] 2025/11/18 - 20:55:35 | database migration started 
+[SYS] 2025/11/18 - 20:55:35 | system is already initialized at: 2025-11-13 18:51:02 +0800 CST 
+[SYS] 2025/11/18 - 20:55:35 | SYNC_FREQUENCY not set, use default value 60 
+[SYS] 2025/11/18 - 20:55:35 | Redis is enabled 
+[SYS] 2025/11/18 - 20:55:35 | New API  started 
+[SYS] 2025/11/18 - 20:55:35 | memory cache enabled 
+[SYS] 2025/11/18 - 20:55:35 | sync frequency: 60 seconds 
+[SYS] 2025/11/18 - 20:55:35 | channels synced from database 
+[SYS] 2025/11/18 - 20:55:35 | batch update enabled with interval 5s 
+[SYS] 2025/11/18 - 20:55:35 | 正在更新数据看板数据... 
+[SYS] 2025/11/18 - 20:55:35 | 保存数据看板数据成功，共保存0条数据 
+
+  [32mNew API [0m  ready in 184 ms
+
+  ➜  [1mNetwork:[0m http://172.20.0.4:3000/
+
+[GIN] 2025/11/18 - 20:55:40 | 20251118205540206505208A1ShAS9X | 200 |    4.322459ms |    192.168.65.1 |    HEAD /docs
+[GIN] 2025/11/18 - 20:55:47 | 20251118205547325890545ExqItaaU | 404 |    5.166666ms |    192.168.65.1 |     GET /docs?ide_webview_request_time=1763470547292
+[GIN] 2025/11/18 - 20:55:47 | 2025111820554744684983604fbP3Jo | 200 |   21.775083ms |    192.168.65.1 |     GET /@vite/client
+[SYS] 2025/11/18 - 20:55:50 | 任务进度轮询开始 
+[SYS] 2025/11/18 - 20:55:50 | 任务进度轮询完成 
+[GIN] 2025/11/18 - 20:55:51 | 202511182055518469409638kPg1cq6 | 404 |     545.166µs |    192.168.65.1 |     GET /docs
+[GIN] 2025/11/18 - 20:56:03 | 20251118205603142595260cFk8aUgs | 404 |     770.542µs |    192.168.65.1 |     GET /docs?ide_webview_request_time=1763470547292
+[GIN] 2025/11/18 - 20:56:03 | 20251118205603161383469Pu7FvBWR | 200 |    1.486041ms |    192.168.65.1 |     GET /@vite/client
+[GIN] 2025/11/18 - 20:56:03 | 20251118205603933136344jDoEVNE5 | 404 |    3.094208ms |    192.168.65.1 |     GET /docs?ide_webview_request_time=1763470547292
+[GIN] 2025/11/18 - 20:56:03 | 20251118205603952360302Y0rPbvAw | 200 |    3.879292ms |    192.168.65.1 |     GET /@vite/client
+[GIN] 2025/11/18 - 20:56:05 | 20251118205605509084845YUgFnVII | 200 |    1.169541ms |             ::1 |     GET /api/status
+[SYS] 2025/11/18 - 20:56:05 | 任务进度轮询开始 
+[SYS] 2025/11/18 - 20:56:05 | 任务进度轮询完成 

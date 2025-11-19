@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"unicode/utf8"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/model"
+	"yishangyunApi/common"
+	"yishangyunApi/model"
 
 	"github.com/gin-gonic/gin"
 )

@@ -10,9 +10,9 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/setting"
+	"yishangyunApi/common"
+	"yishangyunApi/model"
+	"yishangyunApi/setting"
 	"time"
 
 	"github.com/gin-gonic/gin"

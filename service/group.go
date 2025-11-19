@@ -3,8 +3,8 @@ package service
 import (
 	"strings"
 
-	"github.com/QuantumNous/new-api/setting"
-	"github.com/QuantumNous/new-api/setting/ratio_setting"
+	"yishangyunApi/setting"
+	"yishangyunApi/setting/ratio_setting"
 )
 
 func GetUserUsableGroups(userGroup string) map[string]string {

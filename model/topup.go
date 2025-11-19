@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/logger"
+	"yishangyunApi/common"
+	"yishangyunApi/logger"
 
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"

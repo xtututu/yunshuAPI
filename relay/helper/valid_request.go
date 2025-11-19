@@ -7,11 +7,11 @@ import (
 	"math"
 	"strings"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/logger"
-	relayconstant "github.com/QuantumNous/new-api/relay/constant"
-	"github.com/QuantumNous/new-api/types"
+	"yishangyunApi/common"
+	"yishangyunApi/dto"
+	"yishangyunApi/logger"
+	relayconstant "yishangyunApi/relay/constant"
+	"yishangyunApi/types"
 
 	"github.com/gin-gonic/gin"
 )

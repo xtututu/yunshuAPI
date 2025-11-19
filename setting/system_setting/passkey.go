@@ -4,8 +4,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/setting/config"
+	"yishangyunApi/common"
+	"yishangyunApi/setting/config"
 )
 
 type PasskeySettings struct {

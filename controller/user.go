@@ -9,13 +9,13 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/service"
+	"yishangyunApi/common"
+	"yishangyunApi/dto"
+	"yishangyunApi/logger"
+	"yishangyunApi/model"
+	"yishangyunApi/service"
 
-	"github.com/QuantumNous/new-api/constant"
+	"yishangyunApi/constant"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

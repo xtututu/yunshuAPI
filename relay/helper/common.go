@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/types"
+	"yishangyunApi/common"
+	"yishangyunApi/dto"
+	"yishangyunApi/logger"
+	"yishangyunApi/types"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"

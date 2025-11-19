@@ -3,8 +3,8 @@ package aws
 import (
 	"io"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/dto"
+	"yishangyunApi/common"
+	"yishangyunApi/dto"
 )
 
 type AwsClaudeRequest struct {

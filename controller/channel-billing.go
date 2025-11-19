@@ -9,12 +9,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/service"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
-	"github.com/QuantumNous/new-api/types"
+	"yishangyunApi/common"
+	"yishangyunApi/constant"
+	"yishangyunApi/model"
+	"yishangyunApi/service"
+	"yishangyunApi/setting/operation_setting"
+	"yishangyunApi/types"
 
 	"github.com/shopspring/decimal"
 

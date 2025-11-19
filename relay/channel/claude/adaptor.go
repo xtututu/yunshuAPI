@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/relay/channel"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	"github.com/QuantumNous/new-api/setting/model_setting"
-	"github.com/QuantumNous/new-api/types"
+	"yishangyunApi/dto"
+	"yishangyunApi/relay/channel"
+	relaycommon "yishangyunApi/relay/common"
+	"yishangyunApi/setting/model_setting"
+	"yishangyunApi/types"
 
 	"github.com/gin-gonic/gin"
 )

@@ -9,14 +9,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/model"
-	relayconstant "github.com/QuantumNous/new-api/relay/constant"
-	"github.com/QuantumNous/new-api/service"
-	"github.com/QuantumNous/new-api/setting/ratio_setting"
-	"github.com/QuantumNous/new-api/types"
+	"yishangyunApi/common"
+	"yishangyunApi/constant"
+	"yishangyunApi/dto"
+	"yishangyunApi/model"
+	relayconstant "yishangyunApi/relay/constant"
+	"yishangyunApi/service"
+	"yishangyunApi/setting/ratio_setting"
+	"yishangyunApi/types"
 
 	"github.com/gin-gonic/gin"
 )
