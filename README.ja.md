@@ -146,7 +146,7 @@ docker run --name new-api -d --restart always \
 
 🎉 デプロイが完了したら、`http://localhost:3000` にアクセスして使用を開始してください！
 
-📖 その他のデプロイ方法については[デプロイガイド](https://docs.newapi.pro/installation)を参照してください。
+📖 その他のデプロイ方法については[デプロイガイド](https://token.yishangcloud.cn/docsinstallation)を参照してください。
 
 ---
 
@@ -154,7 +154,7 @@ docker run --name new-api -d --restart always \
 
 <div align="center">
 
-### 📖 [公式ドキュメント](https://docs.newapi.pro/) | [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/QuantumNous/new-api)
+### 📖 [公式ドキュメント](https://token.yishangcloud.cn/docs) | [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/QuantumNous/new-api)
 
 </div>
 
@@ -162,17 +162,17 @@ docker run --name new-api -d --restart always \
 
 | カテゴリ | リンク |
 |------|------|
-| 🚀 デプロイガイド | [インストールドキュメント](https://docs.newapi.pro/installation) |
-| ⚙️ 環境設定 | [環境変数](https://docs.newapi.pro/installation/environment-variables) |
-| 📡 APIドキュメント | [APIドキュメント](https://docs.newapi.pro/api) |
-| ❓ よくある質問 | [FAQ](https://docs.newapi.pro/support/faq) |
-| 💬 コミュニティ交流 | [交流チャネル](https://docs.newapi.pro/support/community-interaction) |
+| 🚀 デプロイガイド | [インストールドキュメント](https://token.yishangcloud.cn/docsinstallation) |
+| ⚙️ 環境設定 | [環境変数](https://token.yishangcloud.cn/docsinstallation/environment-variables) |
+| 📡 APIドキュメント | [APIドキュメント](https://token.yishangcloud.cn/docsapi) |
+| ❓ よくある質問 | [FAQ](https://token.yishangcloud.cn/docssupport/faq) |
+| 💬 コミュニティ交流 | [交流チャネル](https://token.yishangcloud.cn/docssupport/community-interaction) |
 
 ---
 
 ## ✨ 主な機能
 
-> 詳細な機能については[機能説明](https://docs.newapi.pro/wiki/features-introduction)を参照してください。
+> 詳細な機能については[機能説明](https://token.yishangcloud.cn/docswiki/features-introduction)を参照してください。
 
 ### 🎨 コア機能
 
@@ -202,15 +202,15 @@ docker run --name new-api -d --restart always \
 ### 🚀 高度な機能
 
 **APIフォーマットサポート:**
-- ⚡ [OpenAI Responses](https://docs.newapi.pro/api/openai-responses)
-- ⚡ [OpenAI Realtime API](https://docs.newapi.pro/api/openai-realtime)（Azureを含む）
-- ⚡ [Claude Messages](https://docs.newapi.pro/api/anthropic-chat)
-- ⚡ [Google Gemini](https://docs.newapi.pro/api/google-gemini-chat/)
-- 🔄 [Rerankモデル](https://docs.newapi.pro/api/jinaai-rerank)
-- ⚡ [OpenAI Realtime API](https://docs.newapi.pro/api/openai-realtime)
-- ⚡ [Claude Messages](https://docs.newapi.pro/api/anthropic-chat)
-- ⚡ [Google Gemini](https://docs.newapi.pro/api/google-gemini-chat/)
-- 🔄 [Rerankモデル](https://docs.newapi.pro/api/jinaai-rerank)（Cohere、Jina）
+- ⚡ [OpenAI Responses](https://token.yishangcloud.cn/docsapi/openai-responses)
+- ⚡ [OpenAI Realtime API](https://token.yishangcloud.cn/docsapi/openai-realtime)（Azureを含む）
+- ⚡ [Claude Messages](https://token.yishangcloud.cn/docsapi/anthropic-chat)
+- ⚡ [Google Gemini](https://token.yishangcloud.cn/docsapi/google-gemini-chat/)
+- 🔄 [Rerankモデル](https://token.yishangcloud.cn/docsapi/jinaai-rerank)
+- ⚡ [OpenAI Realtime API](https://token.yishangcloud.cn/docsapi/openai-realtime)
+- ⚡ [Claude Messages](https://token.yishangcloud.cn/docsapi/anthropic-chat)
+- ⚡ [Google Gemini](https://token.yishangcloud.cn/docsapi/google-gemini-chat/)
+- 🔄 [Rerankモデル](https://token.yishangcloud.cn/docsapi/jinaai-rerank)（Cohere、Jina）
 
 **インテリジェントルーティング:**
 - ⚖️ チャネル重み付けランダム
@@ -250,16 +250,16 @@ docker run --name new-api -d --restart always \
 
 ## 🤖 モデルサポート
 
-> 詳細については[APIドキュメント - 中継インターフェース](https://docs.newapi.pro/api)
+> 詳細については[APIドキュメント - 中継インターフェース](https://token.yishangcloud.cn/docsapi)
 
 | モデルタイプ | 説明 | ドキュメント |
 |---------|------|------|
 | 🤖 OpenAI GPTs | gpt-4-gizmo-* シリーズ | - |
-| 🎨 Midjourney-Proxy | [Midjourney-Proxy(Plus)](https://github.com/novicezk/midjourney-proxy) | [ドキュメント](https://docs.newapi.pro/api/midjourney-proxy-image) |
-| 🎵 Suno-API | [Suno API](https://github.com/Suno-API/Suno-API) | [ドキュメント](https://docs.newapi.pro/api/suno-music) |
-| 🔄 Rerank | Cohere、Jina | [ドキュメント](https://docs.newapi.pro/api/jinaai-rerank) |
-| 💬 Claude | Messagesフォーマット | [ドキュメント](https://docs.newapi.pro/api/suno-music) |
-| 🌐 Gemini | Google Geminiフォーマット | [ドキュメント](https://docs.newapi.pro/api/google-gemini-chat/) |
+| 🎨 Midjourney-Proxy | [Midjourney-Proxy(Plus)](https://github.com/novicezk/midjourney-proxy) | [ドキュメント](https://token.yishangcloud.cn/docsapi/midjourney-proxy-image) |
+| 🎵 Suno-API | [Suno API](https://github.com/Suno-API/Suno-API) | [ドキュメント](https://token.yishangcloud.cn/docsapi/suno-music) |
+| 🔄 Rerank | Cohere、Jina | [ドキュメント](https://token.yishangcloud.cn/docsapi/jinaai-rerank) |
+| 💬 Claude | Messagesフォーマット | [ドキュメント](https://token.yishangcloud.cn/docsapi/suno-music) |
+| 🌐 Gemini | Google Geminiフォーマット | [ドキュメント](https://token.yishangcloud.cn/docsapi/google-gemini-chat/) |
 | 🔧 Dify | ChatFlowモード | - |
 | 🎯 カスタム | 完全な呼び出しアドレスの入力をサポート | - |
 
@@ -268,16 +268,16 @@ docker run --name new-api -d --restart always \
 <details>
 <summary>完全なインターフェースリストを表示</summary>
 
-- [チャットインターフェース (Chat Completions)](https://docs.newapi.pro/api/openai-chat)
-- [レスポンスインターフェース (Responses)](https://docs.newapi.pro/api/openai-responses)
-- [イメージインターフェース (Image)](https://docs.newapi.pro/api/openai-image)
-- [オーディオインターフェース (Audio)](https://docs.newapi.pro/api/openai-audio)
-- [ビデオインターフェース (Video)](https://docs.newapi.pro/api/openai-video)
-- [エンベッドインターフェース (Embeddings)](https://docs.newapi.pro/api/openai-embeddings)
-- [再ランク付けインターフェース (Rerank)](https://docs.newapi.pro/api/jinaai-rerank)
-- [リアルタイム対話インターフェース (Realtime)](https://docs.newapi.pro/api/openai-realtime)
-- [Claudeチャット](https://docs.newapi.pro/api/anthropic-chat)
-- [Google Geminiチャット](https://docs.newapi.pro/api/google-gemini-chat/)
+- [チャットインターフェース (Chat Completions)](https://token.yishangcloud.cn/docsapi/openai-chat)
+- [レスポンスインターフェース (Responses)](https://token.yishangcloud.cn/docsapi/openai-responses)
+- [イメージインターフェース (Image)](https://token.yishangcloud.cn/docsapi/openai-image)
+- [オーディオインターフェース (Audio)](https://token.yishangcloud.cn/docsapi/openai-audio)
+- [ビデオインターフェース (Video)](https://token.yishangcloud.cn/docsapi/openai-video)
+- [エンベッドインターフェース (Embeddings)](https://token.yishangcloud.cn/docsapi/openai-embeddings)
+- [再ランク付けインターフェース (Rerank)](https://token.yishangcloud.cn/docsapi/jinaai-rerank)
+- [リアルタイム対話インターフェース (Realtime)](https://token.yishangcloud.cn/docsapi/openai-realtime)
+- [Claudeチャット](https://token.yishangcloud.cn/docsapi/anthropic-chat)
+- [Google Geminiチャット](https://token.yishangcloud.cn/docsapi/google-gemini-chat/)
 
 </details>
 
@@ -311,7 +311,7 @@ docker run --name new-api -d --restart always \
 | `AZURE_DEFAULT_API_VERSION` | Azure APIバージョン | `2025-04-01-preview` |
 | `ERROR_LOG_ENABLED` | エラーログスイッチ | `false` |
 
-📖 **完全な設定:** [環境変数ドキュメント](https://docs.newapi.pro/installation/environment-variables)
+📖 **完全な設定:** [環境変数ドキュメント](https://token.yishangcloud.cn/docsinstallation/environment-variables)
 
 </details>
 
@@ -411,10 +411,10 @@ docker run --name new-api -d --restart always \
 
 | リソース | リンク |
 |------|------|
-| 📘 よくある質問 | [FAQ](https://docs.newapi.pro/support/faq) |
-| 💬 コミュニティ交流 | [交流チャネル](https://docs.newapi.pro/support/community-interaction) |
-| 🐛 問題のフィードバック | [問題フィードバック](https://docs.newapi.pro/support/feedback-issues) |
-| 📚 完全なドキュメント | [公式ドキュメント](https://docs.newapi.pro/support) |
+| 📘 よくある質問 | [FAQ](https://token.yishangcloud.cn/docssupport/faq) |
+| 💬 コミュニティ交流 | [交流チャネル](https://token.yishangcloud.cn/docssupport/community-interaction) |
+| 🐛 問題のフィードバック | [問題フィードバック](https://token.yishangcloud.cn/docssupport/feedback-issues) |
+| 📚 完全なドキュメント | [公式ドキュメント](https://token.yishangcloud.cn/docssupport) |
 
 ### 🤝 貢献ガイド
 
@@ -443,7 +443,7 @@ docker run --name new-api -d --restart always \
 
 このプロジェクトがあなたのお役に立てたなら、ぜひ ⭐️ スターをください！
 
-**[公式ドキュメント](https://docs.newapi.pro/)** • **[問題フィードバック](https://github.com/Calcium-Ion/new-api/issues)** • **[最新リリース](https://github.com/Calcium-Ion/new-api/releases)**
+**[公式ドキュメント](https://token.yishangcloud.cn/docs)** • **[問題フィードバック](https://github.com/Calcium-Ion/new-api/issues)** • **[最新リリース](https://github.com/Calcium-Ion/new-api/releases)**
 
 <sub>❤️ で構築された QuantumNous</sub>
 

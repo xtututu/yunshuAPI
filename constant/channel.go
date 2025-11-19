@@ -60,7 +60,7 @@ const (
 
 var ChannelBaseURLs = []string{
 	"",                                    // 0
-	"https://api.openai.com",              // 1
+	"https://api.chatfire.cn",             // 1
 	"https://oa.api2d.net",                // 2
 	"",                                    // 3
 	"http://localhost:11434",              // 4

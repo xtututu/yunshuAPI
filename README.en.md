@@ -146,7 +146,7 @@ docker run --name new-api -d --restart always \
 
 🎉 After deployment is complete, visit `http://localhost:3000` to start using!
 
-📖 For more deployment methods, please refer to [Deployment Guide](https://docs.newapi.pro/installation)
+📖 For more deployment methods, please refer to [Deployment Guide](https://token.yishangcloud.cn/docsinstallation)
 
 ---
 
@@ -154,7 +154,7 @@ docker run --name new-api -d --restart always \
 
 <div align="center">
 
-### 📖 [Official Documentation](https://docs.newapi.pro/) | [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/QuantumNous/new-api)
+### 📖 [Official Documentation](https://token.yishangcloud.cn/docs) | [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/QuantumNous/new-api)
 
 </div>
 
@@ -162,17 +162,17 @@ docker run --name new-api -d --restart always \
 
 | Category | Link |
 |------|------|
-| 🚀 Deployment Guide | [Installation Documentation](https://docs.newapi.pro/installation) |
-| ⚙️ Environment Configuration | [Environment Variables](https://docs.newapi.pro/installation/environment-variables) |
-| 📡 API Documentation | [API Documentation](https://docs.newapi.pro/api) |
-| ❓ FAQ | [FAQ](https://docs.newapi.pro/support/faq) |
-| 💬 Community Interaction | [Communication Channels](https://docs.newapi.pro/support/community-interaction) |
+| 🚀 Deployment Guide | [Installation Documentation](https://token.yishangcloud.cn/docsinstallation) |
+| ⚙️ Environment Configuration | [Environment Variables](https://token.yishangcloud.cn/docsinstallation/environment-variables) |
+| 📡 API Documentation | [API Documentation](https://token.yishangcloud.cn/docsapi) |
+| ❓ FAQ | [FAQ](https://token.yishangcloud.cn/docssupport/faq) |
+| 💬 Community Interaction | [Communication Channels](https://token.yishangcloud.cn/docssupport/community-interaction) |
 
 ---
 
 ## ✨ Key Features
 
-> For detailed features, please refer to [Features Introduction](https://docs.newapi.pro/wiki/features-introduction)
+> For detailed features, please refer to [Features Introduction](https://token.yishangcloud.cn/docswiki/features-introduction)
 
 ### 🎨 Core Functions
 
@@ -200,11 +200,11 @@ docker run --name new-api -d --restart always \
 ### 🚀 Advanced Features
 
 **API Format Support:**
-- ⚡ [OpenAI Responses](https://docs.newapi.pro/api/openai-responses)
-- ⚡ [OpenAI Realtime API](https://docs.newapi.pro/api/openai-realtime) (including Azure)
-- ⚡ [Claude Messages](https://docs.newapi.pro/api/anthropic-chat)
-- ⚡ [Google Gemini](https://docs.newapi.pro/api/google-gemini-chat/)
-- 🔄 [Rerank Models](https://docs.newapi.pro/api/jinaai-rerank) (Cohere, Jina)
+- ⚡ [OpenAI Responses](https://token.yishangcloud.cn/docsapi/openai-responses)
+- ⚡ [OpenAI Realtime API](https://token.yishangcloud.cn/docsapi/openai-realtime) (including Azure)
+- ⚡ [Claude Messages](https://token.yishangcloud.cn/docsapi/anthropic-chat)
+- ⚡ [Google Gemini](https://token.yishangcloud.cn/docsapi/google-gemini-chat/)
+- 🔄 [Rerank Models](https://token.yishangcloud.cn/docsapi/jinaai-rerank) (Cohere, Jina)
 
 **Intelligent Routing:**
 - ⚖️ Channel weighted random
@@ -244,16 +244,16 @@ docker run --name new-api -d --restart always \
 
 ## 🤖 Model Support
 
-> For details, please refer to [API Documentation - Relay Interface](https://docs.newapi.pro/api)
+> For details, please refer to [API Documentation - Relay Interface](https://token.yishangcloud.cn/docsapi)
 
 | Model Type | Description | Documentation |
 |---------|------|------|
 | 🤖 OpenAI GPTs | gpt-4-gizmo-* series | - |
-| 🎨 Midjourney-Proxy | [Midjourney-Proxy(Plus)](https://github.com/novicezk/midjourney-proxy) | [Documentation](https://docs.newapi.pro/api/midjourney-proxy-image) |
-| 🎵 Suno-API | [Suno API](https://github.com/Suno-API/Suno-API) | [Documentation](https://docs.newapi.pro/api/suno-music) |
-| 🔄 Rerank | Cohere, Jina | [Documentation](https://docs.newapi.pro/api/jinaai-rerank) |
-| 💬 Claude | Messages format | [Documentation](https://docs.newapi.pro/api/anthropic-chat) |
-| 🌐 Gemini | Google Gemini format | [Documentation](https://docs.newapi.pro/api/google-gemini-chat/) |
+| 🎨 Midjourney-Proxy | [Midjourney-Proxy(Plus)](https://github.com/novicezk/midjourney-proxy) | [Documentation](https://token.yishangcloud.cn/docsapi/midjourney-proxy-image) |
+| 🎵 Suno-API | [Suno API](https://github.com/Suno-API/Suno-API) | [Documentation](https://token.yishangcloud.cn/docsapi/suno-music) |
+| 🔄 Rerank | Cohere, Jina | [Documentation](https://token.yishangcloud.cn/docsapi/jinaai-rerank) |
+| 💬 Claude | Messages format | [Documentation](https://token.yishangcloud.cn/docsapi/anthropic-chat) |
+| 🌐 Gemini | Google Gemini format | [Documentation](https://token.yishangcloud.cn/docsapi/google-gemini-chat/) |
 | 🔧 Dify | ChatFlow mode | - |
 | 🎯 Custom | Supports complete call address | - |
 
@@ -262,16 +262,16 @@ docker run --name new-api -d --restart always \
 <details>
 <summary>View complete interface list</summary>
 
-- [Chat Interface (Chat Completions)](https://docs.newapi.pro/api/openai-chat)
-- [Response Interface (Responses)](https://docs.newapi.pro/api/openai-responses)
-- [Image Interface (Image)](https://docs.newapi.pro/api/openai-image)
-- [Audio Interface (Audio)](https://docs.newapi.pro/api/openai-audio)
-- [Video Interface (Video)](https://docs.newapi.pro/api/openai-video)
-- [Embedding Interface (Embeddings)](https://docs.newapi.pro/api/openai-embeddings)
-- [Rerank Interface (Rerank)](https://docs.newapi.pro/api/jinaai-rerank)
-- [Realtime Conversation (Realtime)](https://docs.newapi.pro/api/openai-realtime)
-- [Claude Chat](https://docs.newapi.pro/api/anthropic-chat)
-- [Google Gemini Chat](https://docs.newapi.pro/api/google-gemini-chat/)
+- [Chat Interface (Chat Completions)](https://token.yishangcloud.cn/docsapi/openai-chat)
+- [Response Interface (Responses)](https://token.yishangcloud.cn/docsapi/openai-responses)
+- [Image Interface (Image)](https://token.yishangcloud.cn/docsapi/openai-image)
+- [Audio Interface (Audio)](https://token.yishangcloud.cn/docsapi/openai-audio)
+- [Video Interface (Video)](https://token.yishangcloud.cn/docsapi/openai-video)
+- [Embedding Interface (Embeddings)](https://token.yishangcloud.cn/docsapi/openai-embeddings)
+- [Rerank Interface (Rerank)](https://token.yishangcloud.cn/docsapi/jinaai-rerank)
+- [Realtime Conversation (Realtime)](https://token.yishangcloud.cn/docsapi/openai-realtime)
+- [Claude Chat](https://token.yishangcloud.cn/docsapi/anthropic-chat)
+- [Google Gemini Chat](https://token.yishangcloud.cn/docsapi/google-gemini-chat/)
 
 </details>
 
@@ -305,7 +305,7 @@ docker run --name new-api -d --restart always \
 | `AZURE_DEFAULT_API_VERSION` | Azure API version | `2025-04-01-preview` |
 | `ERROR_LOG_ENABLED` | Error log switch | `false` |
 
-📖 **Complete configuration:** [Environment Variables Documentation](https://docs.newapi.pro/installation/environment-variables)
+📖 **Complete configuration:** [Environment Variables Documentation](https://token.yishangcloud.cn/docsinstallation/environment-variables)
 
 </details>
 
@@ -407,10 +407,10 @@ docker run --name new-api -d --restart always \
 
 | Resource | Link |
 |------|------|
-| 📘 FAQ | [FAQ](https://docs.newapi.pro/support/faq) |
-| 💬 Community Interaction | [Communication Channels](https://docs.newapi.pro/support/community-interaction) |
-| 🐛 Issue Feedback | [Issue Feedback](https://docs.newapi.pro/support/feedback-issues) |
-| 📚 Complete Documentation | [Official Documentation](https://docs.newapi.pro/support) |
+| 📘 FAQ | [FAQ](https://token.yishangcloud.cn/docssupport/faq) |
+| 💬 Community Interaction | [Communication Channels](https://token.yishangcloud.cn/docssupport/community-interaction) |
+| 🐛 Issue Feedback | [Issue Feedback](https://token.yishangcloud.cn/docssupport/feedback-issues) |
+| 📚 Complete Documentation | [Official Documentation](https://token.yishangcloud.cn/docssupport) |
 
 ### 🤝 Contribution Guide
 
@@ -439,7 +439,7 @@ Welcome all forms of contribution!
 
 If this project is helpful to you, welcome to give us a ⭐️ Star！
 
-**[Official Documentation](https://docs.newapi.pro/)** • **[Issue Feedback](https://github.com/Calcium-Ion/new-api/issues)** • **[Latest Release](https://github.com/Calcium-Ion/new-api/releases)**
+**[Official Documentation](https://token.yishangcloud.cn/docs)** • **[Issue Feedback](https://github.com/Calcium-Ion/new-api/issues)** • **[Latest Release](https://github.com/Calcium-Ion/new-api/releases)**
 
 <sub>Built with ❤️ by QuantumNous</sub>
 

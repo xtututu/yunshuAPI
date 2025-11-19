@@ -146,7 +146,7 @@ docker run --name new-api -d --restart always \
 
 🎉 部署完成后，访问 `http://localhost:3000` 即可使用！
 
-📖 更多部署方式请参考 [部署指南](https://docs.newapi.pro/installation)
+📖 更多部署方式请参考 [部署指南](https://token.yishangcloud.cn/docsinstallation)
 
 ---
 
@@ -154,7 +154,7 @@ docker run --name new-api -d --restart always \
 
 <div align="center">
 
-### 📖 [官方文档](https://docs.newapi.pro/) | [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/QuantumNous/new-api)
+### 📖 [官方文档](https://token.yishangcloud.cn/docs) | [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/QuantumNous/new-api)
 
 </div>
 
@@ -162,17 +162,17 @@ docker run --name new-api -d --restart always \
 
 | 分类 | 链接 |
 |------|------|
-| 🚀 部署指南 | [安装文档](https://docs.newapi.pro/installation) |
-| ⚙️ 环境配置 | [环境变量](https://docs.newapi.pro/installation/environment-variables) |
-| 📡 接口文档 | [API 文档](https://docs.newapi.pro/api) |
-| ❓ 常见问题 | [FAQ](https://docs.newapi.pro/support/faq) |
-| 💬 社区交流 | [交流渠道](https://docs.newapi.pro/support/community-interaction) |
+| 🚀 部署指南 | [安装文档](https://token.yishangcloud.cn/docsinstallation) |
+| ⚙️ 环境配置 | [环境变量](https://token.yishangcloud.cn/docsinstallation/environment-variables) |
+| 📡 接口文档 | [API 文档](https://token.yishangcloud.cn/docsapi) |
+| ❓ 常见问题 | [FAQ](https://token.yishangcloud.cn/docssupport/faq) |
+| 💬 社区交流 | [交流渠道](https://token.yishangcloud.cn/docssupport/community-interaction) |
 
 ---
 
 ## ✨ 主要特性
 
-> 详细特性请参考 [特性说明](https://docs.newapi.pro/wiki/features-introduction)
+> 详细特性请参考 [特性说明](https://token.yishangcloud.cn/docswiki/features-introduction)
 
 ### 🎨 核心功能
 
@@ -201,11 +201,11 @@ docker run --name new-api -d --restart always \
 ### 🚀 高级功能
 
 **API 格式支持：**
-- ⚡ [OpenAI Responses](https://docs.newapi.pro/api/openai-responses)
-- ⚡ [OpenAI Realtime API](https://docs.newapi.pro/api/openai-realtime)（含 Azure）
-- ⚡ [Claude Messages](https://docs.newapi.pro/api/anthropic-chat)
-- ⚡ [Google Gemini](https://docs.newapi.pro/api/google-gemini-chat/)
-- 🔄 [Rerank 模型](https://docs.newapi.pro/api/jinaai-rerank)（Cohere、Jina）
+- ⚡ [OpenAI Responses](https://token.yishangcloud.cn/docsapi/openai-responses)
+- ⚡ [OpenAI Realtime API](https://token.yishangcloud.cn/docsapi/openai-realtime)（含 Azure）
+- ⚡ [Claude Messages](https://token.yishangcloud.cn/docsapi/anthropic-chat)
+- ⚡ [Google Gemini](https://token.yishangcloud.cn/docsapi/google-gemini-chat/)
+- 🔄 [Rerank 模型](https://token.yishangcloud.cn/docsapi/jinaai-rerank)（Cohere、Jina）
 
 **智能路由：**
 - ⚖️ 渠道加权随机
@@ -245,16 +245,16 @@ docker run --name new-api -d --restart always \
 
 ## 🤖 模型支持
 
-> 详情请参考 [接口文档 - 中继接口](https://docs.newapi.pro/api)
+> 详情请参考 [接口文档 - 中继接口](https://token.yishangcloud.cn/docsapi)
 
 | 模型类型 | 说明 | 文档 |
 |---------|------|------|
 | 🤖 OpenAI GPTs | gpt-4-gizmo-* 系列 | - |
-| 🎨 Midjourney-Proxy | [Midjourney-Proxy(Plus)](https://github.com/novicezk/midjourney-proxy) | [文档](https://docs.newapi.pro/api/midjourney-proxy-image) |
-| 🎵 Suno-API | [Suno API](https://github.com/Suno-API/Suno-API) | [文档](https://docs.newapi.pro/api/suno-music) |
-| 🔄 Rerank | Cohere、Jina | [文档](https://docs.newapi.pro/api/jinaai-rerank) |
-| 💬 Claude | Messages 格式 | [文档](https://docs.newapi.pro/api/anthropic-chat) |
-| 🌐 Gemini | Google Gemini 格式 | [文档](https://docs.newapi.pro/api/google-gemini-chat/) |
+| 🎨 Midjourney-Proxy | [Midjourney-Proxy(Plus)](https://github.com/novicezk/midjourney-proxy) | [文档](https://token.yishangcloud.cn/docsapi/midjourney-proxy-image) |
+| 🎵 Suno-API | [Suno API](https://github.com/Suno-API/Suno-API) | [文档](https://token.yishangcloud.cn/docsapi/suno-music) |
+| 🔄 Rerank | Cohere、Jina | [文档](https://token.yishangcloud.cn/docsapi/jinaai-rerank) |
+| 💬 Claude | Messages 格式 | [文档](https://token.yishangcloud.cn/docsapi/anthropic-chat) |
+| 🌐 Gemini | Google Gemini 格式 | [文档](https://token.yishangcloud.cn/docsapi/google-gemini-chat/) |
 | 🔧 Dify | ChatFlow 模式 | - |
 | 🎯 自定义 | 支持完整调用地址 | - |
 
@@ -263,16 +263,16 @@ docker run --name new-api -d --restart always \
 <details>
 <summary>查看完整接口列表</summary>
 
-- [聊天接口 (Chat Completions)](https://docs.newapi.pro/api/openai-chat)
-- [响应接口 (Responses)](https://docs.newapi.pro/api/openai-responses)
-- [图像接口 (Image)](https://docs.newapi.pro/api/openai-image)
-- [音频接口 (Audio)](https://docs.newapi.pro/api/openai-audio)
-- [视频接口 (Video)](https://docs.newapi.pro/api/openai-video)
-- [嵌入接口 (Embeddings)](https://docs.newapi.pro/api/openai-embeddings)
-- [重排序接口 (Rerank)](https://docs.newapi.pro/api/jinaai-rerank)
-- [实时对话 (Realtime)](https://docs.newapi.pro/api/openai-realtime)
-- [Claude 聊天](https://docs.newapi.pro/api/anthropic-chat)
-- [Google Gemini 聊天](https://docs.newapi.pro/api/google-gemini-chat)
+- [聊天接口 (Chat Completions)](https://token.yishangcloud.cn/docsapi/openai-chat)
+- [响应接口 (Responses)](https://token.yishangcloud.cn/docsapi/openai-responses)
+- [图像接口 (Image)](https://token.yishangcloud.cn/docsapi/openai-image)
+- [音频接口 (Audio)](https://token.yishangcloud.cn/docsapi/openai-audio)
+- [视频接口 (Video)](https://token.yishangcloud.cn/docsapi/openai-video)
+- [嵌入接口 (Embeddings)](https://token.yishangcloud.cn/docsapi/openai-embeddings)
+- [重排序接口 (Rerank)](https://token.yishangcloud.cn/docsapi/jinaai-rerank)
+- [实时对话 (Realtime)](https://token.yishangcloud.cn/docsapi/openai-realtime)
+- [Claude 聊天](https://token.yishangcloud.cn/docsapi/anthropic-chat)
+- [Google Gemini 聊天](https://token.yishangcloud.cn/docsapi/google-gemini-chat)
 
 </details>
 
@@ -306,7 +306,7 @@ docker run --name new-api -d --restart always \
 | `AZURE_DEFAULT_API_VERSION` | Azure API 版本 | `2025-04-01-preview` |
 | `ERROR_LOG_ENABLED` | 错误日志开关 | `false` |
 
-📖 **完整配置：** [环境变量文档](https://docs.newapi.pro/installation/environment-variables)
+📖 **完整配置：** [环境变量文档](https://token.yishangcloud.cn/docsinstallation/environment-variables)
 
 </details>
 
@@ -408,10 +408,10 @@ docker run --name new-api -d --restart always \
 
 | 资源 | 链接 |
 |------|------|
-| 📘 常见问题 | [FAQ](https://docs.newapi.pro/support/faq) |
-| 💬 社区交流 | [交流渠道](https://docs.newapi.pro/support/community-interaction) |
-| 🐛 反馈问题 | [问题反馈](https://docs.newapi.pro/support/feedback-issues) |
-| 📚 完整文档 | [官方文档](https://docs.newapi.pro/support) |
+| 📘 常见问题 | [FAQ](https://token.yishangcloud.cn/docssupport/faq) |
+| 💬 社区交流 | [交流渠道](https://token.yishangcloud.cn/docssupport/community-interaction) |
+| 🐛 反馈问题 | [问题反馈](https://token.yishangcloud.cn/docssupport/feedback-issues) |
+| 📚 完整文档 | [官方文档](https://token.yishangcloud.cn/docssupport) |
 
 ### 🤝 贡献指南
 
@@ -440,7 +440,7 @@ docker run --name new-api -d --restart always \
 
 如果这个项目对你有帮助，欢迎给我们一个 ⭐️ Star！
 
-**[官方文档](https://docs.newapi.pro/)** • **[问题反馈](https://github.com/Calcium-Ion/new-api/issues)** • **[最新发布](https://github.com/Calcium-Ion/new-api/releases)**
+**[官方文档](https://token.yishangcloud.cn/docs)** • **[问题反馈](https://github.com/Calcium-Ion/new-api/issues)** • **[最新发布](https://github.com/Calcium-Ion/new-api/releases)**
 
 <sub>Built with ❤️ by QuantumNous</sub>
 
