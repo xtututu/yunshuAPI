@@ -311,6 +311,7 @@ func updateOptionMap(key string, value string) (err error) {
 	case "SMTPToken":
 		common.SMTPToken = value
 	case "ServerAddress":
+		common.SysLog("Updating ServerAddress from '" + system_setting.ServerAddress + "' to '" + value + "'")
 		system_setting.ServerAddress = value
 	case "WorkerUrl":
 		system_setting.WorkerUrl = value
