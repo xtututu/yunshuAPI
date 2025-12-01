@@ -141,7 +141,7 @@ func GetImage(c *gin.Context) {
 	fullPath := filepath.Join("./images", filename)
 
 	// 检查文件是否存在
-	fileInfo, err := os.Stat(fullPath)
+	_, err := os.Stat(fullPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			c.JSON(http.StatusOK, gin.H{
@@ -157,11 +157,39 @@ func GetImage(c *gin.Context) {
 		return
 	}
 
-	// 设置Content-Length头
-	c.Header("Content-Length", fmt.Sprintf("%d", fileInfo.Size()))
+	// 读取文件内容
+	fileData, err := os.ReadFile(fullPath)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "读取图片失败",
+			"success": false,
+		})
+		return
+	}
 
-	// 提供文件下载
-	c.FileAttachment(fullPath, filename)
+	// 设置Content-Length头
+	c.Header("Content-Length", fmt.Sprintf("%d", len(fileData)))
+
+	// 根据文件扩展名设置正确的Content-Type
+	ext := strings.ToLower(filepath.Ext(filename))
+	var contentType string
+	switch ext {
+	case ".jpg", ".jpeg":
+		contentType = "image/jpeg"
+	case ".png":
+		contentType = "image/png"
+	case ".gif":
+		contentType = "image/gif"
+	case ".webp":
+		contentType = "image/webp"
+	case ".bmp":
+		contentType = "image/bmp"
+	default:
+		contentType = "image/jpeg" // 默认设置为jpeg
+	}
+
+	// 使用c.Data直接发送数据和Content-Type，确保Content-Type正确设置
+	c.Data(http.StatusOK, contentType, fileData)
 }
 
 // 辅助函数：验证URL是否为图片
