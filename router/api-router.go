@@ -9,6 +9,9 @@ import (
 )
 
 func SetApiRouter(router *gin.Engine) {
+	// 注册图片访问路由，不需要认证
+	router.GET("/image/:filename", controller.GetImage)
+
 	apiRouter := router.Group("/api")
 	apiRouter.Use(gzip.Gzip(gzip.DefaultCompression))
 	apiRouter.Use(middleware.GlobalAPIRateLimit())
@@ -39,6 +42,9 @@ func SetApiRouter(router *gin.Engine) {
 		apiRouter.GET("/oauth/telegram/login", middleware.CriticalRateLimit(), controller.TelegramLogin)
 		apiRouter.GET("/oauth/telegram/bind", middleware.CriticalRateLimit(), controller.TelegramBind)
 		apiRouter.GET("/ratio_config", middleware.CriticalRateLimit(), controller.GetRatioConfig)
+
+		// 图片上传路由
+		apiRouter.POST("/image/upload", controller.UploadImage)
 
 		apiRouter.POST("/stripe/webhook", controller.StripeWebhook)
 		apiRouter.POST("/creem/webhook", controller.CreemWebhook)
