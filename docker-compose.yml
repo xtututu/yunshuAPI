@@ -26,7 +26,7 @@ services:
       - ./web:/app/web
     environment:
 #      - SQL_DSN=postgresql://root:123456@postgres:5432/new-api # ⚠️ IMPORTANT: Change the password in production!
-      - SQL_DSN=root:z8f02000X@tcp(mysql:3306)/yishangyun-api  # Point to the mysql service, uncomment if using MySQL
+      - SQL_DSN=root:eZ1rW9jR6mU6uP4b@tcp(mysql:3306)/new-api # Point to the mysql service, uncomment if using MySQL
       - REDIS_CONN_STRING=redis://redis
       - TZ=Asia/Shanghai
       - ERROR_LOG_ENABLED=true # 是否启用错误日志记录 (Whether to enable error log recording)
@@ -73,8 +73,8 @@ services:
     container_name: mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: z8f02000X  # ⚠️ IMPORTANT: Change this password in production!
-      MYSQL_DATABASE: yishangyun-api
+      MYSQL_ROOT_PASSWORD: eZ1rW9jR6mU6uP4b  # ⚠️ IMPORTANT: Change this password in production!
+      MYSQL_DATABASE: new-api
     volumes:
       - mysql_data:/var/lib/mysql
 #    ports:

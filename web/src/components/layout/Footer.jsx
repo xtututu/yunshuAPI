@@ -205,7 +205,7 @@ const FooterBar = () => {
               rel='noopener noreferrer'
               className='!text-semi-color-primary font-medium'
             >
-              易尚云 AI
+              迅客 AI
             </a>
           </div>
         </div>
