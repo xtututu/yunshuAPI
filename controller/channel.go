@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"strings"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/dto"
-	"yishangyunApi/model"
-	"yishangyunApi/service"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/service"
 
 	"github.com/gin-gonic/gin"
 )

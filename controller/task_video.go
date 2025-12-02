@@ -7,15 +7,15 @@ import (
 	"io"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/dto"
-	"yishangyunApi/logger"
-	"yishangyunApi/model"
-	"yishangyunApi/relay"
-	"yishangyunApi/relay/channel"
-	relaycommon "yishangyunApi/relay/common"
-	"yishangyunApi/setting/ratio_setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/logger"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/relay"
+	"xunkecloudAPI/relay/channel"
+	relaycommon "xunkecloudAPI/relay/common"
+	"xunkecloudAPI/setting/ratio_setting"
 )
 
 func UpdateVideoTaskAll(ctx context.Context, platform constant.TaskPlatform, taskChannelM map[int][]string, taskM map[string]*model.Task) error {

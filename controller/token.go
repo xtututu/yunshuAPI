@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"yishangyunApi/common"
-	"yishangyunApi/model"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/model"
 
 	"github.com/gin-gonic/gin"
 )

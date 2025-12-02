@@ -10,12 +10,12 @@ import (
 	"strings"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/dto"
-	"yishangyunApi/relay/channel"
-	relaycommon "yishangyunApi/relay/common"
-	"yishangyunApi/service"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/relay/channel"
+	relaycommon "xunkecloudAPI/relay/common"
+	"xunkecloudAPI/service"
 
 	"github.com/gin-gonic/gin"
 )

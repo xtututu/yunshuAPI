@@ -3,7 +3,7 @@ package model_setting
 import (
 	"net/http"
 
-	"yishangyunApi/setting/config"
+	"xunkecloudAPI/setting/config"
 )
 
 //var claudeHeadersSettings = map[string][]string{}

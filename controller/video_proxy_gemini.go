@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"yishangyunApi/constant"
-	"yishangyunApi/model"
-	"yishangyunApi/relay"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/relay"
 )
 
 func getGeminiVideoURL(channel *model.Channel, task *model.Task, apiKey string) (string, error) {

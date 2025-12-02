@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"yishangyunApi/dto"
-	"yishangyunApi/relay/common"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/relay/common"
 	"github.com/gin-gonic/gin"
 )
 

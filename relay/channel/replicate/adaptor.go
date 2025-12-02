@@ -12,14 +12,14 @@ import (
 	"strconv"
 	"strings"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/dto"
-	"yishangyunApi/relay/channel"
-	relaycommon "yishangyunApi/relay/common"
-	relayconstant "yishangyunApi/relay/constant"
-	"yishangyunApi/service"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/relay/channel"
+	relaycommon "xunkecloudAPI/relay/common"
+	relayconstant "xunkecloudAPI/relay/constant"
+	"xunkecloudAPI/service"
+	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

@@ -4,7 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 
 	"gorm.io/gorm"
 )

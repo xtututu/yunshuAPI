@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"yishangyunApi/model"
-	"yishangyunApi/service"
-	"yishangyunApi/setting/ratio_setting"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/service"
+	"xunkecloudAPI/setting/ratio_setting"
 
 	"github.com/gin-gonic/gin"
 )

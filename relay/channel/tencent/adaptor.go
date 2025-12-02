@@ -8,12 +8,12 @@ import (
 	"strconv"
 	"strings"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/dto"
-	"yishangyunApi/relay/channel"
-	relaycommon "yishangyunApi/relay/common"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/relay/channel"
+	relaycommon "xunkecloudAPI/relay/common"
+	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

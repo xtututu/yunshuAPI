@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"yishangyunApi/common"
-	"yishangyunApi/model"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/model"
 
 	"github.com/gin-gonic/gin"
 )

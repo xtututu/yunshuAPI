@@ -9,13 +9,13 @@ import (
 	"net/http"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/dto"
-	"yishangyunApi/logger"
-	"yishangyunApi/model"
-	"yishangyunApi/service"
-	"yishangyunApi/setting"
-	"yishangyunApi/setting/system_setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/logger"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/service"
+	"xunkecloudAPI/setting"
+	"xunkecloudAPI/setting/system_setting"
 
 	"github.com/gin-gonic/gin"
 )

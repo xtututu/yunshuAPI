@@ -7,9 +7,9 @@ import (
 	"net/url"
 	"time"
 
-	"yishangyunApi/constant"
-	"yishangyunApi/logger"
-	"yishangyunApi/model"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/logger"
+	"xunkecloudAPI/model"
 
 	"github.com/gin-gonic/gin"
 )

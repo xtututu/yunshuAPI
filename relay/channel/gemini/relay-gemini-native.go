@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"strings"
 
-	"yishangyunApi/common"
-	"yishangyunApi/dto"
-	"yishangyunApi/logger"
-	relaycommon "yishangyunApi/relay/common"
-	"yishangyunApi/relay/helper"
-	"yishangyunApi/service"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/logger"
+	relaycommon "xunkecloudAPI/relay/common"
+	"xunkecloudAPI/relay/helper"
+	"xunkecloudAPI/service"
+	"xunkecloudAPI/types"
 
 	"github.com/pkg/errors"
 

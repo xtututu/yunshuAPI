@@ -1,6 +1,6 @@
 package operation_setting
 
-import "yishangyunApi/setting/config"
+import "xunkecloudAPI/setting/config"
 
 type PaymentSetting struct {
 	AmountOptions  []int           `json:"amount_options"`

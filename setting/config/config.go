@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 )
 
 // ConfigManager 统一管理所有配置

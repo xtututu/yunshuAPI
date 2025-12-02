@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 	"github.com/gin-gonic/gin"
 )
 

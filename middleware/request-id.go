@@ -3,7 +3,7 @@ package middleware
 import (
 	"context"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 	"github.com/gin-gonic/gin"
 )
 

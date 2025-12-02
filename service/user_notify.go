@@ -8,10 +8,10 @@ import (
 	"net/url"
 	"strings"
 
-	"yishangyunApi/common"
-	"yishangyunApi/dto"
-	"yishangyunApi/model"
-	"yishangyunApi/setting/system_setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/setting/system_setting"
 )
 
 func NotifyRootUser(t string, subject string, content string) {

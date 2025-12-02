@@ -10,17 +10,17 @@ import (
 	"regexp"
 	"strings"
 
-	"yishangyunApi/common"
-	"yishangyunApi/model"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/model"
 
 	"github.com/gin-gonic/gin"
 
-	"yishangyunApi/constant"
-	"yishangyunApi/dto"
-	"yishangyunApi/relay/channel"
-	vertexcore "yishangyunApi/relay/channel/vertex"
-	relaycommon "yishangyunApi/relay/common"
-	"yishangyunApi/service"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/relay/channel"
+	vertexcore "xunkecloudAPI/relay/channel/vertex"
+	relaycommon "xunkecloudAPI/relay/common"
+	"xunkecloudAPI/service"
 )
 
 // ============================

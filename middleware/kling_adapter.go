@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"io"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
 
 	"github.com/gin-gonic/gin"
 )

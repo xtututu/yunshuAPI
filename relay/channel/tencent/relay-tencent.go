@@ -14,13 +14,13 @@ import (
 	"strings"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/dto"
-	relaycommon "yishangyunApi/relay/common"
-	"yishangyunApi/relay/helper"
-	"yishangyunApi/service"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/dto"
+	relaycommon "xunkecloudAPI/relay/common"
+	"xunkecloudAPI/relay/helper"
+	"xunkecloudAPI/service"
+	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

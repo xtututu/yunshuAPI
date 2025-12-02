@@ -9,10 +9,10 @@ import (
 	"strings"
 	"sync"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/dto"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/types"
 
 	"github.com/samber/lo"
 	"gorm.io/gorm"

@@ -3,7 +3,7 @@ package baidu
 import (
 	"time"
 
-	"yishangyunApi/dto"
+	"xunkecloudAPI/dto"
 )
 
 type BaiduMessage struct {

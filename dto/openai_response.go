@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"yishangyunApi/types"
+	"xunkecloudAPI/types"
 )
 
 const (

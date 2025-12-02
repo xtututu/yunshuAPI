@@ -1,8 +1,8 @@
 package router
 
 import (
-	"yishangyunApi/controller"
-	"yishangyunApi/middleware"
+	"xunkecloudAPI/controller"
+	"xunkecloudAPI/middleware"
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"

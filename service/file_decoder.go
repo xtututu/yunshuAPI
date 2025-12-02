@@ -12,10 +12,10 @@ import (
 	"net/http"
 	"strings"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/logger"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/logger"
+	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

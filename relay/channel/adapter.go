@@ -4,10 +4,10 @@ import (
 	"io"
 	"net/http"
 
-	"yishangyunApi/dto"
-	"yishangyunApi/model"
-	relaycommon "yishangyunApi/relay/common"
-	"yishangyunApi/types"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/model"
+	relaycommon "xunkecloudAPI/relay/common"
+	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

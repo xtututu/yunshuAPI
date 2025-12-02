@@ -5,9 +5,9 @@ import (
 	"errors"
 	"sync"
 
-	"yishangyunApi/common"
-	"yishangyunApi/setting/config"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/setting/config"
+	"xunkecloudAPI/types"
 )
 
 var groupRatio = map[string]float64{

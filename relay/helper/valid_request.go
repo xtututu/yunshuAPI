@@ -7,11 +7,11 @@ import (
 	"math"
 	"strings"
 
-	"yishangyunApi/common"
-	"yishangyunApi/dto"
-	"yishangyunApi/logger"
-	relayconstant "yishangyunApi/relay/constant"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/logger"
+	relayconstant "xunkecloudAPI/relay/constant"
+	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

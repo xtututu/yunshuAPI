@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"yishangyunApi/model"
+	"xunkecloudAPI/model"
 
 	"github.com/gin-gonic/gin"
 )

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"yishangyunApi/types"
+	"xunkecloudAPI/types"
 	"github.com/gin-gonic/gin"
 )
 

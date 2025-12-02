@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"yishangyunApi/common"
-	"yishangyunApi/setting/system_setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/setting/system_setting"
 )
 
 // WorkerRequest Worker请求的数据结构

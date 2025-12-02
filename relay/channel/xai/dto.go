@@ -1,6 +1,6 @@
 package xai
 
-import "yishangyunApi/dto"
+import "xunkecloudAPI/dto"
 
 // ChatCompletionResponse represents the response from XAI chat completion API
 type ChatCompletionResponse struct {

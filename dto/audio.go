@@ -3,7 +3,7 @@ package dto
 import (
 	"encoding/json"
 
-	"yishangyunApi/types"
+	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

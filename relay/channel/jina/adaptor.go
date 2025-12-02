@@ -6,13 +6,13 @@ import (
 	"io"
 	"net/http"
 
-	"yishangyunApi/dto"
-	"yishangyunApi/relay/channel"
-	"yishangyunApi/relay/channel/openai"
-	relaycommon "yishangyunApi/relay/common"
-	"yishangyunApi/relay/common_handler"
-	"yishangyunApi/relay/constant"
-	"yishangyunApi/types"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/relay/channel"
+	"xunkecloudAPI/relay/channel/openai"
+	relaycommon "xunkecloudAPI/relay/common"
+	"xunkecloudAPI/relay/common_handler"
+	"xunkecloudAPI/relay/constant"
+	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,7 +3,7 @@ package setting
 import (
 	"encoding/json"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 )
 
 var Chats = []map[string]string{

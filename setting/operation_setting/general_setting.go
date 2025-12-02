@@ -1,6 +1,6 @@
 package operation_setting
 
-import "yishangyunApi/setting/config"
+import "xunkecloudAPI/setting/config"
 
 // 额度展示类型
 const (

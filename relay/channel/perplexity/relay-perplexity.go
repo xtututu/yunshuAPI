@@ -1,6 +1,6 @@
 package perplexity
 
-import "yishangyunApi/dto"
+import "xunkecloudAPI/dto"
 
 func requestOpenAI2Perplexity(request dto.GeneralOpenAIRequest) *dto.GeneralOpenAIRequest {
 	messages := make([]dto.Message, 0, len(request.Messages))

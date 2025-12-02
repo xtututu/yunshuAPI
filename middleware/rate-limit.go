@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 	"github.com/gin-gonic/gin"
 )
 

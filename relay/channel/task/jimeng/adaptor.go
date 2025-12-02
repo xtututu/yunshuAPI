@@ -15,17 +15,17 @@ import (
 	"strings"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/model"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/model"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 
-	"yishangyunApi/constant"
-	"yishangyunApi/dto"
-	"yishangyunApi/relay/channel"
-	relaycommon "yishangyunApi/relay/common"
-	"yishangyunApi/service"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/relay/channel"
+	relaycommon "xunkecloudAPI/relay/common"
+	"xunkecloudAPI/service"
 )
 
 // ============================

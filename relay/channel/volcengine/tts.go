@@ -10,9 +10,9 @@ import (
 	"net/http"
 	"strings"
 
-	"yishangyunApi/dto"
-	relaycommon "yishangyunApi/relay/common"
-	"yishangyunApi/types"
+	"xunkecloudAPI/dto"
+	relaycommon "xunkecloudAPI/relay/common"
+	"xunkecloudAPI/types"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"

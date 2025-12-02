@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/common/limiter"
-	"yishangyunApi/constant"
-	"yishangyunApi/setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/common/limiter"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/setting"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"

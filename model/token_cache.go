@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
 )
 
 func cacheSetToken(token Token) error {

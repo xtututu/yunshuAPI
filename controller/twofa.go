@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"yishangyunApi/common"
-	"yishangyunApi/model"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/model"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

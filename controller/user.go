@@ -9,13 +9,13 @@ import (
 	"strings"
 	"sync"
 
-	"yishangyunApi/common"
-	"yishangyunApi/dto"
-	"yishangyunApi/logger"
-	"yishangyunApi/model"
-	"yishangyunApi/service"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/logger"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/service"
 
-	"yishangyunApi/constant"
+	"xunkecloudAPI/constant"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

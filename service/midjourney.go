@@ -10,11 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/dto"
-	relayconstant "yishangyunApi/relay/constant"
-	"yishangyunApi/setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/dto"
+	relayconstant "xunkecloudAPI/relay/constant"
+	"xunkecloudAPI/setting"
 
 	"github.com/gin-gonic/gin"
 )

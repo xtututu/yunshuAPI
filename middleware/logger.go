@@ -3,7 +3,7 @@ package middleware
 import (
 	"fmt"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 	"github.com/gin-gonic/gin"
 )
 

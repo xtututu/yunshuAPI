@@ -1,6 +1,6 @@
 package common
 
-import "yishangyunApi/constant"
+import "xunkecloudAPI/constant"
 
 func ChannelType2APIType(channelType int) (int, bool) {
 	apiType := -1

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )

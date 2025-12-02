@@ -8,10 +8,10 @@ import (
 	"sync"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/setting/ratio_setting"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/setting/ratio_setting"
+	"xunkecloudAPI/types"
 )
 
 type Pricing struct {

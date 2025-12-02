@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/setting/system_setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/setting/system_setting"
 
 	"golang.org/x/net/proxy"
 )

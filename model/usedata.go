@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 	"gorm.io/gorm"
 )
 

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"sync"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 )
 
 var userUsableGroups = map[string]string{

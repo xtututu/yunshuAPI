@@ -1,6 +1,6 @@
 package common
 
-import "yishangyunApi/constant"
+import "xunkecloudAPI/constant"
 
 // EndpointInfo 描述单个端点的默认请求信息
 // path: 上游路径

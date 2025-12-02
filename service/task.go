@@ -3,7 +3,7 @@ package service
 import (
 	"strings"
 
-	"yishangyunApi/constant"
+	"xunkecloudAPI/constant"
 )
 
 func CoverTaskActionToModelName(platform constant.TaskPlatform, action string) string {

@@ -9,15 +9,15 @@ import (
 	"strings"
 	"time"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 	"github.com/gin-gonic/gin"
 
-	"yishangyunApi/constant"
-	"yishangyunApi/dto"
-	"yishangyunApi/model"
-	"yishangyunApi/relay/channel"
-	relaycommon "yishangyunApi/relay/common"
-	"yishangyunApi/service"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/relay/channel"
+	relaycommon "xunkecloudAPI/relay/common"
+	"xunkecloudAPI/service"
 
 	"github.com/pkg/errors"
 )

@@ -3,10 +3,10 @@ package controller
 import (
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/model"
-	"yishangyunApi/setting/operation_setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/setting/operation_setting"
 	"github.com/gin-gonic/gin"
 )
 

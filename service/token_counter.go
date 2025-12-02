@@ -15,12 +15,12 @@ import (
 	"sync"
 	"unicode/utf8"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/dto"
-	relaycommon "yishangyunApi/relay/common"
-	constant2 "yishangyunApi/relay/constant"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/dto"
+	relaycommon "xunkecloudAPI/relay/common"
+	constant2 "xunkecloudAPI/relay/constant"
+	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tiktoken-go/tokenizer"

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"yishangyunApi/common"
-	"yishangyunApi/controller"
-	"yishangyunApi/middleware"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/controller"
+	"xunkecloudAPI/middleware"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"

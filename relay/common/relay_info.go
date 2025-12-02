@@ -7,11 +7,11 @@ import (
 	"strings"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/dto"
-	relayconstant "yishangyunApi/relay/constant"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/dto"
+	relayconstant "xunkecloudAPI/relay/constant"
+	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"

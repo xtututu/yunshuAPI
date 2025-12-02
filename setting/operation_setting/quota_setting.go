@@ -1,6 +1,6 @@
 package operation_setting
 
-import "yishangyunApi/setting/config"
+import "xunkecloudAPI/setting/config"
 
 type QuotaSetting struct {
 	EnableFreeModelPreConsume bool `json:"enable_free_model_pre_consume"` // 是否对免费模型启用预消耗

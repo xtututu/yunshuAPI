@@ -9,11 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/model"
-	"yishangyunApi/setting"
-	"yishangyunApi/setting/operation_setting"
-	"yishangyunApi/setting/system_setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/setting"
+	"xunkecloudAPI/setting/operation_setting"
+	"xunkecloudAPI/setting/system_setting"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stripe/stripe-go/v81"

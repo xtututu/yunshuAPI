@@ -10,9 +10,9 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"yishangyunApi/common"
-	"yishangyunApi/model"
-	"yishangyunApi/setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/setting"
 	"time"
 
 	"github.com/gin-gonic/gin"

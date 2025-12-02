@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"strings"
 
-	"yishangyunApi/common"
-	"yishangyunApi/model"
-	"yishangyunApi/setting"
-	"yishangyunApi/setting/console_setting"
-	"yishangyunApi/setting/ratio_setting"
-	"yishangyunApi/setting/system_setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/setting"
+	"xunkecloudAPI/setting/console_setting"
+	"xunkecloudAPI/setting/ratio_setting"
+	"xunkecloudAPI/setting/system_setting"
 
 	"github.com/gin-gonic/gin"
 )

@@ -11,12 +11,12 @@ import (
 	"strconv"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/dto"
-	"yishangyunApi/logger"
-	"yishangyunApi/model"
-	"yishangyunApi/relay"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/logger"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/relay"
 
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"

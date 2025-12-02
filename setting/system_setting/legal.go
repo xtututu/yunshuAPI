@@ -1,6 +1,6 @@
 package system_setting
 
-import "yishangyunApi/setting/config"
+import "xunkecloudAPI/setting/config"
 
 type LegalSettings struct {
 	UserAgreement string `json:"user_agreement"`

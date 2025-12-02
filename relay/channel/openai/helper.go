@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"strings"
 
-	"yishangyunApi/common"
-	"yishangyunApi/dto"
-	"yishangyunApi/logger"
-	relaycommon "yishangyunApi/relay/common"
-	relayconstant "yishangyunApi/relay/constant"
-	"yishangyunApi/relay/helper"
-	"yishangyunApi/service"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/logger"
+	relaycommon "xunkecloudAPI/relay/common"
+	relayconstant "xunkecloudAPI/relay/constant"
+	"xunkecloudAPI/relay/helper"
+	"xunkecloudAPI/service"
+	"xunkecloudAPI/types"
 
 	"github.com/samber/lo"
 

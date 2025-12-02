@@ -1,7 +1,7 @@
 package model
 
 import (
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 
 	"gorm.io/gorm"
 )

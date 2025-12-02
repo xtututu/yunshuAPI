@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/model"
-	passkeysvc "yishangyunApi/service/passkey"
-	"yishangyunApi/setting/system_setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/model"
+	passkeysvc "xunkecloudAPI/service/passkey"
+	"xunkecloudAPI/setting/system_setting"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

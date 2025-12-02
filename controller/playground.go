@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/middleware"
-	"yishangyunApi/model"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/middleware"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

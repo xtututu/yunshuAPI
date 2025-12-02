@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"yishangyunApi/setting/ratio_setting"
+	"xunkecloudAPI/setting/ratio_setting"
 
 	"github.com/gin-gonic/gin"
 )

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"yishangyunApi/common"
-	"yishangyunApi/logger"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/logger"
 
 	"gorm.io/gorm"
 )

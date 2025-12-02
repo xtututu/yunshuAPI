@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"yishangyunApi/common"
-	"yishangyunApi/logger"
-	"yishangyunApi/model"
-	relaycommon "yishangyunApi/relay/common"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/logger"
+	"xunkecloudAPI/model"
+	relaycommon "xunkecloudAPI/relay/common"
+	"xunkecloudAPI/types"
 
 	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/gin-gonic/gin"

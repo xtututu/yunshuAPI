@@ -3,8 +3,8 @@ package aws
 import (
 	"io"
 
-	"yishangyunApi/common"
-	"yishangyunApi/dto"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/dto"
 )
 
 type AwsClaudeRequest struct {

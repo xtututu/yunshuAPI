@@ -3,12 +3,12 @@ package helper
 import (
 	"fmt"
 
-	"yishangyunApi/common"
-	"yishangyunApi/logger"
-	relaycommon "yishangyunApi/relay/common"
-	"yishangyunApi/setting/operation_setting"
-	"yishangyunApi/setting/ratio_setting"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/logger"
+	relaycommon "xunkecloudAPI/relay/common"
+	"xunkecloudAPI/setting/operation_setting"
+	"xunkecloudAPI/setting/ratio_setting"
+	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

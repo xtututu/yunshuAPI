@@ -1,6 +1,6 @@
 package cloudflare
 
-import "yishangyunApi/dto"
+import "xunkecloudAPI/dto"
 
 type CfRequest struct {
 	Messages    []dto.Message `json:"messages,omitempty"`

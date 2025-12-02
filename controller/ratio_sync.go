@@ -11,11 +11,11 @@ import (
 	"sync"
 	"time"
 
-	"yishangyunApi/logger"
+	"xunkecloudAPI/logger"
 
-	"yishangyunApi/dto"
-	"yishangyunApi/model"
-	"yishangyunApi/setting/ratio_setting"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/setting/ratio_setting"
 
 	"github.com/gin-gonic/gin"
 )

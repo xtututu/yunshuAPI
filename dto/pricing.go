@@ -1,6 +1,6 @@
 package dto
 
-import "yishangyunApi/constant"
+import "xunkecloudAPI/constant"
 
 // 这里不好动就不动了，本来想独立出来的（
 type OpenAIModels struct {

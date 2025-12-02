@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"strings"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	"yishangyunApi/model"
-	"yishangyunApi/service"
-	"yishangyunApi/setting/ratio_setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/service"
+	"xunkecloudAPI/setting/ratio_setting"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

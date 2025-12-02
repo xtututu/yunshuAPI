@@ -6,9 +6,9 @@ import (
 	"io"
 	"net/http"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
-	relayconstant "yishangyunApi/relay/constant"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
+	relayconstant "xunkecloudAPI/relay/constant"
 	"github.com/gin-gonic/gin"
 )
 

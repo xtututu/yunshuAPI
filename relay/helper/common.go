@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"yishangyunApi/common"
-	"yishangyunApi/dto"
-	"yishangyunApi/logger"
-	"yishangyunApi/types"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/dto"
+	"xunkecloudAPI/logger"
+	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"

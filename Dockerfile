@@ -20,7 +20,7 @@ RUN go mod download
 COPY . .
 
 # 编译 Go 程序（注入版本信息）
-RUN go build -ldflags "-s -w -X 'yishangyunApi/common.Version=$(cat VERSION)'" -o new-api
+RUN go build -ldflags "-s -w -X 'xunkecloudAPI/common.Version=$(cat VERSION)'" -o new-api
 
 
 # 最终运行阶段

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"sync"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 )
 
 var defaultCacheRatio = map[string]float64{

@@ -1,7 +1,7 @@
 package model_setting
 
 import (
-	"yishangyunApi/setting/config"
+	"xunkecloudAPI/setting/config"
 )
 
 // GeminiSettings 定义Gemini模型的配置

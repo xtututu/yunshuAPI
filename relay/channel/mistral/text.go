@@ -3,8 +3,8 @@ package mistral
 import (
 	"regexp"
 
-	"yishangyunApi/common"
-	"yishangyunApi/dto"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/dto"
 )
 
 var mistralToolCallIdRegexp = regexp.MustCompile("^[a-zA-Z0-9]{9}$")

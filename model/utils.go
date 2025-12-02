@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 
 	"github.com/bytedance/gopkg/util/gopool"
 	"gorm.io/gorm"

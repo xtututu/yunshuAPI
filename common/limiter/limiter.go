@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"sync"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 	"github.com/go-redis/redis/v8"
 )
 

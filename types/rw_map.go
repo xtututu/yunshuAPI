@@ -3,7 +3,7 @@ package types
 import (
 	"sync"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 )
 
 type RWMap[K comparable, V any] struct {

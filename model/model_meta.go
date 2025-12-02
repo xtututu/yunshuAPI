@@ -3,7 +3,7 @@ package model
 import (
 	"strconv"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 
 	"gorm.io/gorm"
 )

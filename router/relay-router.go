@@ -1,11 +1,11 @@
 package router
 
 import (
-	"yishangyunApi/constant"
-	"yishangyunApi/controller"
-	"yishangyunApi/middleware"
-	"yishangyunApi/relay"
-	"yishangyunApi/types"
+	"xunkecloudAPI/constant"
+	"xunkecloudAPI/controller"
+	"xunkecloudAPI/middleware"
+	"xunkecloudAPI/relay"
+	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

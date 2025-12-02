@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/driver/mysql"

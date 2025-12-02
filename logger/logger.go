@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/setting/operation_setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/setting/operation_setting"
 
 	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/gin-gonic/gin"

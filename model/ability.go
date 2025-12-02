@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"yishangyunApi/common"
+	"xunkecloudAPI/common"
 
 	"github.com/samber/lo"
 	"gorm.io/gorm"

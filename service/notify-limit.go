@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"yishangyunApi/common"
-	"yishangyunApi/constant"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/constant"
 	"github.com/bytedance/gopkg/util/gopool"
 )
 

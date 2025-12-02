@@ -5,8 +5,8 @@ import (
 	"strings"
 	"sync"
 
-	"yishangyunApi/common"
-	"yishangyunApi/setting/operation_setting"
+	"xunkecloudAPI/common"
+	"xunkecloudAPI/setting/operation_setting"
 )
 
 // from songquanpeng/one-api

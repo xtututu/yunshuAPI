@@ -1,6 +1,6 @@
 package cohere
 
-import "yishangyunApi/dto"
+import "xunkecloudAPI/dto"
 
 type CohereRequest struct {
 	Model       string        `json:"model"`

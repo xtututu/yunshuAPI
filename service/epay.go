@@ -1,8 +1,8 @@
 package service
 
 import (
-	"yishangyunApi/setting/operation_setting"
-	"yishangyunApi/setting/system_setting"
+	"xunkecloudAPI/setting/operation_setting"
+	"xunkecloudAPI/setting/system_setting"
 )
 
 func GetCallbackAddress() string {
