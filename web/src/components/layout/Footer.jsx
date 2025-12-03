@@ -200,7 +200,7 @@ const FooterBar = () => {
               {t('设计与开发由')}{' '}
             </span>
             <a
-              href='https://github.com/QuantumNous/new-api'
+              href='https://api.xunkecloud.cn/'
               target='_blank'
               rel='noopener noreferrer'
               className='!text-semi-color-primary font-medium'
