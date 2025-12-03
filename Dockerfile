@@ -1,5 +1,5 @@
-# 仅保留 Go 后端构建和最终运行阶段，跳过前端构建
-FROM golang:alpine AS builder2
+# Go 后端构建阶段
+FROM golang:alpine AS backend-builder
 ENV GO111MODULE=on
 ENV CGO_ENABLED=0
 # 使用国内 Go 代理加速依赖下载
@@ -16,7 +16,7 @@ WORKDIR /build
 ADD go.mod go.sum ./
 RUN go mod download
 
-# 复制所有项目文件（包括本地预构建的 web/dist）
+# 复制所有项目文件（包括用户本地构建好的 web/dist）
 COPY . .
 
 # 编译 Go 程序（注入版本信息）
@@ -35,10 +35,10 @@ RUN apk upgrade --no-cache \
     && update-ca-certificates
 
 # 复制编译好的 Go 程序
-COPY --from=builder2 /build/new-api /
+COPY --from=backend-builder /build/new-api /
 
 # 复制docs目录到容器中
-COPY --from=builder2 /build/docs /docs
+COPY --from=backend-builder /build/docs /docs
 
 # 暴露应用端口
 EXPOSE 3000
