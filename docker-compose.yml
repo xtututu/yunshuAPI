@@ -12,9 +12,9 @@ services:
       - ./web:/app/web
     environment:
       # 关键修改：指向旧 MySQL 容器（使用容器名和网络内地址）
-      - SQL_DSN=root:eZ1rW9jR6mU6uP4b@tcp(newapi_pm8s-mysql-1:3306)/new-api
+      - SQL_DSN=root:eZ1rW9jR6mU6uP4b@tcp(newapi_8d5g-mysql-1:3306)/new-api
       # 关键修改：指向旧 Redis 容器（使用容器名和网络内地址）
-      - REDIS_CONN_STRING=redis://newapi_pm8s-redis-1:6379
+      - REDIS_CONN_STRING=redis://newapi_8d5g-redis-1:6379
       - TZ=Asia/Shanghai
       - ERROR_LOG_ENABLED=true # 是否启用错误日志记录 (Whether to enable error log recording)
       - BATCH_UPDATE_ENABLED=true  # 是否启用批量更新 (Whether to enable batch update)

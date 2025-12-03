@@ -59,63 +59,63 @@ const (
 )
 
 var ChannelBaseURLs = []string{
-	"",                                    // 0
-	"https://api.chatfire.cn",             // 1
-	"https://oa.api2d.net",                // 2
-	"",                                    // 3
-	"http://localhost:11434",              // 4
-	"https://api.openai-sb.com",           // 5
-	"https://api.openaimax.com",           // 6
-	"https://api.ohmygpt.com",             // 7
-	"",                                    // 8
-	"https://api.caipacity.com",           // 9
-	"https://api.aiproxy.io",              // 10
-	"",                                    // 11
-	"https://api.api2gpt.com",             // 12
-	"https://api.aigc2d.com",              // 13
-	"https://api.anthropic.com",           // 14
-	"https://aip.baidubce.com",            // 15
-	"https://open.bigmodel.cn",            // 16
-	"https://dashscope.aliyuncs.com",      // 17
-	"",                                    // 18
-	"https://api.360.cn",                  // 19
-	"https://openrouter.ai/api",           // 20
-	"https://api.aiproxy.io",              // 21
-	"https://fastgpt.run/api/openapi",     // 22
-	"https://hunyuan.tencentcloudapi.com", //23
-	"https://generativelanguage.googleapis.com", //24
-	"https://api.moonshot.cn",                   //25
-	"https://open.bigmodel.cn",                  //26
-	"https://api.perplexity.ai",                 //27
-	"",                                          //28
-	"",                                          //29
-	"",                                          //30
-	"https://api.lingyiwanwu.com",               //31
-	"",                                          //32
-	"",                                          //33
-	"https://api.cohere.ai",                     //34
-	"https://api.minimax.chat",                  //35
-	"",                                          //36
-	"https://api.dify.ai",                       //37
-	"https://api.jina.ai",                       //38
-	"https://api.cloudflare.com",                //39
-	"https://api.siliconflow.cn",                //40
-	"",                                          //41
-	"https://api.mistral.ai",                    //42
-	"https://api.deepseek.com",                  //43
-	"https://api.moka.ai",                       //44
-	"https://ark.cn-beijing.volces.com",         //45
-	"https://qianfan.baidubce.com",              //46
-	"",                                          //47
-	"https://api.x.ai",                          //48
-	"https://api.coze.cn",                       //49
-	"https://api.chatfire.cn",                   //50
-	"https://visual.volcengineapi.com",          //51
-	"https://api.vidu.cn",                       //52
-	"https://llm.submodel.ai",                   //53
-	"https://ark.cn-beijing.volces.com",         //54
-	"https://api.chatfire.cn",                   //55
-	"https://api.replicate.com",                 //56
+	"",                        // 0
+	"https://api.chatfire.cn", // 1
+	"https://api.chatfire.cn", // 2
+	"https://api.chatfire.cn", // 3
+	"https://api.chatfire.cn", // 4
+	"https://api.chatfire.cn", // 5
+	"https://api.chatfire.cn", // 6
+	"https://api.chatfire.cn", // 7
+	"https://api.chatfire.cn", // 8
+	"https://api.chatfire.cn", // 9
+	"https://api.chatfire.cn", // 10
+	"https://api.chatfire.cn", // 11
+	"https://api.chatfire.cn", // 12
+	"https://api.chatfire.cn", // 13
+	"https://api.chatfire.cn", // 14
+	"https://api.chatfire.cn", // 15
+	"https://api.chatfire.cn", // 16
+	"https://api.chatfire.cn", // 17
+	"https://api.chatfire.cn", // 18
+	"https://api.chatfire.cn", // 19
+	"https://api.chatfire.cn", // 20
+	"https://api.chatfire.cn", // 21
+	"https://api.chatfire.cn", // 22
+	"https://api.chatfire.cn", // 23
+	"https://api.chatfire.cn", // 24
+	"https://api.chatfire.cn", // 25
+	"https://api.chatfire.cn", // 26
+	"https://api.chatfire.cn", // 27
+	"https://api.chatfire.cn", // 28
+	"https://api.chatfire.cn", // 29
+	"https://api.chatfire.cn", // 30
+	"https://api.chatfire.cn", // 31
+	"https://api.chatfire.cn", // 32
+	"https://api.chatfire.cn", // 33
+	"https://api.chatfire.cn", // 34
+	"https://api.chatfire.cn", // 35
+	"https://api.chatfire.cn", // 36
+	"https://api.chatfire.cn", // 37
+	"https://api.chatfire.cn", // 38
+	"https://api.chatfire.cn", // 39
+	"https://api.chatfire.cn", // 40
+	"https://api.chatfire.cn", // 41
+	"https://api.chatfire.cn", // 42
+	"https://api.chatfire.cn", // 43
+	"https://api.chatfire.cn", // 44
+	"https://api.chatfire.cn", // 45
+	"https://api.chatfire.cn", // 46
+	"https://api.chatfire.cn", // 47
+	"https://api.chatfire.cn", // 48
+	"https://api.chatfire.cn", // 49
+	"https://api.chatfire.cn", // 50
+	"https://api.chatfire.cn", // 51
+	"https://api.chatfire.cn", // 52
+	"https://api.chatfire.cn", // 53
+	"https://api.chatfire.cn", // 54
+	"https://api.chatfire.cn", // 55
+	"https://api.chatfire.cn", // 56
 }
 
 var ChannelTypeNames = map[int]string{
