@@ -5,7 +5,7 @@ services:
     restart: always
     command: --log-dir /app/logs
     ports:
-      - "3000:3000"
+      - "4000:3000"
     volumes:
       - ./data:/data
       - ./logs:/app/logs
@@ -16,6 +16,10 @@ services:
       # 关键修改：指向旧 Redis 容器（使用容器名和网络内地址）
       - REDIS_CONN_STRING=redis://newapi_pm8s-redis-1:6379
       - TZ=Asia/Shanghai
+      - ERROR_LOG_ENABLED=true # 是否启用错误日志记录 (Whether to enable error log recording)
+      - BATCH_UPDATE_ENABLED=true  # 是否启用批量更新 (Whether to enable batch update)
+      - GENERATE_DEFAULT_TOKEN=true  # 启用用户注册后自动生成默认令牌
+      - TASK_PRICE_PATCH=sora-2,sora-2-hd,sora-2-pro,veo3,veo3-pro,veo3.1,veo3.1-pro  # Sora渠道扣费修复：将sora模型添加到价格补丁列表，跳过seconds参数计算
       # 其他环境变量保持不变...
     # 关键修改：加入旧容器所在的 baota_net 网络
     networks:

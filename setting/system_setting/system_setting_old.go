@@ -1,6 +1,6 @@
 package system_setting
 
-var ServerAddress = "http://token.yishangcloud.cn"
+var ServerAddress = "https://api.xunkecloud.cn/"
 var WorkerUrl = ""
 var WorkerValidKey = ""
 var WorkerAllowHttpImageRequestEnabled = false

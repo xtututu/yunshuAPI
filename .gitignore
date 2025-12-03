@@ -17,7 +17,6 @@
  .gocache 
  
  electron/node_modules 
- electron/dist
- web/dist
- web/node_modules
- web/.eslintcache
+electron/dist
+web/node_modules
+web/.eslintcache
