@@ -181,16 +181,25 @@ func ValidateMultipartDirect(c *gin.Context, info *RelayInfo) *dto.TaskError {
 
 	// 如果是 JSON 请求，先尝试解析获取 model
 	if strings.HasPrefix(contentType, "application/json") {
-		var tempReq struct {
-			Model string `json:"model"`
+		// 使用映射后的模型名来判断是否需要转换
+		modelName := info.UpstreamModelName
+		if modelName == "" {
+			// 如果映射后的模型名为空，尝试从请求体中获取原始模型名
+			var tempReq struct {
+				Model string `json:"model"`
+			}
+			body, err := common.GetRequestBody(c)
+			if err == nil {
+				json.Unmarshal(body, &tempReq)
+				modelName = tempReq.Model
+			}
 		}
-		body, err := common.GetRequestBody(c)
-		if err == nil {
-			json.Unmarshal(body, &tempReq)
 
-			// 检查是否需要转换为 multipart
-			if shouldConvertToMultipart(tempReq.Model, contentType) {
-				// 直接使用已经获取的 body 进行转换，避免重复读取
+		// 检查是否需要转换为 multipart
+		if shouldConvertToMultipart(modelName, contentType) {
+			// 直接使用已经获取的 body 进行转换，避免重复读取
+			body, err := common.GetRequestBody(c)
+			if err == nil {
 				if err := convertJSONToMultipartWithBody(c, body); err != nil {
 					return createTaskError(err, "conversion_failed", http.StatusBadRequest, true)
 				}

@@ -1,3 +1,17 @@
+# New-API Docker Compose Configuration
+# 
+# Quick Start:
+#   1. docker-compose up -d
+#   2. Access at http://localhost:3000
+#
+# Using MySQL instead of PostgreSQL:
+#   1. Comment out the postgres service and SQL_DSN line 15
+#   2. Uncomment the mysql service and SQL_DSN line 16
+#   3. Uncomment mysql in depends_on (line 28)
+#   4. Uncomment mysql_data in volumes section (line 64)
+#
+# ⚠️  IMPORTANT: Change all default passwords before deploying to production!
+
 services:
   new-api:
     build: .
@@ -5,40 +19,68 @@ services:
     restart: always
     command: --log-dir /app/logs
     ports:
+      # 覆盖默认的3000端口映射，只保留4000端口
       - "4000:3000"
     volumes:
       - ./data:/data
       - ./logs:/app/logs
       - ./web:/app/web
     environment:
-      # 关键修改：指向旧 MySQL 容器（使用容器名和网络内地址）
-      - SQL_DSN=root:eZ1rW9jR6mU6uP4b@tcp(newapi_8d5g-mysql-1:3306)/new-api
-      # 关键修改：指向旧 Redis 容器（使用容器名和网络内地址）
-      - REDIS_CONN_STRING=redis://newapi_8d5g-redis-1:6379
+#      - SQL_DSN=postgresql://root:123456@postgres:5432/new-api # ⚠️ IMPORTANT: Change the password in production!
+      - SQL_DSN=root:eZ1rW9jR6mU6uP4b@tcp(mysql:3306)/new-api  # Point to the mysql service, uncomment if using MySQL
+      - REDIS_CONN_STRING=redis://redis
       - TZ=Asia/Shanghai
       - ERROR_LOG_ENABLED=true # 是否启用错误日志记录 (Whether to enable error log recording)
       - BATCH_UPDATE_ENABLED=true  # 是否启用批量更新 (Whether to enable batch update)
       - GENERATE_DEFAULT_TOKEN=true  # 启用用户注册后自动生成默认令牌
       - TASK_PRICE_PATCH=sora-2,sora-2-hd,sora-2-pro,veo3,veo3-pro,veo3.1,veo3.1-pro  # Sora渠道扣费修复：将sora模型添加到价格补丁列表，跳过seconds参数计算
-      # 其他环境变量保持不变...
-    # 关键修改：加入旧容器所在的 baota_net 网络
-    networks:
-      - baota_net
-    # 移除原有的 depends_on 中对 redis/mysql 的依赖（因为使用外部容器）
-    depends_on: []
+#      - STREAMING_TIMEOUT=300  # 流模式无响应超时时间，单位秒，默认120秒，如果出现空补全可以尝试改为更大值 （Streaming timeout in seconds, default is 120s. Increase if experiencing empty completions）
+#      - SESSION_SECRET=random_string  # 多机部署时设置，必须修改这个随机字符串！！ （multi-node deployment, set this to a random string!!!!!!!）
+#      - SYNC_FREQUENCY=60  # Uncomment if regular database syncing is needed
+#      - GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX  # Google Analytics 的测量 ID (Google Analytics Measurement ID)
+#      - UMAMI_WEBSITE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  # Umami 网站 ID (Umami Website ID)
+#      - UMAMI_SCRIPT_URL=https://analytics.umami.is/script.js  # Umami 脚本 URL，默认为官方地址 (Umami Script URL, defaults to official URL)
+
+    depends_on:
+      - redis
+#      - postgres
+      - mysql  # Uncomment if using MySQL
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://localhost:3000/api/status | grep -o '\"success\":\\s*true' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-# 原有的 redis、mysql 服务需要注释掉（避免重复创建）
-#  redis:
-#    ...
-#  mysql:
-#    ...
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
 
-# 声明外部网络（指向 baota_net）
-networks:
-  baota_net:
-    external: true  # 表示使用已存在的网络
+#  postgres:
+#    image: postgres:15
+#    container_name: postgres
+#    restart: always
+#    environment:
+#      POSTGRES_USER: root
+#      POSTGRES_PASSWORD: 123456  # ⚠️ IMPORTANT: Change this password in production!
+#      POSTGRES_DB: new-api
+#    volumes:
+#      - pg_data:/var/lib/postgresql/data
+#    ports:
+#      - "5432:5432"  # Uncomment if you need to access PostgreSQL from outside Docker
+
+  mysql:
+    image: mysql:8.2
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: z8f02000X  # ⚠️ IMPORTANT: Change this password in production!
+      MYSQL_DATABASE: yishangyun-api
+    volumes:
+      - mysql_data:/var/lib/mysql
+#    ports:
+#      - "3306:3306"  # Uncomment if you need to access MySQL from outside Docker
+
+volumes:
+#  pg_data:
+  mysql_data:

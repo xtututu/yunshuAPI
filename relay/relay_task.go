@@ -17,6 +17,7 @@ import (
 	"xunkecloudAPI/relay/channel"
 	relaycommon "xunkecloudAPI/relay/common"
 	relayconstant "xunkecloudAPI/relay/constant"
+	"xunkecloudAPI/relay/helper"
 	"xunkecloudAPI/service"
 	"xunkecloudAPI/setting/ratio_setting"
 
@@ -43,19 +44,32 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 		return service.TaskErrorWrapperLocal(fmt.Errorf("invalid api platform: %s", platform), "invalid_api_platform", http.StatusBadRequest)
 	}
 	adaptor.Init(info)
+	modelName := info.OriginModelName
+	if modelName == "" {
+		modelName = service.CoverTaskActionToModelName(platform, info.Action)
+	}
+	
+	// Apply model mapping if available (before validation to ensure correct model is used)
+	err := helper.ModelMappedHelper(c, info, nil)
+	if err != nil {
+		return service.TaskErrorWrapperLocal(err, "model_mapping_failed", http.StatusInternalServerError)
+	}
+	
 	// get & validate taskRequest 获取并验证文本请求
 	taskErr = adaptor.ValidateRequestAndSetAction(c, info)
 	if taskErr != nil {
 		return
 	}
-
-	modelName := info.OriginModelName
-	if modelName == "" {
-		modelName = service.CoverTaskActionToModelName(platform, info.Action)
+	
+	// Use mapped model name for price calculation
+	mappedModelName := info.UpstreamModelName
+	if mappedModelName == "" {
+		mappedModelName = modelName
 	}
-	modelPrice, success := ratio_setting.GetModelPrice(modelName, true)
+	
+	modelPrice, success := ratio_setting.GetModelPrice(mappedModelName, true)
 	if !success {
-		defaultPrice, ok := ratio_setting.GetDefaultModelPriceMap()[modelName]
+		defaultPrice, ok := ratio_setting.GetDefaultModelPriceMap()[mappedModelName]
 		if !ok {
 			modelPrice = 0.1
 		} else {

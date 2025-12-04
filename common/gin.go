@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"mime"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -133,9 +134,15 @@ func ParseMultipartFormReusable(c *gin.Context) (*multipart.Form, error) {
 	fmt.Printf("DEBUG ParseMultipartFormReusable: Body preview: %s\n", string(requestBody[:min(200, len(requestBody))]))
 	
 	boundary := ""
-	if idx := strings.Index(contentType, "boundary="); idx != -1 {
-		boundary = contentType[idx+9:]
-		fmt.Printf("DEBUG ParseMultipartFormReusable: Extracted boundary: %s\n", boundary)
+	if contentType != "" {
+		// 使用mime.ParseMediaType正确解析Content-Type头和boundary
+		mediatype, params, err := mime.ParseMediaType(contentType)
+		if err == nil && mediatype == "multipart/form-data" {
+			if b, ok := params["boundary"]; ok {
+				boundary = b
+				fmt.Printf("DEBUG ParseMultipartFormReusable: Extracted boundary: %s\n", boundary)
+			}
+		}
 	}
 
 	reader := multipart.NewReader(bytes.NewReader(requestBody), boundary)

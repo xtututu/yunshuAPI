@@ -1,22 +1,23 @@
-.idea 
- .vscode 
- .zed 
- upload 
- *.exe 
- *.db 
- build 
- *.db-journal 
- logs 
- .env 
- one-api 
- new-api 
- /__debug_bin* 
- **/.DS_Store 
- tiktoken_cache 
- .eslintcache 
- .gocache 
- 
- electron/node_modules 
+.idea
+.vscode
+.zed
+upload
+*.exe
+*.db
+build
+*.db-journal
+logs
+.env
+one-api
+new-api
+/__debug_bin*
+**/.DS_Store
+tiktoken_cache
+.eslintcache
+.gocache
+
+electron/node_modules
 electron/dist
 web/node_modules
 web/.eslintcache
+docker-compose.yml

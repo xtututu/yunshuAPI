@@ -1,8 +1,0 @@
-[SYS] 2025/11/14 - 16:16:08 | initializing token encoders 
-[SYS] 2025/11/14 - 16:16:08 | token encoders initialized 
-[SYS] 2025/11/14 - 16:16:08 | using MySQL as database 
-[FATAL] 2025/11/14 - 16:16:08 | [dial tcp 172.20.0.3:3306: connect: connection refused] 
-[SYS] 2025/11/14 - 16:16:08 | initializing token encoders 
-[SYS] 2025/11/14 - 16:16:08 | token encoders initialized 
-[SYS] 2025/11/14 - 16:16:08 | using MySQL as database 
-[FATAL] 2025/11/14 - 16:16:08 | [dial tcp 172.20.0.3:3306: connect: connection refused] 

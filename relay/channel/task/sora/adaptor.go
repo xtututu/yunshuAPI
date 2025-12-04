@@ -2,9 +2,13 @@ package sora
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
+	"mime"
+	"mime/multipart"
 	"net/http"
+	"strings"
 
 	"xunkecloudAPI/common"
 	"xunkecloudAPI/dto"
@@ -51,14 +55,13 @@ type responseTask struct {
 	} `json:"error,omitempty"`
 }
 
-// ============================
-// Adaptor implementation
-// ============================
+// ============================// Adaptor implementation// ============================
 
 type TaskAdaptor struct {
-	ChannelType int
-	apiKey      string
-	baseURL     string
+	ChannelType  int
+	apiKey       string
+	baseURL      string
+	newBoundary  string // 用于存储重新构建multipart请求体时生成的新boundary
 }
 
 func (a *TaskAdaptor) Init(info *relaycommon.RelayInfo) {
@@ -78,7 +81,25 @@ func (a *TaskAdaptor) BuildRequestURL(info *relaycommon.RelayInfo) (string, erro
 // BuildRequestHeader sets required headers.
 func (a *TaskAdaptor) BuildRequestHeader(c *gin.Context, req *http.Request, info *relaycommon.RelayInfo) error {
 	req.Header.Set("Authorization", "Bearer "+a.apiKey)
-	req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
+	
+	// 获取原始Content-Type
+	contentType := c.Request.Header.Get("Content-Type")
+	
+	// 如果重新构建了multipart请求体，使用新的boundary更新Content-Type
+	if strings.HasPrefix(contentType, "multipart/form-data") && a.newBoundary != "" {
+		// 解析原始Content-Type
+		mediatype, params, err := mime.ParseMediaType(contentType)
+		if err == nil {
+			// 更新boundary
+			params["boundary"] = a.newBoundary
+			// 重新构建Content-Type
+			contentType = mime.FormatMediaType(mediatype, params)
+			// 重置newBoundary，避免影响后续请求
+			a.newBoundary = ""
+		}
+	}
+	
+	req.Header.Set("Content-Type", contentType)
 	return nil
 }
 
@@ -89,6 +110,105 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 		return nil, errors.Wrap(err, "get_request_body_failed")
 	}
 	
+	// 检查是否需要更新模型名
+	if info.IsModelMapped && info.UpstreamModelName != "" {
+		// 检查请求是否是multipart/form-data格式
+		contentType := c.GetHeader("Content-Type")
+		if strings.HasPrefix(contentType, "multipart/form-data") {
+			// 对于multipart请求，需要重新构建请求体
+			// 先解析原始请求体
+			_, params, err := mime.ParseMediaType(contentType)
+			if err != nil {
+				return nil, errors.Wrap(err, "parse_content_type_failed")
+			}
+			boundary, ok := params["boundary"]
+			if !ok {
+				return nil, errors.New("boundary_not_found_in_content_type")
+			}
+			reader := multipart.NewReader(bytes.NewReader(cachedBody), boundary)
+			parts, err := reader.ReadForm(10 << 20) // 10MB
+			if err != nil {
+				return nil, errors.Wrap(err, "parse_multipart_form_failed")
+			}
+			
+			// 创建新的multipart请求体
+			var newBody bytes.Buffer
+			writer := multipart.NewWriter(&newBody)
+			
+			// 保存新的boundary
+			a.newBoundary = writer.Boundary()
+			
+			// 复制所有字段，更新model字段
+			for key, values := range parts.Value {
+				for _, value := range values {
+					if key == "model" {
+						// 使用映射后的模型名
+						writer.WriteField(key, info.UpstreamModelName)
+					} else {
+						writer.WriteField(key, value)
+					}
+				}
+			}
+			
+			// 复制所有文件
+			for key, files := range parts.File {
+				for _, file := range files {
+					// 打开文件
+					fileContent, err := file.Open()
+					if err != nil {
+						return nil, errors.Wrap(err, "open_file_failed")
+					}
+					
+					// 读取文件内容
+					fileHeader := make([]byte, file.Size)
+					_, err = fileContent.Read(fileHeader)
+					if err != nil {
+						fileContent.Close()
+						return nil, errors.Wrap(err, "read_file_failed")
+					}
+					
+					// 关闭文件
+					fileContent.Close()
+					
+					// 创建新的form文件
+					part, err := writer.CreateFormFile(key, file.Filename)
+					if err != nil {
+						return nil, errors.Wrap(err, "create_form_file_failed")
+					}
+					
+					// 写入文件内容
+					part.Write(fileHeader)
+				}
+			}
+			
+			writer.Close()
+			
+			// 创建一个新的 bytes.Buffer 来支持多次读取
+			bodyCopy := bytes.NewBuffer(newBody.Bytes())
+			return bodyCopy, nil
+		} else if strings.HasPrefix(contentType, "application/json") {
+			// 对于JSON请求，更新模型名
+			var jsonReq map[string]interface{}
+			if err := json.Unmarshal(cachedBody, &jsonReq); err != nil {
+				return nil, errors.Wrap(err, "parse_json_request_failed")
+			}
+			
+			// 更新模型名
+			jsonReq["model"] = info.UpstreamModelName
+			
+			// 重新序列化JSON
+			updatedBody, err := json.Marshal(jsonReq)
+			if err != nil {
+				return nil, errors.Wrap(err, "marshal_json_request_failed")
+			}
+			
+			// 创建一个新的 bytes.Buffer 来支持多次读取
+			bodyCopy := bytes.NewBuffer(updatedBody)
+			return bodyCopy, nil
+		}
+	}
+	
+	// 如果不需要更新模型名，直接返回缓存的请求体
 	// 创建一个新的 bytes.Buffer 来支持多次读取
 	bodyCopy := bytes.NewBuffer(cachedBody)
 	return bodyCopy, nil

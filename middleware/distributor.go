@@ -74,30 +74,31 @@ func Distribute() func(c *gin.Context) {
 			}
 
 			if shouldSelectChannel {
-				if modelRequest.Model == "" {
-					abortWithOpenAiMessage(c, http.StatusBadRequest, "未指定模型名称，模型名称不能为空")
+		if modelRequest.Model == "" {
+			abortWithOpenAiMessage(c, http.StatusBadRequest, "未指定模型名称，模型名称不能为空")
+			return
+		}
+
+		var selectGroup string
+		usingGroup := common.GetContextKeyString(c, constant.ContextKeyUsingGroup)
+		// check path is /pg/chat/completions
+		if strings.HasPrefix(c.Request.URL.Path, "/pg/chat/completions") {
+			playgroundRequest := &dto.PlayGroundRequest{}
+			err = common.UnmarshalBodyReusable(c, playgroundRequest)
+			if err != nil {
+				abortWithOpenAiMessage(c, http.StatusBadRequest, "无效的playground请求, "+err.Error())
+				return
+			}
+			if playgroundRequest.Group != "" {
+				if !service.GroupInUserUsableGroups(usingGroup, playgroundRequest.Group) && playgroundRequest.Group != usingGroup {
+					abortWithOpenAiMessage(c, http.StatusForbidden, "无权访问该分组")
 					return
 				}
-				var selectGroup string
-				usingGroup := common.GetContextKeyString(c, constant.ContextKeyUsingGroup)
-				// check path is /pg/chat/completions
-				if strings.HasPrefix(c.Request.URL.Path, "/pg/chat/completions") {
-					playgroundRequest := &dto.PlayGroundRequest{}
-					err = common.UnmarshalBodyReusable(c, playgroundRequest)
-					if err != nil {
-						abortWithOpenAiMessage(c, http.StatusBadRequest, "无效的playground请求, "+err.Error())
-						return
-					}
-					if playgroundRequest.Group != "" {
-						if !service.GroupInUserUsableGroups(usingGroup, playgroundRequest.Group) && playgroundRequest.Group != usingGroup {
-							abortWithOpenAiMessage(c, http.StatusForbidden, "无权访问该分组")
-							return
-						}
-						usingGroup = playgroundRequest.Group
-						common.SetContextKey(c, constant.ContextKeyUsingGroup, usingGroup)
-					}
-				}
-				channel, selectGroup, err = service.CacheGetRandomSatisfiedChannel(c, usingGroup, modelRequest.Model, 0)
+				usingGroup = playgroundRequest.Group
+				common.SetContextKey(c, constant.ContextKeyUsingGroup, usingGroup)
+			}
+		}
+		channel, selectGroup, err = service.CacheGetRandomSatisfiedChannel(c, usingGroup, modelRequest.Model, 0)
 				if err != nil {
 					showGroup := usingGroup
 					if usingGroup == "auto" {
