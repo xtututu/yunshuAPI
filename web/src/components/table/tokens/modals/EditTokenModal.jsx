@@ -218,8 +218,9 @@ const EditTokenModal = (props) => {
         }
         localInputs.expired_time = Math.ceil(time / 1000);
       }
-      localInputs.model_limits = localInputs.model_limits.join(',');
-      localInputs.model_limits_enabled = localInputs.model_limits.length > 0;
+      // 始终禁用模型限制
+      localInputs.model_limits = '';
+      localInputs.model_limits_enabled = false;
       let res = await API.put(`/api/token/`, {
         ...localInputs,
         id: parseInt(props.editingToken.id),
@@ -255,8 +256,9 @@ const EditTokenModal = (props) => {
           }
           localInputs.expired_time = Math.ceil(time / 1000);
         }
-        localInputs.model_limits = localInputs.model_limits.join(',');
-        localInputs.model_limits_enabled = localInputs.model_limits.length > 0;
+        // 始终禁用模型限制
+        localInputs.model_limits = '';
+        localInputs.model_limits_enabled = false;
         let res = await API.post(`/api/token/`, localInputs);
         const { success, message } = res.data;
         if (success) {
@@ -526,23 +528,6 @@ const EditTokenModal = (props) => {
                   </div>
                 </div>
                 <Row gutter={12}>
-                  <Col span={24}>
-                    <Form.Select
-                      field='model_limits'
-                      label={t('模型限制列表')}
-                      placeholder={t(
-                        '请选择该令牌支持的模型，留空支持所有模型',
-                      )}
-                      multiple
-                      optionList={models}
-                      extraText={t('非必要，不建议启用模型限制')}
-                      filter={selectFilter}
-                      autoClearSearchValue={false}
-                      searchPosition='dropdown'
-                      showClear
-                      style={{ width: '100%' }}
-                    />
-                  </Col>
                   <Col span={24}>
                     <Form.TextArea
                       field='allow_ips'
