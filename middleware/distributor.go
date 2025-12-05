@@ -15,7 +15,6 @@ import (
 	"xunkecloudAPI/model"
 	relayconstant "xunkecloudAPI/relay/constant"
 	"xunkecloudAPI/service"
-	"xunkecloudAPI/setting/ratio_setting"
 	"xunkecloudAPI/types"
 
 	"github.com/gin-gonic/gin"
@@ -52,26 +51,26 @@ func Distribute() func(c *gin.Context) {
 			}
 		} else {
 			// Select a channel for the user
-			// check token model mapping
-			modelLimitEnable := common.GetContextKeyBool(c, constant.ContextKeyTokenModelLimitEnabled)
-			if modelLimitEnable {
-				s, ok := common.GetContextKey(c, constant.ContextKeyTokenModelLimit)
-				if !ok {
-					// token model limit is empty, all models are not allowed
-					abortWithOpenAiMessage(c, http.StatusForbidden, "该令牌无权访问任何模型")
-					return
-				}
-				var tokenModelLimit map[string]bool
-				tokenModelLimit, ok = s.(map[string]bool)
-				if !ok {
-					tokenModelLimit = map[string]bool{}
-				}
-				matchName := ratio_setting.FormatMatchingModelName(modelRequest.Model) // match gpts & thinking-*
-				if _, ok := tokenModelLimit[matchName]; !ok {
-					abortWithOpenAiMessage(c, http.StatusForbidden, "该令牌无权访问模型 "+modelRequest.Model)
-					return
-				}
-			}
+			// check token model mapping - DISABLED by requirement
+			// modelLimitEnable := common.GetContextKeyBool(c, constant.ContextKeyTokenModelLimitEnabled)
+			// if modelLimitEnable {
+			// 	s, ok := common.GetContextKey(c, constant.ContextKeyTokenModelLimit)
+			// 	if !ok {
+			// 		// token model limit is empty, all models are not allowed
+			// 		abortWithOpenAiMessage(c, http.StatusForbidden, "该令牌无权访问任何模型")
+			// 		return
+			// 	}
+			// 	var tokenModelLimit map[string]bool
+			// 	tokenModelLimit, ok = s.(map[string]bool)
+			// 	if !ok {
+			// 		tokenModelLimit = map[string]bool{}
+			// 	}
+			// 	matchName := ratio_setting.FormatMatchingModelName(modelRequest.Model) // match gpts & thinking-*
+			// 	if _, ok := tokenModelLimit[matchName]; !ok {
+			// 		abortWithOpenAiMessage(c, http.StatusForbidden, "该令牌无权访问模型 "+modelRequest.Model)
+			// 		return
+			// 	}
+			// }
 
 			if shouldSelectChannel {
 		if modelRequest.Model == "" {

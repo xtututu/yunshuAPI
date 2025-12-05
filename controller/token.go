@@ -129,7 +129,7 @@ func GetTokenUsage(c *gin.Context) {
 			"total_available":      token.RemainQuota,
 			"unlimited_quota":      token.UnlimitedQuota,
 			"model_limits":         token.GetModelLimitsMap(),
-			"model_limits_enabled": token.ModelLimitsEnabled,
+			"model_limits_enabled": false,
 			"expires_at":           expiredAt,
 		},
 	})
