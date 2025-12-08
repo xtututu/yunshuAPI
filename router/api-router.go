@@ -11,6 +11,8 @@ import (
 func SetApiRouter(router *gin.Engine) {
 	// 注册图片访问路由，不需要认证
 	router.GET("/image/:filename", controller.GetImage)
+	// 注册文件访问路由，不需要认证
+	router.GET("/file/:filename", controller.GetFile)
 
 	apiRouter := router.Group("/api")
 	apiRouter.Use(gzip.Gzip(gzip.DefaultCompression))
@@ -45,6 +47,8 @@ func SetApiRouter(router *gin.Engine) {
 
 		// 图片上传路由
 		apiRouter.POST("/image/upload", controller.UploadImage)
+		// 文件上传路由
+		apiRouter.POST("/file/upload", controller.UploadFile)
 
 		apiRouter.POST("/stripe/webhook", controller.StripeWebhook)
 		apiRouter.POST("/creem/webhook", controller.CreemWebhook)

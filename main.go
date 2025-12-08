@@ -124,6 +124,10 @@ func main() {
 		common.SysLog("pprof enabled")
 	}
 
+	// 启动定时清理过期文件任务
+	go controller.CleanupExpiredFiles()
+	common.SysLog("定时清理过期文件任务已启动")
+
 	// Initialize HTTP server
 	server := gin.New()
 	server.Use(gin.CustomRecovery(func(c *gin.Context, err any) {
