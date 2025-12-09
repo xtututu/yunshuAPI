@@ -154,6 +154,19 @@ func SetRelayRouter(router *gin.Engine) {
 		httpRouter.DELETE("/models/:model", controller.RelayNotImplemented)
 	}
 
+	// Plus version of v1 router
+	relayPlusV1Router := router.Group("/plus/v1")
+	relayPlusV1Router.Use(middleware.TokenAuth())
+	relayPlusV1Router.Use(middleware.ModelRequestRateLimit())
+	{
+		// http router for plus
+		plusHttpRouter := relayPlusV1Router.Group("")
+		plusHttpRouter.Use(middleware.Distribute())
+		plusHttpRouter.POST("/chat/completions", func(c *gin.Context) {
+			controller.Relay(c, types.RelayFormatOpenAI)
+		})
+	}
+
 	relayMjRouter := router.Group("/mj")
 	registerMjRouterGroup(relayMjRouter)
 
