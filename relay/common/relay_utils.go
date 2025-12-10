@@ -100,9 +100,22 @@ func validateMultipartTaskRequest(c *gin.Context, info *RelayInfo, action string
 	}
 
 	formData := form.Value
+	model := getFormDataValue(formData, "model")
+
+	// 处理用户需求：使用sora-2模型时，只允许10或15秒的seconds值
+	secondsStr := getFormDataValue(formData, "seconds")
+	if strings.HasPrefix(model, "sora-2") && secondsStr != "" {
+		if seconds, err := strconv.Atoi(secondsStr); err == nil {
+			// 如果seconds不是10或15，强制设置为15
+			if seconds != 10 && seconds != 15 {
+				secondsStr = "15"
+			}
+		}
+	}
+
 	req = TaskSubmitReq{
 		Prompt:   getFormDataValue(formData, "prompt"),
-		Model:    getFormDataValue(formData, "model"),
+		Model:    model,
 		Mode:     getFormDataValue(formData, "mode"),
 		Image:    getFormDataValue(formData, "image"),
 		Size:     getFormDataValue(formData, "size"),
@@ -114,8 +127,8 @@ func validateMultipartTaskRequest(c *gin.Context, info *RelayInfo, action string
 		return req, fmt.Errorf("prompt validation failed: %s", taskErr.Message)
 	}
 
-	if durationStr := getFormDataValue(formData, "seconds"); durationStr != "" {
-		if duration, err := strconv.Atoi(durationStr); err == nil {
+	if secondsStr != "" {
+		if duration, err := strconv.Atoi(secondsStr); err == nil {
 			req.Duration = duration
 		}
 	}
@@ -306,13 +319,19 @@ func ValidateMultipartDirect(c *gin.Context, info *RelayInfo) *dto.TaskError {
 	if hasInputReference {
 		action = constant.TaskActionGenerate
 	}
-	if strings.HasPrefix(model, "sora-2") {
+	if strings.HasPrefix(model, "sora-2") || model == "sora2" || model == "sora-2-hd" {
 
 		if size == "" {
 			size = "720x1280"
 		}
 
-		if seconds <= 0 {
+		// 处理用户需求：使用sora-2模型时，只允许10或15秒的seconds值
+		if strings.HasPrefix(model, "sora-2") {
+			// 如果seconds是10或15，保持不变，否则设置为15
+			if seconds != 10 && seconds != 15 {
+				seconds = 15
+			}
+		} else if seconds <= 0 {
 			seconds = 4
 		}
 
@@ -377,6 +396,46 @@ func convertJSONToMultipartWithBody(c *gin.Context, body []byte) error {
 	var jsonReq map[string]interface{}
 	if err := json.Unmarshal(body, &jsonReq); err != nil {
 		return fmt.Errorf("failed to parse JSON: %w", err)
+	}
+
+	// 处理用户需求：使用sora-2模型时，只允许10或15秒的seconds值
+	if model, ok := jsonReq["model"].(string); ok && strings.HasPrefix(model, "sora-2") {
+		// 检查并修改seconds字段
+		if seconds, ok := jsonReq["seconds"]; ok {
+			var secondsVal int
+			switch v := seconds.(type) {
+			case string:
+				if sec, err := strconv.Atoi(v); err == nil {
+					secondsVal = sec
+				}
+			case float64:
+				secondsVal = int(v)
+			case int:
+				secondsVal = v
+			}
+			// 如果seconds不是10或15，强制设置为15
+			if secondsVal != 10 && secondsVal != 15 {
+				jsonReq["seconds"] = "15" // 设置为字符串形式，与表单字段格式一致
+			}
+		}
+		// 同样检查并修改duration字段
+		if duration, ok := jsonReq["duration"]; ok {
+			var durationVal int
+			switch v := duration.(type) {
+			case string:
+				if dur, err := strconv.Atoi(v); err == nil {
+					durationVal = dur
+				}
+			case float64:
+				durationVal = int(v)
+			case int:
+				durationVal = v
+			}
+			// 如果duration不是10或15，强制设置为15
+			if durationVal != 10 && durationVal != 15 {
+				jsonReq["duration"] = 15 // 设置为整数形式，与JSON字段格式一致
+			}
+		}
 	}
 
 	// 创建一个 buffer 来存储 multipart 数据

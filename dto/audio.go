@@ -17,6 +17,9 @@ type AudioRequest struct {
 	Speed          float64         `json:"speed,omitempty"`
 	StreamFormat   string          `json:"stream_format,omitempty"`
 	Metadata       json.RawMessage `json:"metadata,omitempty"`
+	PromptAudioUrl string          `json:"prompt_audio_url,omitempty"`
+	PromptText     string          `json:"prompt_text,omitempty"`
+	PromptWavUrl   string          `json:"prompt_wav_url,omitempty"`
 }
 
 func (r *AudioRequest) GetTokenCountMeta() *types.TokenCountMeta {

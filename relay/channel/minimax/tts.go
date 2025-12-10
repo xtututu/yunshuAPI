@@ -12,6 +12,7 @@ import (
 	"xunkecloudAPI/dto"
 	relaycommon "xunkecloudAPI/relay/common"
 	"xunkecloudAPI/types"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,6 +30,9 @@ type MiniMaxTTSRequest struct {
 	SubtitleEnable    bool               `json:"subtitle_enable,omitempty"`
 	OutputFormat      string             `json:"output_format,omitempty"`
 	AigcWatermark     bool               `json:"aigc_watermark,omitempty"`
+	PromptAudioUrl    string             `json:"prompt_audio_url,omitempty"`
+	PromptText        string             `json:"prompt_text,omitempty"`
+	PromptWavUrl      string             `json:"prompt_wav_url,omitempty"`
 }
 
 type StreamOptions struct {
@@ -143,8 +147,23 @@ func handleTTSResponse(c *gin.Context, resp *http.Response, info *relaycommon.Re
 		)
 	}
 
+	// Get response_format from request
+	audioReq, ok := info.Request.(*dto.AudioRequest)
+	if !ok {
+		return nil, types.NewError(errors.New("invalid request type"), types.ErrorCodeInvalidRequest, types.ErrOptionWithSkipRetry())
+	}
+
 	if strings.HasPrefix(minimaxResp.Data.Audio, "http") {
-		c.Redirect(http.StatusFound, minimaxResp.Data.Audio)
+		// Check if response_format is url
+		if audioReq.ResponseFormat == "url" {
+			// Return JSON with audio field
+			c.JSON(http.StatusOK, gin.H{
+				"audio": minimaxResp.Data.Audio,
+			})
+		} else {
+			// Otherwise redirect
+			c.Redirect(http.StatusFound, minimaxResp.Data.Audio)
+		}
 	} else {
 		// Handle hex-encoded audio data
 		audioData, decodeErr := hex.DecodeString(minimaxResp.Data.Audio)

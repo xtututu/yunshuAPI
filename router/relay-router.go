@@ -154,6 +154,21 @@ func SetRelayRouter(router *gin.Engine) {
 		httpRouter.DELETE("/models/:model", controller.RelayNotImplemented)
 	}
 
+	// OpenAI compatible router
+	openaiV1Router := router.Group("/openai/v1")
+	openaiV1Router.Use(middleware.TokenAuth())
+	openaiV1Router.Use(middleware.ModelRequestRateLimit())
+	{
+		// http router
+		openaiHttpRouter := openaiV1Router.Group("")
+		openaiHttpRouter.Use(middleware.Distribute())
+
+		// audio related routes
+		openaiHttpRouter.POST("/audio/speech", func(c *gin.Context) {
+			controller.Relay(c, types.RelayFormatOpenAIAudio)
+		})
+	}
+
 	// Plus version of v1 router
 	relayPlusV1Router := router.Group("/plus/v1")
 	relayPlusV1Router.Use(middleware.TokenAuth())

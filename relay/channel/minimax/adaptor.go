@@ -48,7 +48,10 @@ func (a *Adaptor) ConvertAudioRequest(c *gin.Context, info *relaycommon.RelayInf
 		AudioSetting: &AudioSetting{
 			Format: outputFormat,
 		},
-		OutputFormat: outputFormat,
+		OutputFormat:   outputFormat,
+		PromptAudioUrl: request.PromptAudioUrl,
+		PromptText:     request.PromptText,
+		PromptWavUrl:   request.PromptWavUrl,
 	}
 
 	// 同步扩展字段的厂商自定义metadata

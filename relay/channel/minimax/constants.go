@@ -12,6 +12,7 @@ var ModelList = []string{
 	"speech-2.5-turbo-preview",
 	"speech-02-hd",
 	"speech-02-turbo",
+	"minimax-speech-02-turbo",
 	"speech-01-hd",
 	"speech-01-turbo",
 }
