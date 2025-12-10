@@ -22,4 +22,7 @@ web/node_modules
 web/.eslintcache
 docker-compose.yml
 data/files/
+data/images/
 files/
+test.png
+test.txt

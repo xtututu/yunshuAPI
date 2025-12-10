@@ -8,13 +8,13 @@ import (
 	"xunkecloudAPI/common"
 	"xunkecloudAPI/controller"
 	"xunkecloudAPI/middleware"
-	"github.com/gin-contrib/gzip"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
 func SetWebRouter(router *gin.Engine, buildFS embed.FS, indexPage []byte) {
-	router.Use(gzip.Gzip(gzip.DefaultCompression))
+	// 禁用全局gzip压缩，以确保Content-Length头正确设置
+	// router.Use(gzip.Gzip(gzip.DefaultCompression))
 	router.Use(middleware.GlobalWebRateLimit())
 	router.Use(middleware.Cache())
 	router.Use(static.Serve("/", common.EmbedFolder(buildFS, "web/dist")))
