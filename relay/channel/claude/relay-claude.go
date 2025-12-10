@@ -358,7 +358,7 @@ func RequestOpenAI2ClaudeMessage(c *gin.Context, textRequest dto.GeneralOpenAIRe
 					}
 					if mediaMessage.Type == "text" {
 						claudeMediaMessage.Text = common.GetPointer[string](mediaMessage.Text)
-					} else {
+					} else if mediaMessage.Type == dto.ContentTypeImageURL {
 						imageUrl := mediaMessage.GetImageMedia()
 						claudeMediaMessage.Type = "image"
 						claudeMediaMessage.Source = &dto.ClaudeMessageSource{
@@ -380,6 +380,27 @@ func RequestOpenAI2ClaudeMessage(c *gin.Context, textRequest dto.GeneralOpenAIRe
 							}
 							claudeMediaMessage.Source.MediaType = "image/" + format
 							claudeMediaMessage.Source.Data = base64String
+						}
+					} else if mediaMessage.Type == dto.ContentTypeFileURL {
+						fileUrl := mediaMessage.GetFileUrl()
+						claudeMediaMessage.Type = "file"
+						claudeMediaMessage.Source = &dto.ClaudeMessageSource{
+							Type: "base64",
+						}
+						// 判断是否是url
+						if strings.HasPrefix(fileUrl.Url, "http") {
+							// 是url，获取文件的类型和base64编码的数据
+							fileData, err := service.GetFileBase64FromUrl(c, fileUrl.Url, "formatting file for Claude")
+							if err != nil {
+								return nil, fmt.Errorf("get file base64 from url failed: %s", err.Error())
+							}
+							claudeMediaMessage.Source.MediaType = fileData.MimeType
+							claudeMediaMessage.Source.Data = fileData.Base64Data
+						} else {
+							// 假设是直接的base64数据
+							// 这里需要根据实际情况解析fileUrl.Url
+							// 为了简化，我们暂时返回错误
+							return nil, fmt.Errorf("unsupported file url format: %s", fileUrl.Url)
 						}
 					}
 					claudeMediaMessages = append(claudeMediaMessages, claudeMediaMessage)

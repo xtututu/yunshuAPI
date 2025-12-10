@@ -298,6 +298,7 @@ type MediaContent struct {
 	InputAudio any    `json:"input_audio,omitempty"`
 	File       any    `json:"file,omitempty"`
 	VideoUrl   any    `json:"video_url,omitempty"`
+	FileUrl    any    `json:"file_url,omitempty"`
 	// OpenRouter Params
 	CacheControl json.RawMessage `json:"cache_control,omitempty"`
 }
@@ -352,6 +353,22 @@ func (m *MediaContent) GetFile() *MessageFile {
 	return nil
 }
 
+func (m *MediaContent) GetFileUrl() *MessageFileUrl {
+	if m.FileUrl != nil {
+		if _, ok := m.FileUrl.(*MessageFileUrl); ok {
+			return m.FileUrl.(*MessageFileUrl)
+		}
+		if itemMap, ok := m.FileUrl.(map[string]any); ok {
+			out := &MessageFileUrl{
+				Url:      common.Interface2String(itemMap["url"]),
+				MimeType: common.Interface2String(itemMap["mime_type"]),
+			}
+			return out
+		}
+	}
+	return nil
+}
+
 func (m *MediaContent) GetVideoUrl() *MessageVideoUrl {
 	if m.VideoUrl != nil {
 		if _, ok := m.VideoUrl.(*MessageVideoUrl); ok {
@@ -389,7 +406,13 @@ type MessageFile struct {
 }
 
 type MessageVideoUrl struct {
-	Url string `json:"url"`
+	Url      string `json:"url"`
+	MimeType string `json:"mime_type,omitempty"`
+}
+
+type MessageFileUrl struct {
+	Url      string `json:"url"`
+	MimeType string `json:"mime_type,omitempty"`
 }
 
 const (
@@ -398,6 +421,7 @@ const (
 	ContentTypeInputAudio = "input_audio"
 	ContentTypeFile       = "file"
 	ContentTypeVideoUrl   = "video_url" // 阿里百炼视频识别
+	ContentTypeFileURL    = "file_url"  // 支持直接文件URL，如飞书文件下载链接
 	//ContentTypeAudioUrl   = "audio_url"
 )
 
@@ -598,6 +622,26 @@ func (m *Message) ParseContent() []MediaContent {
 					},
 				})
 			}
+		case ContentTypeFileURL:
+			fileUrl := contentItem["file_url"]
+			temp := &MessageFileUrl{}
+			switch v := fileUrl.(type) {
+			case string:
+				temp.Url = v
+			case map[string]interface{}:
+				url, ok1 := v["url"].(string)
+				mimeType, ok2 := v["mime_type"].(string)
+				if ok2 {
+					temp.MimeType = mimeType
+				}
+				if ok1 {
+					temp.Url = url
+				}
+			}
+			contentList = append(contentList, MediaContent{
+				Type:    ContentTypeFileURL,
+				FileUrl: temp,
+			})
 		}
 	}
 

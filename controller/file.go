@@ -87,13 +87,35 @@ func UploadFile(c *gin.Context) {
 	err = c.ShouldBindJSON(&req)
 	if err == nil && req.FileURL != "" {
 		// 通过URL下载文件
-		// 创建一个自定义的HTTP客户端，跳过SSL证书验证
+		// 创建一个自定义的HTTP客户端，跳过SSL证书验证，并处理重定向
 		client := &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 			},
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				// 确保重定向请求也携带相同的请求头
+				req.Header = via[0].Header
+				return nil
+			},
 		}
-		resp, err := client.Get(req.FileURL)
+		// 创建请求并添加适当的请求头
+		httpReq, err := http.NewRequest("GET", req.FileURL, nil)
+		if err != nil {
+			log.Printf("创建请求失败: %v", err)
+			c.JSON(http.StatusOK, gin.H{
+				"message": "下载文件失败",
+				"success": false,
+			})
+			return
+		}
+		// 添加浏览器类型的User-Agent
+		httpReq.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+		// 添加接受任何内容类型的Accept头
+		httpReq.Header.Set("Accept", "*/*")
+		// 添加Connection头
+		httpReq.Header.Set("Connection", "keep-alive")
+		// 发送请求
+		resp, err := client.Do(httpReq)
 		if err != nil {
 			log.Printf("下载文件失败: %v", err)
 			c.JSON(http.StatusOK, gin.H{
@@ -116,11 +138,58 @@ func UploadFile(c *gin.Context) {
 		// 获取文件扩展名
 		ext := filepath.Ext(req.FileURL)
 		if ext == "" {
-			// 如果没有扩展名，尝试从Content-Type推断
-			contentType := resp.Header.Get("Content-Type")
-			ext = getFileExtensionFromContentType(contentType)
+			// 尝试从Content-Disposition头获取文件名和扩展名
+			disposition := resp.Header.Get("Content-Disposition")
+			if disposition != "" {
+				// 查找filename="..." 或 filename*="..."
+				parts := strings.Split(disposition, ";")
+				for _, part := range parts {
+					part = strings.TrimSpace(part)
+					if strings.HasPrefix(part, "filename=") {
+						// 提取filename的值
+						filenameValue := strings.TrimPrefix(part, "filename=")
+						filenameValue = strings.Trim(filenameValue, `"'`)
+						ext = filepath.Ext(filenameValue)
+						break
+					} else if strings.HasPrefix(part, "filename*") {
+						// 提取filename*的值
+						filenameValue := strings.TrimPrefix(part, "filename*")
+						filenameValue = strings.TrimPrefix(filenameValue, "=")
+						filenameValue = strings.Trim(filenameValue, `"'`)
+						// 简单处理，直接提取扩展名
+						ext = filepath.Ext(filenameValue)
+						break
+					}
+				}
+			}
+
+			// 如果从Content-Disposition头没有获取到扩展名，尝试从Content-Type推断
 			if ext == "" {
-				ext = ".bin" // 默认使用bin扩展名
+				contentType := resp.Header.Get("Content-Type")
+				// 从image.go中复用getFileExtensionFromContentType函数的逻辑
+				typeMap := map[string]string{
+					"application/pdf":    ".pdf",
+					"application/msword": ".doc",
+					"application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
+					"application/vnd.ms-excel": ".xls",
+					"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":         ".xlsx",
+					"application/vnd.ms-powerpoint":                                             ".ppt",
+					"application/vnd.openxmlformats-officedocument.presentationml.presentation": ".pptx",
+					"text/plain":                   ".txt",
+					"application/zip":              ".zip",
+					"application/x-rar-compressed": ".rar",
+					"application/x-7z-compressed":  ".7z",
+					"audio/mpeg":                   ".mp3",
+					"audio/wav":                    ".wav",
+					"audio/ogg":                    ".ogg",
+					"video/mp4":                    ".mp4",
+					"video/x-msvideo":              ".avi",
+					"video/quicktime":              ".mov",
+				}
+				ext = typeMap[strings.ToLower(contentType)]
+				if ext == "" {
+					ext = ".bin" // 默认使用bin扩展名
+				}
 			}
 		}
 
@@ -214,25 +283,13 @@ func GetFile(c *gin.Context) {
 		return
 	}
 
-	// 读取文件内容
-	fileData, err := os.ReadFile(fullPath)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "读取文件失败",
-			"success": false,
-		})
-		return
-	}
-
-	// 设置Content-Length头
-	c.Header("Content-Length", fmt.Sprintf("%d", len(fileData)))
-
 	// 根据文件扩展名设置正确的Content-Type
 	ext := strings.ToLower(filepath.Ext(filename))
 	contentType := getContentTypeFromExtension(ext)
+	c.Header("Content-Type", contentType)
 
-	// 使用c.Data直接发送数据和Content-Type
-	c.Data(http.StatusOK, contentType, fileData)
+	// 提供文件下载
+	c.File(fullPath)
 }
 
 // 辅助函数：根据文件扩展名获取Content-Type
