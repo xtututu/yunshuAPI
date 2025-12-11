@@ -325,10 +325,17 @@ func ValidateMultipartDirect(c *gin.Context, info *RelayInfo) *dto.TaskError {
 			size = "720x1280"
 		}
 
-		// 处理用户需求：使用sora-2模型时，只允许10或15秒的seconds值
-		if strings.HasPrefix(model, "sora-2") {
-			// 如果seconds是10或15，保持不变，否则设置为15
-			if seconds != 10 && seconds != 15 {
+		// 处理用户需求：使用sora-2或sora-2-pro模型时的seconds值限制
+		if model == "sora-2" || model == "sora-2-hd" {
+			// sora-2模型：如果seconds等于25，强制变为15秒
+			if seconds == 25 {
+				seconds = 15
+			}
+		} else if model == "sora-2-pro" {
+			// sora-2-pro模型：只允许15或25秒，如果传入10则变15
+			if seconds == 10 {
+				seconds = 15
+			} else if seconds != 15 && seconds != 25 {
 				seconds = 15
 			}
 		} else if seconds <= 0 {
@@ -398,8 +405,8 @@ func convertJSONToMultipartWithBody(c *gin.Context, body []byte) error {
 		return fmt.Errorf("failed to parse JSON: %w", err)
 	}
 
-	// 处理用户需求：使用sora-2模型时，只允许10或15秒的seconds值
-	if model, ok := jsonReq["model"].(string); ok && strings.HasPrefix(model, "sora-2") {
+	// 处理用户需求：使用sora-2或sora-2-pro模型时的seconds值限制
+	if model, ok := jsonReq["model"].(string); ok {
 		// 检查并修改seconds字段
 		if seconds, ok := jsonReq["seconds"]; ok {
 			var secondsVal int
@@ -413,9 +420,20 @@ func convertJSONToMultipartWithBody(c *gin.Context, body []byte) error {
 			case int:
 				secondsVal = v
 			}
-			// 如果seconds不是10或15，强制设置为15
-			if secondsVal != 10 && secondsVal != 15 {
-				jsonReq["seconds"] = "15" // 设置为字符串形式，与表单字段格式一致
+
+			// 根据模型类型处理seconds值
+			if model == "sora-2" {
+				// sora-2模型：如果seconds等于25，强制变为15秒
+				if secondsVal == 25 {
+					jsonReq["seconds"] = "15" // 设置为字符串形式，与表单字段格式一致
+				}
+			} else if model == "sora-2-pro" {
+				// sora-2-pro模型：只允许15或25秒，如果传入10则变15
+				if secondsVal == 10 {
+					jsonReq["seconds"] = "15" // 设置为字符串形式，与表单字段格式一致
+				} else if secondsVal != 15 && secondsVal != 25 {
+					jsonReq["seconds"] = "15" // 设置为字符串形式，与表单字段格式一致
+				}
 			}
 		}
 		// 同样检查并修改duration字段
