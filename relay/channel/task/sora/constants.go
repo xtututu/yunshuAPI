@@ -2,6 +2,7 @@ package sora
 
 var ModelList = []string{
 	"sora-2",
+	"sora-2-hd",
 	"sora-2-pro",
 }
 

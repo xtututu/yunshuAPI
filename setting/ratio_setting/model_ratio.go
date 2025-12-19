@@ -293,6 +293,7 @@ var defaultModelPrice = map[string]float64{
 	"swap_face":                      0.05,
 	"mj_upload":                      0.05,
 	"sora-2":                         0.3,
+	"sora-2-hd":                      0.3,
 	"sora-2-pro":                     0.5,
 }
 
