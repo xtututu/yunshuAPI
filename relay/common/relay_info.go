@@ -496,6 +496,8 @@ type TaskSubmitReq struct {
 	Seconds        string                 `json:"seconds,omitempty" form:"seconds"`
 	InputReference interface{}            `json:"input_reference,omitempty" form:"input_reference"` // 支持字符串或数组
 	Metadata       map[string]interface{} `json:"metadata,omitempty" form:"metadata"`
+	WebHook        string                 `json:"webHook,omitempty" form:"webHook"`
+	ShutProgress   bool                   `json:"shutProgress,omitempty" form:"shutProgress"`
 }
 
 func (t TaskSubmitReq) GetPrompt() string {

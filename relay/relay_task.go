@@ -48,25 +48,25 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 	if modelName == "" {
 		modelName = service.CoverTaskActionToModelName(platform, info.Action)
 	}
-	
+
 	// Apply model mapping if available (before validation to ensure correct model is used)
 	err := helper.ModelMappedHelper(c, info, nil)
 	if err != nil {
 		return service.TaskErrorWrapperLocal(err, "model_mapping_failed", http.StatusInternalServerError)
 	}
-	
+
 	// get & validate taskRequest 获取并验证文本请求
 	taskErr = adaptor.ValidateRequestAndSetAction(c, info)
 	if taskErr != nil {
 		return
 	}
-	
+
 	// Use mapped model name for price calculation
 	mappedModelName := info.UpstreamModelName
 	if mappedModelName == "" {
 		mappedModelName = modelName
 	}
-	
+
 	modelPrice, success := ratio_setting.GetModelPrice(mappedModelName, true)
 	if !success {
 		defaultPrice, ok := ratio_setting.GetDefaultModelPriceMap()[mappedModelName]
@@ -151,7 +151,7 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 	// handle response
 	if resp != nil && resp.StatusCode != http.StatusOK {
 		responseBody, _ := io.ReadAll(resp.Body)
-		taskErr = service.TaskErrorWrapper(fmt.Errorf(string(responseBody)), "fail_to_fetch_task", resp.StatusCode)
+		taskErr = service.TaskErrorWrapper(errors.New(string(responseBody)), "fail_to_fetch_task", resp.StatusCode)
 		return
 	}
 
@@ -227,6 +227,29 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 		taskErr = service.TaskErrorWrapper(err, "insert_task_failed", http.StatusInternalServerError)
 		return
 	}
+
+	// 返回成功响应，使用用户期望的格式
+	response := map[string]interface{}{
+		"code": 0,
+		"msg":  "success",
+		"data": map[string]interface{}{
+			"id": taskID,
+		},
+	}
+
+	respBody, err := json.Marshal(response)
+	if err != nil {
+		taskErr = service.TaskErrorWrapper(err, "marshal_response_failed", http.StatusInternalServerError)
+		return
+	}
+
+	c.Writer.Header().Set("Content-Type", "application/json")
+	_, err = io.Copy(c.Writer, bytes.NewBuffer(respBody))
+	if err != nil {
+		taskErr = service.TaskErrorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError)
+		return
+	}
+
 	return nil
 }
 
