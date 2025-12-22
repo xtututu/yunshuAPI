@@ -254,11 +254,20 @@ func DoRequest(c *gin.Context, req *http.Request, info *common.RelayInfo) (*http
 	return doRequest(c, req, info)
 }
 func doRequest(c *gin.Context, req *http.Request, info *common.RelayInfo) (*http.Response, error) {
+	if common2.DebugEnabled {
+		println("doRequest - req.URL:", req.URL.String())
+		println("doRequest - req.URL.Scheme:", req.URL.Scheme)
+		println("doRequest - req.URL.Host:", req.URL.Host)
+		println("doRequest - req.URL.Path:", req.URL.Path)
+	}
 	var client *http.Client
 	var err error
 	if info.ChannelSetting.Proxy != "" {
 		client, err = service.NewProxyHttpClient(info.ChannelSetting.Proxy)
 		if err != nil {
+			if common2.DebugEnabled {
+				println("doRequest - new proxy client failed:", err.Error())
+			}
 			return nil, fmt.Errorf("new proxy http client failed: %w", err)
 		}
 	} else {
@@ -287,6 +296,9 @@ func doRequest(c *gin.Context, req *http.Request, info *common.RelayInfo) (*http
 
 	resp, err := client.Do(req)
 	if err != nil {
+		if common2.DebugEnabled {
+			println("doRequest - client.Do failed:", err.Error())
+		}
 		logger.LogError(c, "do request failed: "+err.Error())
 		return nil, types.NewError(err, types.ErrorCodeDoRequestFailed, types.ErrOptionWithHideErrMsg("upstream error: do request failed"))
 	}
@@ -300,12 +312,31 @@ func doRequest(c *gin.Context, req *http.Request, info *common.RelayInfo) (*http
 }
 
 func DoTaskApiRequest(a TaskAdaptor, c *gin.Context, info *common.RelayInfo, requestBody io.Reader) (*http.Response, error) {
+	// 添加调试日志，检查adaptor的类型和状态
+	if common2.DebugEnabled {
+		println("DoTaskApiRequest - adaptor type:", fmt.Sprintf("%T", a))
+	}
+	
 	fullRequestURL, err := a.BuildRequestURL(info)
 	if err != nil {
+		if common2.DebugEnabled {
+			println("DoTaskApiRequest - BuildRequestURL error:", err.Error())
+		}
 		return nil, err
 	}
+	if common2.DebugEnabled {
+		println("DoTaskApiRequest - fullRequestURL:", fullRequestURL)
+		println("DoTaskApiRequest - URL format check - has http://:", strings.HasPrefix(fullRequestURL, "http://"))
+		println("DoTaskApiRequest - URL format check - has https://:", strings.HasPrefix(fullRequestURL, "https://"))
+		println("DoTaskApiRequest - request method:", c.Request.Method)
+	}
+	
 	req, err := http.NewRequest(c.Request.Method, fullRequestURL, requestBody)
 	if err != nil {
+		if common2.DebugEnabled {
+			println("DoTaskApiRequest - http.NewRequest error:", err.Error())
+			println("DoTaskApiRequest - failing URL:", fullRequestURL)
+		}
 		return nil, fmt.Errorf("new request failed: %w", err)
 	}
 	

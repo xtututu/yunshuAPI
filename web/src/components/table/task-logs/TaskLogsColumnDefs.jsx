@@ -134,22 +134,38 @@ const renderType = (type, t) => {
   }
 };
 
-const renderPlatform = (platform, t) => {
+const renderPlatform = (platform, t, isAdminUser) => {
   let option = CHANNEL_OPTIONS.find(
     (opt) => String(opt.value) === String(platform),
   );
   if (option) {
+    let displayLabel = option.label;
+    // 对于非管理员用户，只显示"-"前的内容
+    if (!isAdminUser && displayLabel.includes('-')) {
+      displayLabel = displayLabel.split('-')[0].trim();
+    }
     return (
       <Tag color={option.color} shape='circle' prefixIcon={<Video size={14} />}>
-        {option.label}
+        {displayLabel}
       </Tag>
     );
   }
-  switch (platform) {
+  // 处理字符串类型的平台名称，如'suno', 'sora-g', 'sora-s'
+  let displayName = platform;
+  if (!isAdminUser && typeof platform === 'string' && platform.includes('-')) {
+    displayName = platform.split('-')[0].trim();
+  }
+  switch (displayName.toLowerCase()) {
     case 'suno':
       return (
         <Tag color='green' shape='circle' prefixIcon={<Music size={14} />}>
           Suno
+        </Tag>
+      );
+    case 'sora':
+      return (
+        <Tag color='green' shape='circle' prefixIcon={<Video size={14} />}>
+          {displayName}
         </Tag>
       );
     default:
@@ -159,6 +175,21 @@ const renderPlatform = (platform, t) => {
         </Tag>
       );
   }
+};
+
+// Render username
+const renderUsername = (text, t) => {
+  return text || '-';
+};
+
+// Render upstream model
+const renderUpstreamModel = (text, t) => {
+  return text || '-';
+};
+
+// Render origin model
+const renderOriginModel = (text, t) => {
+  return text || '-';
 };
 
 const renderStatus = (type, t) => {
@@ -286,7 +317,31 @@ export const getTaskLogsColumns = ({
       title: t('平台'),
       dataIndex: 'platform',
       render: (text, record, index) => {
-        return <div>{renderPlatform(text, t)}</div>;
+        return <div>{renderPlatform(text, t, isAdminUser)}</div>;
+      },
+    },
+    {
+      key: COLUMN_KEYS.USERNAME,
+      title: t('用户名称'),
+      dataIndex: 'username',
+      render: (text, record, index) => {
+        return <div>{renderUsername(text, t)}</div>;
+      },
+    },
+    {
+      key: COLUMN_KEYS.UPSTREAM_MODEL,
+      title: t('实际调用模型'),
+      dataIndex: 'upstream_model_name',
+      render: (text, record, index) => {
+        return <div>{renderUpstreamModel(text, t)}</div>;
+      },
+    },
+    {
+      key: COLUMN_KEYS.ORIGIN_MODEL,
+      title: t('原始模型'),
+      dataIndex: 'origin_model_name',
+      render: (text, record, index) => {
+        return <div>{renderOriginModel(text, t)}</div>;
       },
     },
     {

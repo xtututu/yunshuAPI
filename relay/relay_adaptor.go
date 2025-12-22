@@ -35,6 +35,8 @@ import (
 	taskjimeng "xunkecloudAPI/relay/channel/task/jimeng"
 	"xunkecloudAPI/relay/channel/task/kling"
 	tasksora "xunkecloudAPI/relay/channel/task/sora"
+	tasksorag "xunkecloudAPI/relay/channel/task/sora-g"
+	tasksoras "xunkecloudAPI/relay/channel/task/sora-s"
 	"xunkecloudAPI/relay/channel/task/suno"
 	taskvertex "xunkecloudAPI/relay/channel/task/vertex"
 	taskVidu "xunkecloudAPI/relay/channel/task/vidu"
@@ -45,6 +47,7 @@ import (
 	"xunkecloudAPI/relay/channel/xunfei"
 	"xunkecloudAPI/relay/channel/zhipu"
 	"xunkecloudAPI/relay/channel/zhipu_4v"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -153,6 +156,10 @@ func GetTaskAdaptor(platform constant.TaskPlatform) channel.TaskAdaptor {
 			return &tasksora.TaskAdaptor{}
 		case constant.ChannelTypeGemini:
 			return &taskGemini.TaskAdaptor{}
+		case constant.ChannelTypeSoraG:
+			return &tasksorag.TaskAdaptor{}
+		case constant.ChannelTypeSoraS:
+			return &tasksoras.TaskAdaptor{}
 		}
 	}
 	return nil

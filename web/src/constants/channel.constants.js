@@ -180,6 +180,16 @@ export const CHANNEL_OPTIONS = [
     label: 'Sora',
   },
   {
+    value: 57,
+    color: 'green',
+    label: 'Sora-g',
+  },
+  {
+    value: 58,
+    color: 'green',
+    label: 'Sora-s',
+  },
+  {
     value: 56,
     color: 'blue',
     label: 'Replicate',

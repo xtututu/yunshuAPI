@@ -156,11 +156,14 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 	}{
 		Model:         req.Model,
 		Prompt:        req.Prompt,
+		URL:           req.URL, // 优先使用直接传入的URL
+		AspectRatio:   req.AspectRatio,
+		Duration:      req.Duration,
 		RemixTargetId: "",
 		Characters:    []any{},
-		Size:          req.Size,
-		WebHook:       req.WebHook,
-		ShutProgress:  req.ShutProgress,
+		Size:          "large", // 固定设置为large
+		WebHook:       "-1",    // 固定设置为-1
+		ShutProgress:  true,    // 固定设置为true
 	}
 
 	// 映射模型名
@@ -168,8 +171,8 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 		requestPayload.Model = info.UpstreamModelName
 	}
 
-	// 映射input_reference到url
-	if req.InputReference != nil {
+	// 如果URL为空，尝试从input_reference获取
+	if requestPayload.URL == "" && req.InputReference != nil {
 		switch v := req.InputReference.(type) {
 		case string:
 			if v != "" {

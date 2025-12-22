@@ -299,6 +299,16 @@ func GetUserById(id int, selectAll bool) (*User, error) {
 	return &user, err
 }
 
+// GetUsersByIDs 批量获取用户信息
+func GetUsersByIDs(ids []int) ([]*User, error) {
+	if len(ids) == 0 {
+		return []*User{}, nil
+	}
+	var users []*User
+	err := DB.Omit("password").Where("id in ?", ids).Find(&users).Error
+	return users, err
+}
+
 func GetUserIdByAffCode(affCode string) (int, error) {
 	if affCode == "" {
 		return 0, errors.New("affCode 为空！")

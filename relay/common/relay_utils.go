@@ -113,12 +113,16 @@ func validateMultipartTaskRequest(c *gin.Context, info *RelayInfo, action string
 	}
 
 	req = TaskSubmitReq{
-		Prompt:   getFormDataValue(formData, "prompt"),
-		Model:    model,
-		Mode:     getFormDataValue(formData, "mode"),
-		Image:    getFormDataValue(formData, "image"),
-		Size:     getFormDataValue(formData, "size"),
-		Metadata: make(map[string]interface{}),
+		Prompt:        getFormDataValue(formData, "prompt"),
+		Model:         model,
+		Mode:          getFormDataValue(formData, "mode"),
+		Image:         getFormDataValue(formData, "image"),
+		Size:          getFormDataValue(formData, "size"),
+		URL:           getFormDataValue(formData, "url"),
+		AspectRatio:   getFormDataValue(formData, "aspectRatio"),
+		WebHook:       getFormDataValue(formData, "webHook"),
+		ShutProgress:  getFormDataValue(formData, "shutProgress") == "true",
+		Metadata:      make(map[string]interface{}),
 	}
 
 	// 验证 prompt 字段
@@ -349,6 +353,7 @@ func ValidateMultipartDirect(c *gin.Context, info *RelayInfo) *dto.TaskError {
 	}
 
 	info.Action = action
+	storeTaskRequest(c, info, action, req)
 
 	return nil
 }
@@ -363,6 +368,10 @@ func isKnownTaskField(field string) bool {
 		"size":            true,
 		"duration":        true,
 		"input_reference": true, // Sora 特有字段
+		"url":             true,
+		"aspectRatio":     true,
+		"webHook":         true,
+		"shutProgress":    true,
 	}
 	return knownFields[field]
 }

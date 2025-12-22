@@ -85,6 +85,28 @@ const TaskLogsFilters = ({
               size='small'
             />
           )}
+
+          {/* 用户名称 - 仅管理员可见 */}
+          {isAdminUser && (
+            <Form.Input
+              field='username'
+              prefix={<IconSearch />}
+              placeholder={t('用户名称')}
+              showClear
+              pure
+              size='small'
+            />
+          )}
+
+          {/* 实际调用模型 */}
+          <Form.Input
+            field='upstream_model_name'
+            prefix={<IconSearch />}
+            placeholder={t('实际调用模型')}
+            showClear
+            pure
+            size='small'
+          />
         </div>
 
         {/* 操作按钮区域 */}

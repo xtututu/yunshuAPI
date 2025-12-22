@@ -495,6 +495,8 @@ type TaskSubmitReq struct {
 	Duration       int                    `json:"duration,omitempty" form:"duration"`
 	Seconds        string                 `json:"seconds,omitempty" form:"seconds"`
 	InputReference interface{}            `json:"input_reference,omitempty" form:"input_reference"` // 支持字符串或数组
+	URL            string                 `json:"url,omitempty" form:"url"` // 用于直接指定URL
+	AspectRatio    string                 `json:"aspectRatio,omitempty" form:"aspectRatio"` // 宽高比
 	Metadata       map[string]interface{} `json:"metadata,omitempty" form:"metadata"`
 	WebHook        string                 `json:"webHook,omitempty" form:"webHook"`
 	ShutProgress   bool                   `json:"shutProgress,omitempty" form:"shutProgress"`

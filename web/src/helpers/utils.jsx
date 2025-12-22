@@ -123,11 +123,15 @@ export function showError(error) {
   console.error(error);
   if (error.message) {
     if (error.name === 'AxiosError') {
-      switch (error.response.status) {
+      // 安全地获取状态码和错误信息
+      const status = error.response?.status;
+      const responseData = error.response?.data;
+      const errorMessage = responseData?.message || error.message;
+      
+      switch (status) {
         case 401:
           // 清除用户状态
           localStorage.removeItem('user');
-          // toast.error('错误：未登录或登录已过期，请重新登录！', showErrorOptions);
           window.location.href = '/login?expired=true';
           break;
         case 429:
@@ -140,13 +144,13 @@ export function showError(error) {
           Toast.info('本站仅作演示之用，无服务端！');
           break;
         default:
-          Toast.error('错误：' + error.message);
+          Toast.error('错误：' + errorMessage);
       }
       return;
     }
     Toast.error('错误：' + error.message);
   } else {
-    Toast.error('错误：' + error);
+    Toast.error('错误：' + (typeof error === 'string' ? error : '未知错误'));
   }
 }
 
