@@ -48,6 +48,7 @@ type responseTask struct {
 	Seconds            string `json:"seconds,omitempty"`
 	Size               string `json:"size,omitempty"`
 	RemixedFromVideoID string `json:"remixed_from_video_id,omitempty"`
+	VideoURL           string `json:"video_url,omitempty"` // 视频URL
 	Error              *struct {
 		Message string `json:"message"`
 		Code    string `json:"code"`
@@ -290,7 +291,15 @@ func (a *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 		taskResult.Status = model.TaskStatusInProgress
 	case "completed":
 		taskResult.Status = model.TaskStatusSuccess
-		taskResult.Url = fmt.Sprintf("%s/v1/videos/%s/content", a.baseURL, resTask.ID)
+		// 使用API响应中的video_url，而不是使用baseURL构建
+		if resTask.VideoURL != "" {
+			taskResult.Url = resTask.VideoURL
+			taskResult.Reason = resTask.VideoURL // 任务日志中fail_reason使用video_url
+		} else {
+			// 如果API响应中没有video_url，使用原有的构建方式作为 fallback
+			taskResult.Url = fmt.Sprintf("%s/v1/videos/%s/content", a.baseURL, resTask.ID)
+			taskResult.Reason = taskResult.Url
+		}
 	case "failed", "cancelled":
 		taskResult.Status = model.TaskStatusFailure
 		if resTask.Error != nil {
@@ -339,7 +348,13 @@ func (a *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
 	}
 
 	if task.Status == model.TaskStatusSuccess {
-		response.VideoURL = fmt.Sprintf("%s/v1/videos/%s/content", a.baseURL, task.TaskID)
+		// 使用API响应中的video_url，而不是使用baseURL构建
+		if soraResp.VideoURL != "" {
+			response.VideoURL = soraResp.VideoURL
+		} else {
+			// 如果API响应中没有video_url，使用原有的构建方式作为 fallback
+			response.VideoURL = fmt.Sprintf("%s/v1/videos/%s/content", a.baseURL, task.TaskID)
+		}
 	}
 
 	return common.Marshal(response)

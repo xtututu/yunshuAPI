@@ -434,8 +434,12 @@ func (a *TaskAdaptor) ParseTaskResult(body []byte) (*relaycommon.TaskInfo, error
 		Url:       response.Data.URL,
 	}
 
-	// 如果任务失败，添加失败原因
-	if status == "FAILURE" {
+	// 处理任务状态
+	if status == "SUCCESS" {
+		// 任务成功时，将视频URL存储在Reason字段中（用于视频预览）
+		taskInfo.Reason = response.Data.RemoteURL
+	} else if status == "FAILURE" {
+		// 任务失败时，添加失败原因
 		taskInfo.Reason = response.Data.FailReason
 	}
 

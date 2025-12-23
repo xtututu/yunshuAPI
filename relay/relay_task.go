@@ -234,10 +234,10 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 		// 为视频API返回OpenAI格式的响应
 		openAIVideo := dto.NewOpenAIVideo()
 		openAIVideo.ID = taskID
-		openAIVideo.Status = "queued" // 新提交的任务默认为queued状态
+		openAIVideo.Status = "queued"                                           // 新提交的任务默认为queued状态
 		openAIVideo.CreatedAt = time.Now().UnixNano() / int64(time.Millisecond) // 当前时间戳（毫秒）
-		openAIVideo.Model = "sora-2" // 根据实际情况设置模型名称
-		
+		openAIVideo.Model = "sora-2"                                            // 根据实际情况设置模型名称
+
 		// 获取用户输入的秒数
 		var seconds string = "10" // 默认视频时长
 		if req, err := relaycommon.GetTaskRequest(c); err == nil {
@@ -248,13 +248,13 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 			}
 		}
 		openAIVideo.Seconds = seconds
-		
+
 		respBody, err := common.Marshal(openAIVideo)
 		if err != nil {
 			taskErr = service.TaskErrorWrapper(err, "marshal_response_failed", http.StatusInternalServerError)
 			return
 		}
-		
+
 		c.Writer.Header().Set("Content-Type", "application/json")
 		_, err = io.Copy(c.Writer, bytes.NewBuffer(respBody))
 		if err != nil {
@@ -422,12 +422,38 @@ func videoFetchByIDRespBodyBuilder(c *gin.Context) (respBody []byte, taskResp *d
 			if ti.Progress != "" {
 				originTask.Progress = ti.Progress
 			}
-			if ti.Url != "" {
-				if strings.HasPrefix(ti.Url, "data:") {
+			// 根据任务状态处理Reason和URL字段
+			if originTask.Status == model.TaskStatusFailure && ti.Reason != "" {
+				originTask.FailReason = ti.Reason
+			} else if originTask.Status == model.TaskStatusSuccess {
+				// 任务成功时，将相关URL填入FailReason
+				if ti.Reason != "" {
+					originTask.FailReason = ti.Reason // 优先使用Reason字段（通常是remote_url）
+				} else if ti.RemoteUrl != "" {
+					originTask.FailReason = ti.RemoteUrl // 使用remote_url
+				} else if ti.Url != "" {
+					originTask.FailReason = ti.Url // 使用url字段（video_url）
 				} else {
-					originTask.FailReason = ti.Url
+					// 尝试从任务data字段中解析URL（处理实时响应中URL缺失的情况）
+					var soraResp struct {
+						Data struct {
+							RemoteURL   string `json:"remote_url"`
+							TransferURL string `json:"transfer_url"`
+							URL         string `json:"url"`
+						} `json:"data"`
+					}
+					if err := json.Unmarshal(originTask.Data, &soraResp); err == nil {
+						if soraResp.Data.RemoteURL != "" {
+							originTask.FailReason = soraResp.Data.RemoteURL
+						} else if soraResp.Data.TransferURL != "" {
+							originTask.FailReason = soraResp.Data.TransferURL
+						} else if soraResp.Data.URL != "" {
+							originTask.FailReason = soraResp.Data.URL
+						}
+					}
 				}
 			}
+
 			_ = originTask.Update()
 			var raw map[string]any
 			_ = json.Unmarshal(body, &raw)
