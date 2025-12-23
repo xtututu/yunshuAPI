@@ -382,33 +382,49 @@ func (a *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 	return &taskResult, nil
 }
 
+// 定义用户期望的视频响应结构体
+type UserExpectedVideoResponse struct {
+	ID        string `json:"id"`
+	Size      string `json:"size"`
+	Model     string `json:"model"`
+	Object    string `json:"object"`
+	Status    string `json:"status"`
+	Seconds   string `json:"seconds"`
+	Progress  int    `json:"progress"`
+	VideoURL  string `json:"video_url"`
+	CreatedAt int64  `json:"created_at"`
+}
+
 func (a *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
 	var soraResp struct {
 		Data struct {
-			VideoURL string `json:"video_url"`
-		}
+			ID      string `json:"id"`
+			Results []struct {
+				URL string `json:"url"`
+			} `json:"results"`
+			Progress int    `json:"progress"`
+			Status   string `json:"status"`
+		} `json:"data"`
 	}
 	if err := json.Unmarshal(task.Data, &soraResp); err != nil {
 		return nil, errors.Wrap(err, "unmarshal sora-g task data failed")
 	}
 
-	openAIVideo := dto.NewOpenAIVideo()
-	openAIVideo.ID = task.TaskID
-	openAIVideo.Status = task.Status.ToVideoStatus()
-	openAIVideo.SetProgressStr(task.Progress)
-	openAIVideo.CreatedAt = task.CreatedAt
-	openAIVideo.CompletedAt = task.UpdatedAt
-
-	if task.Status == model.TaskStatusSuccess {
-		openAIVideo.SetMetadata("url", soraResp.Data.VideoURL)
+	// 使用用户期望的响应格式
+	response := UserExpectedVideoResponse{
+		ID:        task.TaskID,
+		Size:      "small", // 默认值
+		Model:     "sora-g",
+		Object:    "video",
+		Status:    task.Status.ToVideoStatus(),
+		Seconds:   "10", // 默认值
+		Progress:  soraResp.Data.Progress,
+		CreatedAt: task.CreatedAt,
 	}
 
-	if task.Status == model.TaskStatusFailure {
-		openAIVideo.Error = &dto.OpenAIVideoError{
-			Message: task.FailReason,
-			Code:    "task_failed",
-		}
+	if task.Status == model.TaskStatusSuccess && len(soraResp.Data.Results) > 0 {
+		response.VideoURL = soraResp.Data.Results[0].URL
 	}
 
-	return common.Marshal(openAIVideo)
+	return common.Marshal(response)
 }
