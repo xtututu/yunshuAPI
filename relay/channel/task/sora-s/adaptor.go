@@ -168,7 +168,7 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 	aspectRatio := "16:9" // 默认16:9
 	if req.Size != "" {
 		// 如果size是720x1280、1024×1792则aspectRatio是9:16，否则是16:9
-		if req.Size == "720x1280" || req.Size == "1024×1792" || req.Size == "1024x1792" {
+		if req.Size == "720x1280" || req.Size == "1024x1792" {
 			aspectRatio = "9:16"
 		} else {
 			// 检查是否有明确的aspectRatio参数
@@ -544,14 +544,14 @@ func (a *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
 		Object:    "video",
 		Status:    task.Status.ToVideoStatus(),
 		Seconds:   "10", // 默认值
-		Progress:  100, // sora-s渠道任务成功时直接返回100%进度
+		Progress:  100,  // sora-s渠道任务成功时直接返回100%进度
 		CreatedAt: task.CreatedAt,
 	}
 
 	if task.Status == model.TaskStatusSuccess {
 		// 使用remote_url作为video_url
 		response.VideoURL = soraResp.Data.RemoteURL
-		
+
 		// 尝试从任务数据中提取视频时长
 		if soraResp.Data.Duration > 0 {
 			response.Seconds = strconv.Itoa(soraResp.Data.Duration)

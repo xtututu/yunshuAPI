@@ -113,16 +113,16 @@ func validateMultipartTaskRequest(c *gin.Context, info *RelayInfo, action string
 	}
 
 	req = TaskSubmitReq{
-		Prompt:        getFormDataValue(formData, "prompt"),
-		Model:         model,
-		Mode:          getFormDataValue(formData, "mode"),
-		Image:         getFormDataValue(formData, "image"),
-		Size:          getFormDataValue(formData, "size"),
-		URL:           getFormDataValue(formData, "url"),
-		AspectRatio:   getFormDataValue(formData, "aspectRatio"),
-		WebHook:       getFormDataValue(formData, "webHook"),
-		ShutProgress:  getFormDataValue(formData, "shutProgress") == "true",
-		Metadata:      make(map[string]interface{}),
+		Prompt:       getFormDataValue(formData, "prompt"),
+		Model:        model,
+		Mode:         getFormDataValue(formData, "mode"),
+		Image:        getFormDataValue(formData, "image"),
+		Size:         getFormDataValue(formData, "size"),
+		URL:          getFormDataValue(formData, "url"),
+		AspectRatio:  getFormDataValue(formData, "aspectRatio"),
+		WebHook:      getFormDataValue(formData, "webHook"),
+		ShutProgress: getFormDataValue(formData, "shutProgress") == "true",
+		Metadata:     make(map[string]interface{}),
 	}
 
 	// 验证 prompt 字段
@@ -449,9 +449,20 @@ func convertJSONToMultipartWithBody(c *gin.Context, body []byte) error {
 			case int:
 				durationVal = v
 			}
-			// 如果duration不是10或15，强制设置为15
-			if durationVal != 10 && durationVal != 15 {
-				jsonReq["duration"] = 15 // 设置为整数形式，与JSON字段格式一致
+
+			// 根据模型类型处理duration
+			if model == "sora-2-pro" {
+				// sora-2-pro模型：允许15或25秒，如果传入10则变15
+				if durationVal == 10 {
+					jsonReq["duration"] = 15 // 设置为整数形式，与JSON字段格式一致
+				} else if durationVal != 15 && durationVal != 25 {
+					jsonReq["duration"] = 15 // 设置为整数形式，与JSON字段格式一致
+				}
+			} else {
+				// 其他模型：如果duration不是10或15，强制设置为15
+				if durationVal != 10 && durationVal != 15 {
+					jsonReq["duration"] = 15 // 设置为整数形式，与JSON字段格式一致
+				}
 			}
 		}
 	}
