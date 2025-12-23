@@ -244,7 +244,6 @@ func (a *TaskAdaptor) DoResponse(c *gin.Context, resp *http.Response, _ *relayco
 		dResp.TaskID = ""
 	}
 
-	c.JSON(http.StatusOK, dResp)
 	return dResp.ID, responseBody, nil
 }
 
@@ -310,5 +309,28 @@ func (a *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 }
 
 func (a *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
-	return task.Data, nil
+	var soraResp responseTask
+	if err := json.Unmarshal(task.Data, &soraResp); err != nil {
+		return nil, errors.Wrap(err, "unmarshal sora task data failed")
+	}
+
+	openAIVideo := dto.NewOpenAIVideo()
+	openAIVideo.ID = task.TaskID
+	openAIVideo.Status = task.Status.ToVideoStatus()
+	openAIVideo.SetProgressStr(task.Progress)
+	openAIVideo.CreatedAt = task.CreatedAt
+	openAIVideo.CompletedAt = task.UpdatedAt
+
+	if task.Status == model.TaskStatusSuccess {
+		openAIVideo.SetMetadata("url", fmt.Sprintf("%s/v1/videos/%s/content", system_setting.ServerAddress, task.TaskID))
+	}
+
+	if task.Status == model.TaskStatusFailure {
+		openAIVideo.Error = &dto.OpenAIVideoError{
+			Message: task.FailReason,
+			Code:    "task_failed",
+		}
+	}
+
+	return common.Marshal(openAIVideo)
 }

@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"xunkecloudAPI/common"
 	"xunkecloudAPI/constant"
@@ -228,26 +229,60 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 		return
 	}
 
-	// 返回成功响应，使用用户期望的格式
-	response := map[string]interface{}{
-		"code": 0,
-		"msg":  "success",
-		"data": map[string]interface{}{
-			"id": taskID,
-		},
-	}
+	// 检查是否是OpenAI兼容的视频API请求
+	if strings.HasPrefix(c.Request.RequestURI, "/v1/videos") {
+		// 为视频API返回OpenAI格式的响应
+		openAIVideo := dto.NewOpenAIVideo()
+		openAIVideo.ID = taskID
+		openAIVideo.Status = "queued" // 新提交的任务默认为queued状态
+		openAIVideo.CreatedAt = time.Now().UnixNano() / int64(time.Millisecond) // 当前时间戳（毫秒）
+		openAIVideo.Model = "sora-2" // 根据实际情况设置模型名称
+		
+		// 获取用户输入的秒数
+		var seconds string = "10" // 默认视频时长
+		if req, err := relaycommon.GetTaskRequest(c); err == nil {
+			if req.Seconds != "" {
+				seconds = req.Seconds
+			} else if req.Duration != 0 {
+				seconds = strconv.Itoa(req.Duration)
+			}
+		}
+		openAIVideo.Seconds = seconds
+		
+		respBody, err := common.Marshal(openAIVideo)
+		if err != nil {
+			taskErr = service.TaskErrorWrapper(err, "marshal_response_failed", http.StatusInternalServerError)
+			return
+		}
+		
+		c.Writer.Header().Set("Content-Type", "application/json")
+		_, err = io.Copy(c.Writer, bytes.NewBuffer(respBody))
+		if err != nil {
+			taskErr = service.TaskErrorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError)
+			return
+		}
+	} else {
+		// 其他API继续返回原有的包装格式
+		response := map[string]interface{}{
+			"code": 0,
+			"msg":  "success",
+			"data": map[string]interface{}{
+				"id": taskID,
+			},
+		}
 
-	respBody, err := json.Marshal(response)
-	if err != nil {
-		taskErr = service.TaskErrorWrapper(err, "marshal_response_failed", http.StatusInternalServerError)
-		return
-	}
+		respBody, err := json.Marshal(response)
+		if err != nil {
+			taskErr = service.TaskErrorWrapper(err, "marshal_response_failed", http.StatusInternalServerError)
+			return
+		}
 
-	c.Writer.Header().Set("Content-Type", "application/json")
-	_, err = io.Copy(c.Writer, bytes.NewBuffer(respBody))
-	if err != nil {
-		taskErr = service.TaskErrorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError)
-		return
+		c.Writer.Header().Set("Content-Type", "application/json")
+		_, err = io.Copy(c.Writer, bytes.NewBuffer(respBody))
+		if err != nil {
+			taskErr = service.TaskErrorWrapper(err, "copy_response_body_failed", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	return nil

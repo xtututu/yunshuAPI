@@ -11,7 +11,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"xunkecloudAPI/common"
 	"xunkecloudAPI/dto"
+	"xunkecloudAPI/model"
 	"xunkecloudAPI/relay/channel"
 	relaycommon "xunkecloudAPI/relay/common"
 )
@@ -470,4 +472,65 @@ func convertProgress(status int) string {
 	default:
 		return "0%"
 	}
+}
+
+// ConvertToOpenAIVideo 转换为OpenAI视频格式
+func (a *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
+	// 创建OpenAI视频格式
+	openAIVideo := dto.NewOpenAIVideo()
+	openAIVideo.ID = task.TaskID
+	openAIVideo.Status = task.Status.ToVideoStatus()
+	openAIVideo.SetProgressStr(task.Progress)
+	openAIVideo.CreatedAt = task.CreatedAt
+	openAIVideo.CompletedAt = task.UpdatedAt
+	
+	// 设置model字段
+	openAIVideo.Model = "sora-2" // 根据实际情况设置模型名称
+	
+	// 设置seconds字段
+	openAIVideo.Seconds = "10" // 默认10秒，可从任务数据中提取
+
+	// 解析任务数据以获取视频URL和其他信息
+	var soraResp TaskDetailResponse
+	if err := json.Unmarshal(task.Data, &soraResp); err != nil {
+		// 如果解析失败，仍然返回基本的视频信息
+		if task.Status == model.TaskStatusSuccess {
+			// 尝试直接从任务数据中获取URL
+			var simpleResp struct {
+				Data struct {
+					URL string `json:"url"`
+				} `json:"data"`
+			}
+			if err := json.Unmarshal(task.Data, &simpleResp); err == nil && simpleResp.Data.URL != "" {
+				openAIVideo.SetMetadata("url", simpleResp.Data.URL)
+			}
+		}
+	} else {
+		// 从详细响应中获取URL
+		if task.Status == model.TaskStatusSuccess {
+			url := soraResp.Data.URL
+			if url == "" {
+				url = soraResp.Data.RemoteURL
+			}
+			if url != "" {
+				openAIVideo.SetMetadata("url", url)
+			}
+			
+			// 尝试从任务数据中提取视频时长
+			if soraResp.Data.Duration > 0 {
+				openAIVideo.Seconds = strconv.Itoa(soraResp.Data.Duration)
+			}
+		}
+	}
+
+	// 设置失败时的错误信息
+	if task.Status == model.TaskStatusFailure {
+		openAIVideo.Error = &dto.OpenAIVideoError{
+			Message: task.FailReason,
+			Code:    "task_failed",
+		}
+	}
+
+	// 使用common.Marshal确保JSON格式正确
+	return common.Marshal(openAIVideo)
 }
