@@ -101,13 +101,21 @@ func validateMultipartTaskRequest(c *gin.Context, info *RelayInfo, action string
 	formData := form.Value
 	model := getFormDataValue(formData, "model")
 
-	// 处理用户需求：使用sora-2模型时，只允许10或15秒的seconds值
+	// 处理用户需求：使用sora-2或sora-2-pro模型时的seconds值限制
 	secondsStr := getFormDataValue(formData, "seconds")
 	if strings.HasPrefix(model, "sora-2") && secondsStr != "" {
 		if seconds, err := strconv.Atoi(secondsStr); err == nil {
-			// 如果seconds不是10或15，强制设置为15
-			if seconds != 10 && seconds != 15 {
-				secondsStr = "15"
+			// 根据不同模型设置不同的seconds限制
+			if model == "sora-2-pro" {
+				// sora-2-pro模型：允许15或25秒
+				if seconds != 15 && seconds != 25 {
+					secondsStr = "15"
+				}
+			} else {
+				// 其他sora-2模型：只允许10或15秒
+				if seconds != 10 && seconds != 15 {
+					secondsStr = "15"
+				}
 			}
 		}
 	}
