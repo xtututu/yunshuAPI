@@ -128,29 +128,27 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 		return nil, fmt.Errorf("get_task_request_failed: %w", err)
 	}
 
-	// 构建请求参数
-	requestPayload := TaskRequest{
-		Prompt:      req.Prompt,
-		URL:         req.URL,
-		AspectRatio: req.AspectRatio,
-		Size:        req.Size,
-	}
+	// 根据模型选择不同的请求参数结构
+	var requestPayload interface{}
 
-	// 处理URL优先级
-	if requestPayload.URL == "" && req.InputReference != nil {
+	// 处理URL
+	var referenceURL string
+	if req.URL != "" {
+		referenceURL = req.URL
+	} else if req.InputReference != nil {
 		switch v := req.InputReference.(type) {
 		case string:
 			if v != "" {
-				requestPayload.URL = v
+				referenceURL = v
 			}
 		case []string:
 			if len(v) > 0 {
-				requestPayload.URL = v[0]
+				referenceURL = v[0]
 			}
 		case []interface{}:
 			if len(v) > 0 {
 				if str, ok := v[0].(string); ok && str != "" {
-					requestPayload.URL = str
+					referenceURL = str
 				}
 			}
 		}
@@ -165,18 +163,46 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 			duration = d
 		}
 	}
-	requestPayload.Duration = duration
 
-	// 处理aspectRatio
-	if requestPayload.AspectRatio == "" {
-		// 根据size推断aspectRatio
-		switch requestPayload.Size {
-		case "small":
-			fallthrough
-		case "medium":
-			fallthrough
-		case "large":
-			requestPayload.AspectRatio = "16:9" // 默认16:9
+	// 处理aspectRatio（根据size转换）
+	aspectRatio := "16:9" // 默认16:9
+	if req.Size != "" {
+		// 如果size是720x1280、1024×1792则aspectRatio是9:16，否则是16:9
+		if req.Size == "720x1280" || req.Size == "1024×1792" || req.Size == "1024x1792" {
+			aspectRatio = "9:16"
+		} else {
+			// 检查是否有明确的aspectRatio参数
+			if req.AspectRatio != "" {
+				aspectRatio = req.AspectRatio
+			}
+		}
+	} else if req.AspectRatio != "" {
+		// 如果没有size参数但有aspectRatio参数，直接使用
+		aspectRatio = req.AspectRatio
+	}
+
+	switch info.OriginModelName {
+	case ModelSora2Pro:
+		// sora-2-pro模型的请求参数结构
+		requestPayload = struct {
+			Prompt      string `json:"prompt"`
+			Duration    int    `json:"duration"`
+			AspectRatio string `json:"aspectRatio"`
+			URL         string `json:"url"`
+		}{
+			Prompt:      req.Prompt,
+			Duration:    duration,
+			AspectRatio: aspectRatio,
+			URL:         referenceURL,
+		}
+	default:
+		// 其他模型的请求参数结构（包含size字段）
+		requestPayload = TaskRequest{
+			Prompt:      req.Prompt,
+			URL:         referenceURL,
+			AspectRatio: aspectRatio,
+			Duration:    duration,
+			Size:        req.Size,
 		}
 	}
 
