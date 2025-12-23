@@ -16,7 +16,6 @@ import (
 	"xunkecloudAPI/relay/channel"
 	relaycommon "xunkecloudAPI/relay/common"
 	"xunkecloudAPI/service"
-	"xunkecloudAPI/setting/system_setting"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -291,7 +290,7 @@ func (a *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 		taskResult.Status = model.TaskStatusInProgress
 	case "completed":
 		taskResult.Status = model.TaskStatusSuccess
-		taskResult.Url = fmt.Sprintf("%s/v1/videos/%s/content", system_setting.ServerAddress, resTask.ID)
+		taskResult.Url = fmt.Sprintf("%s/v1/videos/%s/content", a.baseURL, resTask.ID)
 	case "failed", "cancelled":
 		taskResult.Status = model.TaskStatusFailure
 		if resTask.Error != nil {
@@ -340,7 +339,7 @@ func (a *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
 	}
 
 	if task.Status == model.TaskStatusSuccess {
-		response.VideoURL = fmt.Sprintf("%s/v1/videos/%s/content", system_setting.ServerAddress, task.TaskID)
+		response.VideoURL = fmt.Sprintf("%s/v1/videos/%s/content", a.baseURL, task.TaskID)
 	}
 
 	return common.Marshal(response)
