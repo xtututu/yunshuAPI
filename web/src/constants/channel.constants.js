@@ -194,6 +194,11 @@ export const CHANNEL_OPTIONS = [
     color: 'blue',
     label: 'Replicate',
   },
+  {
+    value: 60,
+    color: 'purple',
+    label: '速创',
+  },
 ];
 
 export const MODEL_TABLE_PAGE_SIZE = 10;

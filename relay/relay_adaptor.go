@@ -29,6 +29,7 @@ import (
 	"xunkecloudAPI/relay/channel/replicate"
 	"xunkecloudAPI/relay/channel/siliconflow"
 	"xunkecloudAPI/relay/channel/submodel"
+	"xunkecloudAPI/relay/channel/suchuang"
 	taskali "xunkecloudAPI/relay/channel/task/ali"
 	taskdoubao "xunkecloudAPI/relay/channel/task/doubao"
 	taskGemini "xunkecloudAPI/relay/channel/task/gemini"
@@ -119,6 +120,8 @@ func GetAdaptor(apiType int) channel.Adaptor {
 		return &minimax.Adaptor{}
 	case constant.APITypeReplicate:
 		return &replicate.Adaptor{}
+	case constant.APITypeSuchuang:
+		return &suchuang.Adaptor{}
 	}
 	return nil
 }

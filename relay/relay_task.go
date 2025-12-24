@@ -29,7 +29,6 @@ import (
 Task 任务通过平台、Action 区分任务
 */
 func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.TaskError) {
-	info.InitChannelMeta(c)
 	// ensure TaskRelayInfo is initialized to avoid nil dereference when accessing embedded fields
 	if info.TaskRelayInfo == nil {
 		info.TaskRelayInfo = &relaycommon.TaskRelayInfo{}
@@ -41,10 +40,27 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 
 	info.InitChannelMeta(c)
 	adaptor := GetTaskAdaptor(platform)
+	// 检测是否是速创渠道
+	isSuchuangChannel := false
 	if adaptor == nil {
-		return service.TaskErrorWrapperLocal(fmt.Errorf("invalid api platform: %s", platform), "invalid_api_platform", http.StatusBadRequest)
+		// 特殊处理速创渠道，它实现的是channel.Adaptor接口而不是channel.TaskAdaptor接口
+		channelType, err := strconv.Atoi(string(platform))
+		if err != nil {
+			return service.TaskErrorWrapperLocal(fmt.Errorf("invalid api platform: %s", platform), "invalid_api_platform", http.StatusBadRequest)
+		}
+		if channelType == constant.ChannelTypeSuchuang {
+			// 对于速创渠道，直接使用GetAdaptor获取channel.Adaptor接口的实现
+			// 因为速创渠道的图片生成请求在后面会被特殊处理（直接返回响应体）
+			adaptor = nil
+			isSuchuangChannel = true
+			// 设置info.ChannelId，确保后面的逻辑能够正确识别
+			info.ChannelId = constant.ChannelTypeSuchuang
+		} else {
+			return service.TaskErrorWrapperLocal(fmt.Errorf("invalid api platform: %s", platform), "invalid_api_platform", http.StatusBadRequest)
+		}
+	} else {
+		adaptor.Init(info)
 	}
-	adaptor.Init(info)
 	modelName := info.OriginModelName
 	if modelName == "" {
 		modelName = service.CoverTaskActionToModelName(platform, info.Action)
@@ -57,9 +73,11 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 	}
 
 	// get & validate taskRequest 获取并验证文本请求
-	taskErr = adaptor.ValidateRequestAndSetAction(c, info)
-	if taskErr != nil {
-		return
+	if adaptor != nil {
+		taskErr = adaptor.ValidateRequestAndSetAction(c, info)
+		if taskErr != nil {
+			return
+		}
 	}
 
 	// Use mapped model name for price calculation
@@ -130,32 +148,105 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 			}
 			c.Set("base_url", channel.GetBaseURL())
 			c.Set("channel_id", originTask.ChannelId)
-			c.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", channel.Key))
+			// 根据渠道类型决定是否添加Bearer前缀
+			authHeader := channel.Key
+			if channel.Type != constant.ChannelTypeOpenAIS {
+				authHeader = fmt.Sprintf("Bearer %s", channel.Key)
+			}
+			c.Request.Header.Set("Authorization", authHeader)
 
 			info.ChannelBaseUrl = channel.GetBaseURL()
 			info.ChannelId = originTask.ChannelId
 		}
 	}
 
-	// build body
-	requestBody, err := adaptor.BuildRequestBody(c, info)
-	if err != nil {
-		taskErr = service.TaskErrorWrapper(err, "build_request_failed", http.StatusInternalServerError)
-		return
+	// 处理请求体和发送请求
+	var resp *http.Response
+	var requestBody io.Reader
+
+	// 检查是否是速创渠道
+	if isSuchuangChannel || info.ChannelId == constant.ChannelTypeSuchuang {
+		// 对于速创渠道，使用channel.Adaptor接口的实现
+		channelAdaptor := GetAdaptor(constant.APITypeSuchuang)
+		channelAdaptor.Init(info)
+
+		// 读取请求体内容，以便多次使用
+		bodyBytes, err := io.ReadAll(c.Request.Body)
+		if err != nil {
+			taskErr = service.TaskErrorWrapper(err, "read_request_body_failed", http.StatusBadRequest)
+			return
+		}
+
+		// 直接使用速创适配器的DoRequest方法处理请求
+		result, err := channelAdaptor.DoRequest(c, info, bytes.NewBuffer(bodyBytes))
+		if err != nil {
+			taskErr = service.TaskErrorWrapper(err, "do_request_failed", http.StatusInternalServerError)
+			return
+		}
+
+		// 检查result类型
+		if httpResp, ok := result.(*http.Response); ok {
+			// 如果是*http.Response类型，读取响应体并返回
+			defer httpResp.Body.Close()
+			body, readErr := io.ReadAll(httpResp.Body)
+			if readErr != nil {
+				taskErr = service.TaskErrorWrapper(readErr, "read_response_body_failed", http.StatusInternalServerError)
+				return
+			}
+			// 使用Gin的c.Data方法直接返回响应体
+			c.Data(http.StatusOK, "application/json", body)
+		} else {
+			// 其他类型，直接序列化为JSON返回
+			respBody, jsonErr := json.Marshal(result)
+			if jsonErr != nil {
+				taskErr = service.TaskErrorWrapper(jsonErr, "marshal_response_failed", http.StatusInternalServerError)
+				return
+			}
+			// 使用Gin的c.Data方法直接返回响应体
+			c.Data(http.StatusOK, "application/json", respBody)
+		}
+
+		// 图片生成请求已经完成，不需要继续处理
+		info.ConsumeQuota = true
+		return nil
+	} else {
+		// 对于其他渠道，使用TaskAdaptor接口的实现
+		requestBody, err = adaptor.BuildRequestBody(c, info)
+		if err != nil {
+			taskErr = service.TaskErrorWrapper(err, "build_request_failed", http.StatusInternalServerError)
+			return
+		}
+
+		resp, err = adaptor.DoRequest(c, info, requestBody)
+		if err != nil {
+			taskErr = service.TaskErrorWrapper(err, "do_request_failed", http.StatusInternalServerError)
+			return
+		}
 	}
-	// do request
-	resp, err := adaptor.DoRequest(c, info, requestBody)
-	if err != nil {
-		taskErr = service.TaskErrorWrapper(err, "do_request_failed", http.StatusInternalServerError)
-		return
-	}
-	// handle response
-	if resp != nil && resp.StatusCode != http.StatusOK {
+
+	// handle response status
+	if resp.StatusCode != http.StatusOK {
 		responseBody, _ := io.ReadAll(resp.Body)
 		taskErr = service.TaskErrorWrapper(errors.New(string(responseBody)), "fail_to_fetch_task", resp.StatusCode)
 		return
 	}
 
+	// 检查是否是图片生成请求，如果是，直接返回完整响应
+	if strings.HasPrefix(c.Request.RequestURI, "/v1/images") {
+		// 读取响应体
+		body, readErr := io.ReadAll(resp.Body)
+		if readErr != nil {
+			taskErr = service.TaskErrorWrapper(readErr, "read_response_body_failed", http.StatusInternalServerError)
+			return
+		}
+		// 使用Gin的c.Data方法直接返回响应体
+		c.Data(http.StatusOK, "application/json", body)
+		// 图片生成请求已经完成，不需要继续处理
+		info.ConsumeQuota = true
+		return nil
+	}
+
+	// 处理其他请求类型
 	defer func() {
 		// release quota
 		if info.ConsumeQuota && taskErr == nil {

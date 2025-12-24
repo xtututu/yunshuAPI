@@ -21,6 +21,7 @@ electron/node_modules
 electron/dist
 web/node_modules
 web/.eslintcache
+web/dist
 docker-compose.yml
 data/files/
 data/images/

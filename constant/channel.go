@@ -56,6 +56,8 @@ const (
 	ChannelTypeReplicate      = 56
 	ChannelTypeSoraG          = 57
 	ChannelTypeSoraS          = 58
+	ChannelTypeOpenAIS        = 59
+	ChannelTypeSuchuang       = 60
 	ChannelTypeDummy          // this one is only for count, do not add any channel after this
 
 )
@@ -120,6 +122,8 @@ var ChannelBaseURLs = []string{
 	"https://api.chatfire.cn",    // 56
 	"https://grsai.dakka.com.cn", // 57
 	"https://api.wuyinkeji.com",     // 58
+	"https://api.wuyinkeji.com",     // 59
+	"https://api.wuyinkeji.com",     // 60
 }
 
 var ChannelTypeNames = map[int]string{
@@ -178,6 +182,8 @@ var ChannelTypeNames = map[int]string{
 	ChannelTypeReplicate:      "Replicate",
 	ChannelTypeSoraG:          "Sora-g",
 	ChannelTypeSoraS:          "Sora-s",
+	ChannelTypeOpenAIS:        "OpenAI-s",
+	ChannelTypeSuchuang:       "Suchuang",
 }
 
 func GetChannelTypeName(channelType int) string {

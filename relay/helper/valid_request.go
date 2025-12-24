@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"net/http"
 	"strings"
 
 	"xunkecloudAPI/common"
@@ -136,6 +137,14 @@ func GetAndValidOpenAIImageRequest(c *gin.Context, relayMode int) (*dto.ImageReq
 				// 如果 multipart form 解析失败，尝试使用 JSON 解析
 				err = common.UnmarshalBodyReusable(c, imageRequest)
 				if err != nil {
+					// 处理JSON解析错误，提供更友好的错误信息
+					if strings.Contains(err.Error(), "invalid character") || strings.Contains(err.Error(), "unexpected end of JSON input") {
+						return nil, types.NewErrorWithStatusCode(
+							fmt.Errorf("无效的JSON格式: %w", err),
+							types.ErrorCodeBadRequestBody,
+							http.StatusBadRequest,
+						)
+					}
 					return nil, fmt.Errorf("failed to parse image edit request: %w", err)
 				}
 			} else {
@@ -171,6 +180,14 @@ func GetAndValidOpenAIImageRequest(c *gin.Context, relayMode int) (*dto.ImageReq
 	default:
 		err := common.UnmarshalBodyReusable(c, imageRequest)
 		if err != nil {
+			// 处理JSON解析错误，提供更友好的错误信息
+			if strings.Contains(err.Error(), "invalid character") || strings.Contains(err.Error(), "unexpected end of JSON input") {
+				return nil, types.NewErrorWithStatusCode(
+					fmt.Errorf("无效的JSON格式: %w", err),
+					types.ErrorCodeBadRequestBody,
+					http.StatusBadRequest,
+				)
+			}
 			return nil, err
 		}
 

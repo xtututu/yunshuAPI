@@ -2,6 +2,7 @@ package relay
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -88,20 +89,43 @@ func ImageHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *type
 	if err != nil {
 		return types.NewOpenAIError(err, types.ErrorCodeDoRequestFailed, http.StatusInternalServerError)
 	}
+
 	var httpResp *http.Response
+	// 检查返回的响应类型
 	if resp != nil {
-		httpResp = resp.(*http.Response)
-		info.IsStream = info.IsStream || strings.HasPrefix(httpResp.Header.Get("Content-Type"), "text/event-stream")
-		if httpResp.StatusCode != http.StatusOK {
-			if httpResp.StatusCode == http.StatusCreated && info.ApiType == constant.APITypeReplicate {
-				// replicate channel returns 201 Created when using Prefer: wait, treat it as success.
-				httpResp.StatusCode = http.StatusOK
-			} else {
-				newAPIError = service.RelayErrorHandler(c.Request.Context(), httpResp, false)
-				// reset status code 重置状态码
-				service.ResetStatusCode(newAPIError, statusCodeMappingStr)
-				return newAPIError
+		// 尝试将响应转换为*http.Response类型
+		if response, ok := resp.(*http.Response); ok {
+			httpResp = response
+			info.IsStream = info.IsStream || strings.HasPrefix(httpResp.Header.Get("Content-Type"), "text/event-stream")
+			if httpResp.StatusCode != http.StatusOK {
+				if httpResp.StatusCode == http.StatusCreated && info.ApiType == constant.APITypeReplicate {
+					// replicate channel returns 201 Created when using Prefer: wait, treat it as success.
+					httpResp.StatusCode = http.StatusOK
+				} else {
+					newAPIError = service.RelayErrorHandler(c.Request.Context(), httpResp, false)
+					// reset status code 重置状态码
+					service.ResetStatusCode(newAPIError, statusCodeMappingStr)
+					return newAPIError
+				}
 			}
+		} else {
+			// 如果返回的不是*http.Response类型，可能是已经处理好的数据
+			// 将数据转换为JSON并写入响应体
+			jsonData, err := json.Marshal(resp)
+			if err != nil {
+				return types.NewOpenAIError(err, types.ErrorCodeDoRequestFailed, http.StatusInternalServerError)
+			}
+
+			// 创建一个虚拟的HTTP响应对象
+			httpResp = &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewBuffer(jsonData)),
+				Header:     make(http.Header),
+			}
+			httpResp.Header.Set("Content-Type", "application/json")
+
+			// 将响应写入客户端
+			c.Data(http.StatusOK, "application/json", jsonData)
 		}
 	}
 
