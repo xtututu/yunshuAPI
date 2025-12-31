@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -600,7 +601,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 							Audio        *string `json:"audio"`
 							FunctionCall *any    `json:"function_call"`
 							ToolCalls    *any    `json:"tool_calls"`
-						}{Role: "assistant", Content: string(suchuangResp.Data), Annotations: []any{}},
+						}{Role: "assistant", Content: removeThinkContent(string(suchuangResp.Data)), Annotations: []any{}},
 						FinishReason: "stop",
 						Logprobs:     nil,
 					}},
@@ -753,7 +754,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 						Audio        *string `json:"audio"`
 						FunctionCall *any    `json:"function_call"`
 						ToolCalls    *any    `json:"tool_calls"`
-					}{Role: "assistant", Content: string(suchuangResp.Data), Annotations: []any{}},
+					}{Role: "assistant", Content: removeThinkContent(string(suchuangResp.Data)), Annotations: []any{}},
 					FinishReason: "stop",
 					Logprobs:     nil,
 				}},
@@ -896,6 +897,15 @@ func (s *SuchuangAdaptor) createImageTask(c *gin.Context, info *relaycommon.Rela
 
 	logger.LogDebug(ctx, "[SUCHUANG] Created image task with ID: %d", result.Data.ID)
 	return result.Data.ID, nil
+}
+
+// removeThinkContent 移除内容中的<think>标签部分
+// 接收原始内容字符串，返回处理后的内容字符串
+func removeThinkContent(content string) string {
+	// 使用正则表达式匹配<think>...</think>部分，包括跨多行的情况
+	re := regexp.MustCompile(`(?s)<think>.*?</think>`)
+	// 替换为空白字符串
+	return re.ReplaceAllString(content, "")
 }
 
 // pollImageResult 轮询图片生成结果
