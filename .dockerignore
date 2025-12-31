@@ -1,8 +1,71 @@
+# Git 相关
 .github
 .git
-*.md
-.vscode
 .gitignore
+
+# 文档（排除根目录的 README 等文件，但保留 docs 目录供 Dockerfile 复制）
+/README*.md
+/LICENSE
+
+# IDE 配置
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# 构建工具和缓存
 Makefile
+makefile
 .eslintcache
 .gocache
+*.cache
+
+# 日志和数据文件
+logs/
+*.log
+data/
+data.db
+one-api.db
+new-api.db
+*.db-journal
+
+# 构建产物（二进制文件在构建时会重新生成）
+new-api
+new-api.exe
+main
+xunkecloudAPI
+*.exe
+
+# 临时文件和测试
+*.tmp
+*.test
+*.out
+coverage/
+*.coverprofile
+
+# 前端开发文件（只需要 dist 目录）
+web/node_modules/
+web/.vite/
+web/dist/.vite/
+web/dist/.git/
+
+# Electron 相关（Docker 构建不需要）
+electron/
+
+# Python 相关
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+*.egg-info/
+
+# 其他
+.DS_Store
+Thumbs.db
+*.zip
+*.tar.gz
+response.json
