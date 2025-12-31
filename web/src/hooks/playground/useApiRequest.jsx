@@ -83,9 +83,12 @@ export const useApiRequest = (
               isThinkingComplete: false,
             };
           } else if (type === 'content') {
-            const shouldCollapseReasoning =
+            const shouldCollapseReasoning = 
               !lastMessage.content && lastMessage.reasoningContent;
-            const newContent = (lastMessage.content || '') + textChunk;
+            let newContent = (lastMessage.content || '') + textChunk;
+
+            // 实时处理 think 标签，避免用户看到
+            newContent = newContent.replace(/<think>([\s\S]*?)<\/think>/g, '');
 
             let shouldCollapseFromThinkTag = false;
             let thinkingCompleteFromTags = lastMessage.isThinkingComplete;
@@ -146,12 +149,20 @@ export const useApiRequest = (
           return prevMessage;
         }
 
+        // 处理 think 标签，包括可能的未闭合标签
+        const processed = processIncompleteThinkTags(
+          lastMessage.content,
+          lastMessage.reasoningContent
+        );
+
         const autoCollapseState = applyAutoCollapseLogic(lastMessage, true);
 
         const updatedMessages = [
           ...prevMessage.slice(0, -1),
           {
             ...lastMessage,
+            content: processed.content,
+            reasoningContent: processed.reasoningContent,
             status: status,
             ...autoCollapseState,
           },
@@ -168,7 +179,7 @@ export const useApiRequest = (
         return updatedMessages;
       });
     },
-    [setMessage, applyAutoCollapseLogic, saveMessages],
+    [setMessage, applyAutoCollapseLogic, saveMessages, processIncompleteThinkTags],
   );
 
   // 非流式请求

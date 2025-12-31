@@ -21,6 +21,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// removeThinkContent 移除内容中的<think>标签部分
+// 接收原始内容字符串，返回处理后的内容字符串
+func removeThinkContent(content string) string {
+	// 使用正则表达式匹配<think>...</think>部分，包括跨多行的情况
+	re := regexp.MustCompile(`(?s)<think>.*?</think>`)
+	// 替换为空白字符串
+	return re.ReplaceAllString(content, "")
+}
+
 // ChannelName 渠道名称
 const ChannelName = "suchuang"
 
@@ -623,6 +632,11 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 					SystemFingerprint: "",
 					ServiceTier:       "default",
 				}
+			} else {
+				// 成功解析为OpenAI格式，需要处理content字段中的think内容
+				for i := range openAIResp.Choices {
+					openAIResp.Choices[i].Message.Content = removeThinkContent(openAIResp.Choices[i].Message.Content)
+				}
 			}
 
 			// 确保object字段有值
@@ -776,6 +790,11 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 				SystemFingerprint: "",
 				ServiceTier:       "default",
 			}
+		} else {
+			// 成功解析为OpenAI格式，需要处理content字段中的think内容
+			for i := range openAIResp.Choices {
+				openAIResp.Choices[i].Message.Content = removeThinkContent(openAIResp.Choices[i].Message.Content)
+			}
 		}
 
 		// 确保object字段有值
@@ -897,15 +916,6 @@ func (s *SuchuangAdaptor) createImageTask(c *gin.Context, info *relaycommon.Rela
 
 	logger.LogDebug(ctx, "[SUCHUANG] Created image task with ID: %d", result.Data.ID)
 	return result.Data.ID, nil
-}
-
-// removeThinkContent 移除内容中的<think>标签部分
-// 接收原始内容字符串，返回处理后的内容字符串
-func removeThinkContent(content string) string {
-	// 使用正则表达式匹配<think>...</think>部分，包括跨多行的情况
-	re := regexp.MustCompile(`(?s)<think>.*?</think>`)
-	// 替换为空白字符串
-	return re.ReplaceAllString(content, "")
 }
 
 // pollImageResult 轮询图片生成结果
