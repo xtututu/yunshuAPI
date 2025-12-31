@@ -40,7 +40,7 @@ import (
 	tasksoras "xunkecloudAPI/relay/channel/task/sora-s"
 	"xunkecloudAPI/relay/channel/task/suno"
 	taskvertex "xunkecloudAPI/relay/channel/task/vertex"
-	taskVidu "xunkecloudAPI/relay/channel/task/vidu"
+	"xunkecloudAPI/relay/channel/task/vidu"
 	"xunkecloudAPI/relay/channel/tencent"
 	"xunkecloudAPI/relay/channel/vertex"
 	"xunkecloudAPI/relay/channel/volcengine"
@@ -152,7 +152,7 @@ func GetTaskAdaptor(platform constant.TaskPlatform) channel.TaskAdaptor {
 		case constant.ChannelTypeVertexAi:
 			return &taskvertex.TaskAdaptor{}
 		case constant.ChannelTypeVidu:
-			return &taskVidu.TaskAdaptor{}
+			return &vidu.TaskAdaptor{}
 		case constant.ChannelTypeDoubaoVideo:
 			return &taskdoubao.TaskAdaptor{}
 		case constant.ChannelTypeSora, constant.ChannelTypeOpenAI:

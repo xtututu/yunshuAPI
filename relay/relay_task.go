@@ -14,6 +14,7 @@ import (
 	"xunkecloudAPI/common"
 	"xunkecloudAPI/constant"
 	"xunkecloudAPI/dto"
+	"xunkecloudAPI/logger"
 	"xunkecloudAPI/model"
 	"xunkecloudAPI/relay/channel"
 	relaycommon "xunkecloudAPI/relay/common"
@@ -186,14 +187,99 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 
 		// 检查result类型
 		if httpResp, ok := result.(*http.Response); ok {
-			// 如果是*http.Response类型，读取响应体并返回
+			// 如果是*http.Response类型，调用DoResponse方法处理响应
 			defer httpResp.Body.Close()
-			body, readErr := io.ReadAll(httpResp.Body)
+
+			// 先保存原始响应体
+			originalBody, readErr := io.ReadAll(httpResp.Body)
 			if readErr != nil {
-				taskErr = service.TaskErrorWrapper(readErr, "read_response_body_failed", http.StatusInternalServerError)
+				taskErr = service.TaskErrorWrapper(readErr, "read_original_response_body_failed", http.StatusInternalServerError)
 				return
 			}
-			// 使用Gin的c.Data方法直接返回响应体
+
+			// 重置响应体，以便DoResponse方法可以读取
+			httpResp.Body = io.NopCloser(bytes.NewBuffer(originalBody))
+			logger.LogDebug(c.Request.Context(), "[SUCHUANG] Before DoResponse - Response body length: %d", len(originalBody))
+			logger.LogDebug(c.Request.Context(), "[SUCHUANG] Before DoResponse - Content-Length: %d", httpResp.ContentLength)
+
+			// 调用DoResponse方法处理响应
+			_, doRespErr := channelAdaptor.DoResponse(c, httpResp, info)
+			if doRespErr != nil {
+				taskErr = service.TaskErrorWrapper(doRespErr, "do_response_failed", http.StatusInternalServerError)
+				return
+			}
+
+			// 记录DoResponse后的响应头信息
+			logger.LogDebug(c.Request.Context(), "[SUCHUANG] After DoResponse - Content-Length: %d", httpResp.ContentLength)
+			logger.LogDebug(c.Request.Context(), "[SUCHUANG] After DoResponse - Content-Type: %s", httpResp.Header.Get("Content-Type"))
+			logger.LogDebug(c.Request.Context(), "[SUCHUANG] After DoResponse - Headers: %v", httpResp.Header)
+
+			// 重新读取转换后的响应体
+			body, readErr := io.ReadAll(httpResp.Body)
+			if readErr != nil {
+				logger.LogError(c.Request.Context(), fmt.Sprintf("[SUCHUANG] Failed to read converted response body: %v", readErr))
+				taskErr = service.TaskErrorWrapper(readErr, "read_converted_response_body_failed", http.StatusInternalServerError)
+				return
+			}
+
+			// 调试日志：查看原始和转换后的响应体
+			logger.LogDebug(c.Request.Context(), "[SUCHUANG] Original response body: %s", string(originalBody))
+			logger.LogDebug(c.Request.Context(), "[SUCHUANG] Final response body: %s", string(body))
+			logger.LogDebug(c.Request.Context(), "[SUCHUANG] Final response body length: %d", len(body))
+
+			// 直接使用DoResponse中已经转换好的响应体，不依赖重新读取
+			// 这是一个临时解决方案，确保响应能正确返回
+			if len(body) == 0 {
+				logger.LogError(c.Request.Context(), "[SUCHUANG] Final response body is empty after reading")
+				// 尝试直接从原始响应中解析速创格式并转换
+				var suchuangResp struct {
+					Data json.RawMessage `json:"data"`
+				}
+				if err := json.Unmarshal(originalBody, &suchuangResp); err == nil && suchuangResp.Data != nil {
+					// 创建一个简单的OpenAI响应格式
+					var openAIResp struct {
+						ID      string `json:"id"`
+						Object  string `json:"object"`
+						Created int64  `json:"created"`
+						Model   string `json:"model"`
+						Choices []struct {
+							Message struct {
+								Content string `json:"content"`
+								Role    string `json:"role"`
+							} `json:"message"`
+						} `json:"choices"`
+					}
+
+					// 尝试解析data字段为OpenAI响应
+					if err := json.Unmarshal(suchuangResp.Data, &openAIResp); err == nil {
+						// 如果解析成功，使用它
+						body, _ = json.Marshal(openAIResp)
+					} else {
+						// 否则，将data字段作为content返回
+						openAIResp.ID = fmt.Sprintf("chatcmpl-%d", time.Now().Unix())
+						openAIResp.Object = "chat.completion"
+						openAIResp.Created = time.Now().Unix()
+						openAIResp.Model = info.OriginModelName
+						openAIResp.Choices = []struct {
+							Message struct {
+								Content string `json:"content"`
+								Role    string `json:"role"`
+							} `json:"message"`
+						}{{
+							Message: struct {
+								Content string `json:"content"`
+								Role    string `json:"role"`
+							}{Content: string(suchuangResp.Data), Role: "assistant"},
+						}}
+						body, _ = json.Marshal(openAIResp)
+					}
+					logger.LogDebug(c.Request.Context(), "[SUCHUANG] Fallback response body: %s", string(body))
+					logger.LogDebug(c.Request.Context(), "[SUCHUANG] Fallback response body length: %d", len(body))
+				}
+			}
+
+			// 使用Gin的c.Data方法直接返回转换后的响应体
+			logger.LogDebug(c.Request.Context(), "[SUCHUANG] Returning response with length: %d", len(body))
 			c.Data(http.StatusOK, "application/json", body)
 		} else {
 			// 其他类型，直接序列化为JSON返回
@@ -307,6 +393,22 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 	if taskErr != nil {
 		return
 	}
+
+	// 检查响应体是否已被修改（如在DoResponse中已设置）
+	if resp != nil && resp.Body != nil {
+		// 读取修改后的响应体
+		respBody, readErr := io.ReadAll(resp.Body)
+		if readErr == nil && len(respBody) > 0 {
+			// 直接返回响应体
+			c.Writer.Header().Set("Content-Type", "application/json")
+			c.Writer.Write(respBody)
+			info.ConsumeQuota = true
+			return nil
+		}
+		// 重置响应体以便后续处理
+		resp.Body = io.NopCloser(bytes.NewBuffer(respBody))
+	}
+
 	info.ConsumeQuota = true
 	// insert task
 	task := model.InitTask(platform, info)

@@ -114,6 +114,15 @@ func UploadFile(c *gin.Context) {
 		httpReq.Header.Set("Accept", "*/*")
 		// 添加Connection头
 		httpReq.Header.Set("Connection", "keep-alive")
+		
+		// 特殊处理飞书链接
+		if strings.Contains(req.FileURL, "feishu.cn") || strings.Contains(req.FileURL, "larksuite.com") {
+			// 飞书链接需要额外的请求头
+			httpReq.Header.Set("Referer", "https://www.feishu.cn/")
+			httpReq.Header.Set("Origin", "https://www.feishu.cn/")
+			// 设置更长的超时时间
+			client.Timeout = 30 * time.Second
+		}
 		// 发送请求
 		resp, err := client.Do(httpReq)
 		if err != nil {
@@ -128,6 +137,16 @@ func UploadFile(c *gin.Context) {
 
 		// 检查响应状态
 		if resp.StatusCode != http.StatusOK {
+			// 特殊处理飞书链接的认证错误
+			if (strings.Contains(req.FileURL, "feishu.cn") || strings.Contains(req.FileURL, "larksuite.com")) && 
+			   (resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden) {
+				c.JSON(http.StatusOK, gin.H{
+					"message": "飞书链接需要授权访问，请确保链接已公开或提供有效的访问权限",
+					"success": false,
+				})
+				return
+			}
+			
 			c.JSON(http.StatusOK, gin.H{
 				"message": "文件下载失败，状态码: " + fmt.Sprintf("%d", resp.StatusCode),
 				"success": false,
