@@ -170,6 +170,19 @@ func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon
 	if info.RequestURLPath == "/v1/chat/completions" || info.RequestURLPath == "/plus/v1/chat/completions" {
 		logger.LogDebug(ctx, "[SUCHUANG] Converting chat completion request for %s", request.Model)
 
+		// 当渠道是速创时，且调用的接口是/plus/v1/chat/completions，如果模型是gemini-3-pro-preview则强制修改为gemini-3-pro
+		if info.RequestURLPath == "/plus/v1/chat/completions" && request.Model == "gemini-3-pro-preview" {
+			logger.LogDebug(ctx, "[SUCHUANG] Model name converted from gemini-3-pro-preview to gemini-3-pro for suchuang channel")
+			request.Model = "gemini-3-pro"
+			// 同时更新 RelayInfo 中的模型名称，确保后续处理使用正确的模型名称
+			if info.OriginModelName == "gemini-3-pro-preview" {
+				info.OriginModelName = "gemini-3-pro"
+			}
+			if info.UpstreamModelName == "gemini-3-pro-preview" {
+				info.UpstreamModelName = "gemini-3-pro"
+			}
+		}
+
 		// 解析请求中的消息
 		var videoUrl string
 		var content string
