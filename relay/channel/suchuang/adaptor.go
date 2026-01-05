@@ -37,7 +37,7 @@ const ChannelName = "suchuang"
 var ModelList = []string{
 	"nano-banana-pro_4k",
 	"gemini-3-pro",
-	"gpt-5",
+	"gemini-2.5-pro",
 }
 
 // SuchuangAdaptor 速创渠道适配器
@@ -518,8 +518,8 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 		return &dto.Usage{}, nil
 
 	case "/v1/chat/completions", "/plus/v1/chat/completions":
-		// 处理gemini-3-pro或gpt-5视频内容识别响应
-		if info.OriginModelName == "gemini-3-pro" || info.OriginModelName == "gpt-5" {
+		// 处理gemini-3-pro或gemini-2.5-pro视频内容识别响应
+		if info.OriginModelName == "gemini-3-pro" || info.OriginModelName == "gemini-2.5-pro" {
 			var suchuangResp struct {
 				Code     int             `json:"code"`
 				Msg      string          `json:"msg"`
