@@ -38,6 +38,7 @@ var ModelList = []string{
 	"nano-banana-pro_4k",
 	"gemini-3-pro",
 	"gemini-2.5-pro",
+	"gemini-3-pro-preview",
 }
 
 // SuchuangAdaptor 速创渠道适配器
@@ -519,7 +520,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 
 	case "/v1/chat/completions", "/plus/v1/chat/completions":
 		// 处理gemini-3-pro或gemini-2.5-pro视频内容识别响应
-		if info.OriginModelName == "gemini-3-pro" || info.OriginModelName == "gemini-2.5-pro" {
+		if info.OriginModelName == "gemini-3-pro" || info.OriginModelName == "gemini-2.5-pro" || info.OriginModelName == "gemini-3-pro-preview" {
 			var suchuangResp struct {
 				Code     int             `json:"code"`
 				Msg      string          `json:"msg"`
