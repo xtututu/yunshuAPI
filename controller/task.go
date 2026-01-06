@@ -88,7 +88,7 @@ func UpdateSunoTaskAll(ctx context.Context, taskChannelM map[int][]string, taskM
 	for channelId, taskIds := range taskChannelM {
 		err := updateSunoTaskAll(ctx, channelId, taskIds, taskM)
 		if err != nil {
-			logger.LogError(ctx, fmt.Sprintf("渠道 #%d 更新异步任务失败: %d", channelId, err.Error()))
+			logger.LogError(ctx, fmt.Sprintf("渠道 #%d 更新异步任务失败: %s", channelId, err.Error()))
 		}
 	}
 	return nil
@@ -140,7 +140,7 @@ func updateSunoTaskAll(ctx context.Context, channelId int, taskIds []string, tas
 		return err
 	}
 	if !responseItems.IsSuccess() {
-		common.SysLog(fmt.Sprintf("渠道 #%d 未完成的任务有: %d, 成功获取到任务数: %d", channelId, len(taskIds), string(responseBody)))
+		common.SysLog(fmt.Sprintf("渠道 #%d 未完成的任务有: %d, 响应内容: %s", channelId, len(taskIds), string(responseBody)))
 		return err
 	}
 
@@ -234,19 +234,30 @@ func GetAllTask(c *gin.Context) {
 	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
 	// 解析其他查询参数
 	queryParams := model.SyncTaskQueryParams{
-		Platform:       constant.TaskPlatform(c.Query("platform")),
-		TaskID:         c.Query("task_id"),
-		Status:         c.Query("status"),
-		Action:         c.Query("action"),
-		StartTimestamp: startTimestamp,
-		EndTimestamp:   endTimestamp,
-		ChannelID:      c.Query("channel_id"),
+		Platform:          constant.TaskPlatform(c.Query("platform")),
+		TaskID:            c.Query("task_id"),
+		Status:            c.Query("status"),
+		Action:            c.Query("action"),
+		StartTimestamp:    startTimestamp,
+		EndTimestamp:      endTimestamp,
+		ChannelID:         c.Query("channel_id"),
+		Username:          c.Query("username"),
+		UpstreamModelName: c.Query("upstream_model_name"),
 	}
 
-	items := model.TaskGetAllTasks(pageInfo.GetStartIdx(), pageInfo.GetPageSize(), queryParams)
+	tasks := model.TaskGetAllTasks(pageInfo.GetStartIdx(), pageInfo.GetPageSize(), queryParams)
+	// 检查用户角色，决定是否返回敏感字段
+	userRole := c.GetInt("role")
+	isRootUser := userRole == common.RoleRootUser
+
+	// 转换为前端响应格式
+	responseItems := make([]*model.TaskResponse, len(tasks))
+	for i, task := range tasks {
+		responseItems[i] = task.ToResponse(isRootUser)
+	}
 	total := model.TaskCountAllTasks(queryParams)
 	pageInfo.SetTotal(int(total))
-	pageInfo.SetItems(items)
+	pageInfo.SetItems(responseItems)
 	common.ApiSuccess(c, pageInfo)
 }
 
@@ -259,17 +270,28 @@ func GetUserTask(c *gin.Context) {
 	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
 
 	queryParams := model.SyncTaskQueryParams{
-		Platform:       constant.TaskPlatform(c.Query("platform")),
-		TaskID:         c.Query("task_id"),
-		Status:         c.Query("status"),
-		Action:         c.Query("action"),
-		StartTimestamp: startTimestamp,
-		EndTimestamp:   endTimestamp,
+		Platform:          constant.TaskPlatform(c.Query("platform")),
+		TaskID:            c.Query("task_id"),
+		Status:            c.Query("status"),
+		Action:            c.Query("action"),
+		StartTimestamp:    startTimestamp,
+		EndTimestamp:      endTimestamp,
+		Username:          c.Query("username"),
+		UpstreamModelName: c.Query("upstream_model_name"),
 	}
 
-	items := model.TaskGetAllUserTask(userId, pageInfo.GetStartIdx(), pageInfo.GetPageSize(), queryParams)
+	tasks := model.TaskGetAllUserTask(userId, pageInfo.GetStartIdx(), pageInfo.GetPageSize(), queryParams)
+	// 检查用户角色，决定是否返回敏感字段
+	userRole := c.GetInt("role")
+	isRootUser := userRole == common.RoleRootUser
+
+	// 转换为前端响应格式
+	responseItems := make([]*model.TaskResponse, len(tasks))
+	for i, task := range tasks {
+		responseItems[i] = task.ToResponse(isRootUser)
+	}
 	total := model.TaskCountAllUserTask(userId, queryParams)
 	pageInfo.SetTotal(int(total))
-	pageInfo.SetItems(items)
+	pageInfo.SetItems(responseItems)
 	common.ApiSuccess(c, pageInfo)
 }

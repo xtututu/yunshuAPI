@@ -325,23 +325,15 @@ export const getTaskLogsColumns = ({
       title: t('用户名称'),
       dataIndex: 'username',
       render: (text, record, index) => {
-        return <div>{renderUsername(text, t)}</div>;
+        return <div>{text || '-'}</div>;
       },
     },
     {
       key: COLUMN_KEYS.UPSTREAM_MODEL,
       title: t('实际调用模型'),
-      dataIndex: 'upstream_model_name',
-      render: (text, record, index) => {
-        return <div>{renderUpstreamModel(text, t)}</div>;
-      },
-    },
-    {
-      key: COLUMN_KEYS.ORIGIN_MODEL,
-      title: t('原始模型'),
-      dataIndex: 'origin_model_name',
-      render: (text, record, index) => {
-        return <div>{renderOriginModel(text, t)}</div>;
+      dataIndex: 'properties',
+      render: (properties, record, index) => {
+        return <div>{properties?.upstream_model_name || '-'}</div>;
       },
     },
     {

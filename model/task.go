@@ -39,8 +39,9 @@ const (
 	TaskStatusUnknown               = "UNKNOWN"
 )
 
+// Task 是数据库模型，包含所有字段
 type Task struct {
-	ID         int64                 `json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	ID         int64                 `json:"-" gorm:"primary_key;AUTO_INCREMENT"`
 	CreatedAt  int64                 `json:"created_at" gorm:"index"`
 	UpdatedAt  int64                 `json:"updated_at"`
 	TaskID     string                `json:"task_id" gorm:"type:varchar(191);index"` // 第三方id，不一定有/ song id\ Task id
@@ -60,6 +61,67 @@ type Task struct {
 	// 禁止返回给用户，内部可能包含key等隐私信息
 	PrivateData TaskPrivateData `json:"-" gorm:"column:private_data;type:json"`
 	Data        json.RawMessage `json:"data" gorm:"type:json"`
+}
+
+// TaskResponse 是返回给前端的任务数据结构，根据用户角色决定是否包含敏感字段
+type TaskResponse struct {
+	ID         int64                 `json:"id"`
+	CreatedAt  int64                 `json:"created_at"`
+	UpdatedAt  int64                 `json:"updated_at"`
+	TaskID     string                `json:"task_id"`
+	Platform   constant.TaskPlatform `json:"platform,omitempty"` // 仅root用户可见
+	UserId     int                   `json:"user_id"`
+	Username   string                `json:"username"`
+	Group      string                `json:"group"`
+	ChannelId  int                   `json:"channel_id,omitempty"` // 仅root用户可见
+	Quota      int                   `json:"quota"`
+	Action     string                `json:"action"`
+	Status     TaskStatus            `json:"status"`
+	FailReason string                `json:"fail_reason"`
+	SubmitTime int64                 `json:"submit_time"`
+	StartTime  int64                 `json:"start_time"`
+	FinishTime int64                 `json:"finish_time"`
+	Progress   string                `json:"progress"`
+	Properties Properties            `json:"properties"`
+	Data       json.RawMessage       `json:"data"`
+}
+
+// ToResponse 转换为前端响应格式，根据用户角色决定是否包含敏感字段
+func (t *Task) ToResponse(isRootUser bool) *TaskResponse {
+	// 获取用户名
+	username := ""
+	user, err := GetUserById(t.UserId, false)
+	if err == nil && user != nil {
+		username = user.Username
+	}
+
+	response := &TaskResponse{
+		ID:         t.ID,
+		CreatedAt:  t.CreatedAt,
+		UpdatedAt:  t.UpdatedAt,
+		TaskID:     t.TaskID,
+		UserId:     t.UserId,
+		Username:   username,
+		Group:      t.Group,
+		Quota:      t.Quota,
+		Action:     t.Action,
+		Status:     t.Status,
+		FailReason: t.FailReason,
+		SubmitTime: t.SubmitTime,
+		StartTime:  t.StartTime,
+		FinishTime: t.FinishTime,
+		Progress:   t.Progress,
+		Properties: t.Properties,
+		Data:       t.Data,
+	}
+
+	// 仅root用户可见渠道和平台信息
+	if isRootUser {
+		response.Platform = t.Platform
+		response.ChannelId = t.ChannelId
+	}
+
+	return response
 }
 
 func (t *Task) SetData(data any) {
@@ -115,15 +177,17 @@ func (p TaskPrivateData) Value() (driver.Value, error) {
 
 // SyncTaskQueryParams 用于包含所有搜索条件的结构体，可以根据需求添加更多字段
 type SyncTaskQueryParams struct {
-	Platform       constant.TaskPlatform
-	ChannelID      string
-	TaskID         string
-	UserID         string
-	Action         string
-	Status         string
-	StartTimestamp int64
-	EndTimestamp   int64
-	UserIDs        []int
+	Platform          constant.TaskPlatform
+	ChannelID         string
+	TaskID            string
+	UserID            string
+	Username          string
+	Action            string
+	Status            string
+	StartTimestamp    int64
+	EndTimestamp      int64
+	UserIDs           []int
+	UpstreamModelName string
 }
 
 func InitTask(platform constant.TaskPlatform, relayInfo *commonRelay.RelayInfo) *Task {
@@ -175,11 +239,13 @@ func TaskGetAllUserTask(userId int, startIdx int, num int, queryParams SyncTaskQ
 		query = query.Where("platform = ?", queryParams.Platform)
 	}
 	if queryParams.StartTimestamp != 0 {
-		// 假设您已将前端传来的时间戳转换为数据库所需的时间格式，并处理了时间戳的验证和解析
 		query = query.Where("submit_time >= ?", queryParams.StartTimestamp)
 	}
 	if queryParams.EndTimestamp != 0 {
 		query = query.Where("submit_time <= ?", queryParams.EndTimestamp)
+	}
+	if queryParams.UpstreamModelName != "" {
+		query = query.Where("properties LIKE ? OR properties LIKE ?", "%"+queryParams.UpstreamModelName+"%", "%\""+queryParams.UpstreamModelName+"\"%")
 	}
 
 	// 获取数据
@@ -225,6 +291,12 @@ func TaskGetAllTasks(startIdx int, num int, queryParams SyncTaskQueryParams) []*
 	}
 	if queryParams.EndTimestamp != 0 {
 		query = query.Where("submit_time <= ?", queryParams.EndTimestamp)
+	}
+	if queryParams.Username != "" {
+		query = query.Joins("LEFT JOIN users ON tasks.user_id = users.id").Where("users.username LIKE ?", "%"+queryParams.Username+"%")
+	}
+	if queryParams.UpstreamModelName != "" {
+		query = query.Where("properties LIKE ? OR properties LIKE ?", "%"+queryParams.UpstreamModelName+"%", "%\""+queryParams.UpstreamModelName+"\"%")
 	}
 
 	// 获取数据
@@ -400,6 +472,12 @@ func TaskCountAllTasks(queryParams SyncTaskQueryParams) int64 {
 	if queryParams.EndTimestamp != 0 {
 		query = query.Where("submit_time <= ?", queryParams.EndTimestamp)
 	}
+	if queryParams.Username != "" {
+		query = query.Joins("LEFT JOIN users ON tasks.user_id = users.id").Where("users.username LIKE ?", "%"+queryParams.Username+"%")
+	}
+	if queryParams.UpstreamModelName != "" {
+		query = query.Where("properties LIKE ? OR properties LIKE ?", "%"+queryParams.UpstreamModelName+"%", "%\""+queryParams.UpstreamModelName+"\"%")
+	}
 	_ = query.Count(&total).Error
 	return total
 }
@@ -425,6 +503,9 @@ func TaskCountAllUserTask(userId int, queryParams SyncTaskQueryParams) int64 {
 	}
 	if queryParams.EndTimestamp != 0 {
 		query = query.Where("submit_time <= ?", queryParams.EndTimestamp)
+	}
+	if queryParams.UpstreamModelName != "" {
+		query = query.Where("properties LIKE ? OR properties LIKE ?", "%"+queryParams.UpstreamModelName+"%", "%\""+queryParams.UpstreamModelName+"\"%")
 	}
 	_ = query.Count(&total).Error
 	return total

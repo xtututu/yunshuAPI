@@ -41,6 +41,8 @@ export const useTaskLogsData = () => {
     DURATION: 'duration',
     CHANNEL: 'channel',
     PLATFORM: 'platform',
+    USERNAME: 'username',
+    UPSTREAM_MODEL: 'upstream_model',
     TYPE: 'type',
     TASK_ID: 'task_id',
     TASK_STATUS: 'task_status',
@@ -102,9 +104,10 @@ export const useTaskLogsData = () => {
         const merged = { ...defaults, ...parsed };
 
         // For non-admin users, force-hide admin-only columns (does not touch admin settings)
-        if (!isAdminUser) {
-          merged[COLUMN_KEYS.CHANNEL] = false;
-        }
+      if (!isAdminUser) {
+        merged[COLUMN_KEYS.CHANNEL] = false;
+        merged[COLUMN_KEYS.PLATFORM] = false;
+      }
         setVisibleColumns(merged);
       } catch (e) {
         console.error('Failed to parse saved column preferences', e);
@@ -122,7 +125,9 @@ export const useTaskLogsData = () => {
       [COLUMN_KEYS.FINISH_TIME]: true,
       [COLUMN_KEYS.DURATION]: true,
       [COLUMN_KEYS.CHANNEL]: isAdminUser,
-      [COLUMN_KEYS.PLATFORM]: true,
+      [COLUMN_KEYS.PLATFORM]: isAdminUser,
+      [COLUMN_KEYS.USERNAME]: true,
+      [COLUMN_KEYS.UPSTREAM_MODEL]: true,
       [COLUMN_KEYS.TYPE]: true,
       [COLUMN_KEYS.TASK_ID]: true,
       [COLUMN_KEYS.TASK_STATUS]: true,
@@ -151,7 +156,7 @@ export const useTaskLogsData = () => {
     const updatedColumns = {};
 
     allKeys.forEach((key) => {
-      if (key === COLUMN_KEYS.CHANNEL && !isAdminUser) {
+      if ((key === COLUMN_KEYS.CHANNEL || key === COLUMN_KEYS.PLATFORM) && !isAdminUser) {
         updatedColumns[key] = false;
       } else {
         updatedColumns[key] = checked;
@@ -188,6 +193,8 @@ export const useTaskLogsData = () => {
     return {
       channel_id: formValues.channel_id || '',
       task_id: formValues.task_id || '',
+      username: formValues.username || '',
+      upstream_model_name: formValues.upstream_model_name || '',
       start_timestamp,
       end_timestamp,
     };
@@ -214,14 +221,14 @@ export const useTaskLogsData = () => {
   // Load logs function
   const loadLogs = async (page = 1, size = pageSize) => {
     setLoading(true);
-    const { channel_id, task_id, start_timestamp, end_timestamp } = getFormValues();
+    const { channel_id, task_id, username, upstream_model_name, start_timestamp, end_timestamp } = getFormValues();
     let localStartTimestamp = parseInt(Date.parse(start_timestamp) / 1000);
     let localEndTimestamp = parseInt(Date.parse(end_timestamp) / 1000);
     let url;
     if (isAdminUser) {
-      url = `/api/task/?p=${page}&page_size=${size}&channel_id=${channel_id}&task_id=${task_id}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
+      url = `/api/task/?p=${page}&page_size=${size}&channel_id=${channel_id}&task_id=${task_id}&username=${username}&upstream_model_name=${upstream_model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     } else {
-      url = `/api/task/self?p=${page}&page_size=${size}&task_id=${task_id}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
+      url = `/api/task/self?p=${page}&page_size=${size}&task_id=${task_id}&username=${username}&upstream_model_name=${upstream_model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     }
     const res = await API.get(url);
     const { success, message, data } = res.data;
