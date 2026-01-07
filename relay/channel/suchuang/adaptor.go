@@ -399,18 +399,19 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 	var body []byte
 	var httpResp = resp
 
-	// 如果响应为空，直接返回
+	// 如果响应为空，直接返回空的usage信息和nil错误
 	if resp == nil {
 		logger.LogDebug(ctx, "[SUCHUANG] Response is nil, returning empty usage")
-		return &dto.Usage{}, nil // 返回空的usage信息和nil错误
-	} // 读取响应体
+		return &dto.Usage{}, nil
+	}
+	// 读取响应体
 	var readErr error
 	body, readErr = io.ReadAll(httpResp.Body)
 	if readErr != nil {
 		return nil, types.NewErrorWithStatusCode(errors.New("Failed to read response body"), types.ErrorCodeBadResponse, 500)
 	}
 
-	// 如果响应体为空，直接返回
+	// 如果响应体为空，直接返回空的usage信息和nil错误
 	if len(body) == 0 {
 		logger.LogDebug(ctx, "[SUCHUANG] Response body is empty, returning empty usage")
 		return &dto.Usage{}, nil
@@ -428,7 +429,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 		Choices []any `json:"choices"`
 	}
 	if json.Unmarshal(body, &openAIRespCheck) == nil && openAIRespCheck.Choices != nil {
-		// 如果已经是OpenAI格式的响应，直接返回
+		// 如果已经是OpenAI格式的响应，直接返回空的usage信息和nil错误
 		logger.LogDebug(ctx, "[SUCHUANG] Response is already in OpenAI format, skipping processing")
 		return &dto.Usage{}, nil
 	}
@@ -456,8 +457,36 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 			return nil, types.NewErrorWithStatusCode(errors.New(createTaskResp.Msg), types.ErrorCodeBadResponse, 500)
 		}
 
-		// 返回任务ID
-		return map[string]int{"task_id": createTaskResp.Data.ID}, nil
+		logger.LogDebug(ctx, "[SUCHUANG] Image task created with ID: %d", createTaskResp.Data.ID)
+
+		// 立即轮询获取结果
+		pollResult, pollErr := s.pollImageResult(c, info, createTaskResp.Data.ID)
+		if pollErr != nil {
+			logger.LogError(ctx, fmt.Sprintf("[SUCHUANG] Polling image result failed: %v", pollErr))
+			// 轮询失败时返回空URL，让用户稍后手动查询
+			openAIResp := map[string]interface{}{
+				"data": []map[string]interface{}{
+					{
+						"url":            "",
+						"revised_prompt": "",
+					},
+				},
+				"created": time.Now().Unix(),
+			}
+			if httpResp != nil {
+				openAIRespBody, _ := json.Marshal(openAIResp)
+				httpResp.Body = io.NopCloser(bytes.NewBuffer(openAIRespBody))
+			}
+			return &dto.Usage{}, nil
+		}
+
+		// 将轮询结果转换为OpenAI格式响应
+		if httpResp != nil {
+			openAIRespBody, _ := json.Marshal(pollResult)
+			httpResp.Body = io.NopCloser(bytes.NewBuffer(openAIRespBody))
+		}
+
+		return &dto.Usage{}, nil
 
 	case "/api/img/drawDetail":
 		// 处理轮询结果响应
@@ -511,11 +540,9 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 		if httpResp != nil {
 			openAIRespBody, _ := json.Marshal(openAIResp)
 			httpResp.Body = io.NopCloser(bytes.NewBuffer(openAIRespBody))
-		} else {
-			// 非http.Response类型，直接替换响应数据
 		}
 
-		// 返回Usage实例
+		// 返回空的usage信息和nil错误
 		return &dto.Usage{}, nil
 
 	case "/v1/chat/completions", "/plus/v1/chat/completions":
@@ -670,12 +697,8 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 			// 将转换后的响应写入客户端
 			service.IOCopyBytesGracefully(c, httpResp, openAIRespBody)
 
-			// 返回Usage实例，包含正确的token数量
-			return &dto.Usage{
-				PromptTokens:     100,
-				CompletionTokens: 2000,
-				TotalTokens:      2100,
-			}, nil
+			// 返回空的usage信息和nil错误
+			return &dto.Usage{}, nil
 		}
 		// 对于其他模型，也尝试解析响应
 		logger.LogDebug(ctx, "[SUCHUANG] Handling chat completion for other model: %s", info.OriginModelName)
@@ -826,11 +849,11 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 		// 将转换后的响应写入客户端
 		service.IOCopyBytesGracefully(c, httpResp, openAIRespBody)
 
-		// 返回Usage实例
+		// 返回空的usage信息和nil错误
 		return &dto.Usage{}, nil
 
 	default:
-		// 其他请求返回Usage实例
+		// 其他请求返回空的usage信息
 		logger.LogDebug(ctx, "[SUCHUANG] Default response handling for URL path: %s", info.RequestURLPath)
 		return &dto.Usage{}, nil
 	}
@@ -939,26 +962,18 @@ func (s *SuchuangAdaptor) createImageTask(c *gin.Context, info *relaycommon.Rela
 func (s *SuchuangAdaptor) pollImageResult(c *gin.Context, info *relaycommon.RelayInfo, taskID int) (any, error) {
 	ctx := c.Request.Context()
 
-	// 构造轮询URL
-	pollURL := fmt.Sprintf("%s/api/img/drawDetail", s.baseURL)
-
-	// 构造轮询请求体
-	pollRequestBody := map[string]interface{}{
-		"id": taskID,
-	}
-
-	// 转换为JSON
-	pollRequestBodyBytes, _ := json.Marshal(pollRequestBody)
+	// 构造轮询URL（使用GET方法，参数通过查询字符串传递）
+	pollURL := fmt.Sprintf("%s/api/img/drawDetail?id=%d", s.baseURL, taskID)
 
 	// 设置轮询间隔和超时
 	pollInterval := 2 * time.Second
-	timeout := 60 * time.Second
+	timeout := 900 * time.Second
 	startTime := time.Now()
 
 	// 轮询获取结果
 	for {
-		// 创建请求
-		req, err := http.NewRequest("POST", pollURL, bytes.NewBuffer(pollRequestBodyBytes))
+		// 创建GET请求
+		req, err := http.NewRequest("GET", pollURL, nil)
 		if err != nil {
 			logger.LogError(ctx, fmt.Sprintf("[SUCHUANG] New poll request failed: %v", err))
 			return nil, err
@@ -1032,6 +1047,17 @@ func (s *SuchuangAdaptor) pollImageResult(c *gin.Context, info *relaycommon.Rela
 
 			logger.LogDebug(ctx, "[SUCHUANG] Image generation completed successfully")
 			return openAIResp, nil
+		}
+
+		// 检查任务是否失败（status=3）
+		if pollResult.Data.Status == 3 {
+			// 任务失败，返回失败原因
+			failReason := pollResult.Data.FailReason
+			if failReason == "" {
+				failReason = "Image generation failed"
+			}
+			logger.LogError(ctx, fmt.Sprintf("[SUCHUANG] Image generation failed: %s", failReason))
+			return nil, errors.New(failReason)
 		}
 
 		// 检查是否超时
