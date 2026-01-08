@@ -623,7 +623,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 					SystemFingerprint string         `json:"system_fingerprint"`
 					ServiceTier       string         `json:"service_tier"`
 				}{
-					ID:      fmt.Sprintf("chatcmpl-%d", time.Now().Unix()),
+					ID:      fmt.Sprintf("chatcmpl-%s", time.Now().Format("20060102150405106725986")+"QLKsygEy"),
 					Object:  "chat.completion",
 					Created: time.Now().Unix(),
 					Model:   info.OriginModelName,
@@ -656,19 +656,18 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 						Logprobs:     nil,
 					}},
 					Usage: map[string]any{
-						"prompt_tokens":     100,  // 设置合理的 prompt tokens 数量
-						"completion_tokens": 2000, // 设置合理的 completion tokens 数量
-						"total_tokens":      2100, // 设置合理的总 tokens 数量
-						"completion_tokens_details": map[string]any{
-							"accepted_prediction_tokens": 2000,
-							"audio_tokens":               0,
-							"reasoning_tokens":           500,
-							"rejected_prediction_tokens": 0,
-						},
+						"prompt_tokens":     9,
+						"completion_tokens": 260,
+						"total_tokens":      269,
 						"prompt_tokens_details": map[string]any{
-							"audio_tokens":  0,
-							"cached_tokens": 0,
+							"text_tokens":           9,
+							"cached_tokens_details": map[string]any{},
 						},
+						"completion_tokens_details": map[string]any{
+							"reasoning_tokens": 249,
+						},
+						"claude_cache_creation_5_m_tokens": 0,
+						"claude_cache_creation_1_h_tokens": 0,
 					},
 					SystemFingerprint: "",
 					ServiceTier:       "default",
@@ -777,7 +776,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 				SystemFingerprint string         `json:"system_fingerprint"`
 				ServiceTier       string         `json:"service_tier"`
 			}{
-				ID:      fmt.Sprintf("chatcmpl-%d", time.Now().Unix()),
+				ID:      fmt.Sprintf("chatcmpl-%s", time.Now().Format("20060102150405106725986")+"QLKsygEy"),
 				Object:  "chat.completion",
 				Created: time.Now().Unix(),
 				Model:   info.OriginModelName,
@@ -810,19 +809,18 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 					Logprobs:     nil,
 				}},
 				Usage: map[string]any{
-					"prompt_tokens":     0,
-					"completion_tokens": 0,
-					"total_tokens":      0,
-					"completion_tokens_details": map[string]any{
-						"accepted_prediction_tokens": 0,
-						"audio_tokens":               0,
-						"reasoning_tokens":           0,
-						"rejected_prediction_tokens": 0,
-					},
+					"prompt_tokens":     9,
+					"completion_tokens": 260,
+					"total_tokens":      269,
 					"prompt_tokens_details": map[string]any{
-						"audio_tokens":  0,
-						"cached_tokens": 0,
+						"text_tokens":           9,
+						"cached_tokens_details": map[string]any{},
 					},
+					"completion_tokens_details": map[string]any{
+						"reasoning_tokens": 249,
+					},
+					"claude_cache_creation_5_m_tokens": 0,
+					"claude_cache_creation_1_h_tokens": 0,
 				},
 				SystemFingerprint: "",
 				ServiceTier:       "default",
