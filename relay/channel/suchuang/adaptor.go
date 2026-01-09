@@ -8,12 +8,15 @@ import (
 	"io"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
 	"xunkecloudAPI/common"
 	"xunkecloudAPI/dto"
 	"xunkecloudAPI/logger"
+	"xunkecloudAPI/model"
+	"xunkecloudAPI/relay/channel"
 	relaycommon "xunkecloudAPI/relay/common"
 	"xunkecloudAPI/service"
 	"xunkecloudAPI/types"
@@ -39,6 +42,7 @@ var ModelList = []string{
 	"gemini-3-pro",
 	"gemini-2.5-pro",
 	"gemini-3-pro-preview",
+	"sora-2",
 }
 
 // SuchuangAdaptor 速创渠道适配器
@@ -58,6 +62,11 @@ type SuchuangAdaptor struct {
 
 // Adaptor 实现channel.Adaptor接口的适配器类型
 type Adaptor struct {
+	SuchuangAdaptor
+}
+
+// TaskAdaptor 实现channel.TaskAdaptor接口的适配器类型
+type TaskAdaptor struct {
 	SuchuangAdaptor
 }
 
@@ -119,6 +128,18 @@ func (s *SuchuangAdaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, er
 		}
 		return url, nil
 	}
+	// 如果是视频生成请求，根据模型返回不同的API端点
+	if strings.HasPrefix(info.RequestURLPath, "/v1/videos") {
+		// 根据模型选择不同的API端点
+		url := "https://api.wuyinkeji.com/api/sora2/submit"
+		if info.UpstreamModelName == "sora-2-pro" {
+			url = "https://api.wuyinkeji.com/api/sora2pro/submit"
+		}
+		if common.DebugEnabled {
+			fmt.Printf("[SUCHUANG] Generated video generation URL: %s for model: %s\n", url, info.UpstreamModelName)
+		}
+		return url, nil
+	}
 	// 其他请求路径返回错误
 	if common.DebugEnabled {
 		fmt.Printf("[SUCHUANG] Unsupported request URL path: %s\n", info.RequestURLPath)
@@ -142,7 +163,7 @@ func (s *SuchuangAdaptor) SetupRequestHeader(c *gin.Context, req *http.Header, i
 // ConvertOpenAIRequest 转换OpenAI请求到速创API请求
 // 实现channel.Adaptor接口的ConvertOpenAIRequest方法
 // 接收gin.Context、relaycommon.RelayInfo和*dto.GeneralOpenAIRequest参数
-// 支持图片生成请求和Gemini-3-Pro视频内容识别请求转换
+// 支持图片生成请求、Gemini-3-Pro视频内容识别请求和sora-2视频生成请求转换
 func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon.RelayInfo, request *dto.GeneralOpenAIRequest) (any, error) {
 	ctx := c.Request.Context()
 	// 支持图片生成请求
@@ -165,6 +186,124 @@ func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon
 		// 系统应该会为图片请求直接调用ConvertImageRequest方法
 
 		return s.ConvertImageRequest(c, info, *imageRequest)
+	}
+
+	// 支持sora-2视频生成请求
+	if strings.HasPrefix(info.RequestURLPath, "/v1/videos") {
+		logger.LogDebug(ctx, "[SUCHUANG] Converting video generation request for %s", request.Model)
+
+		// 定义视频请求结构体
+		var videoRequest struct {
+			Model          string   `json:"model"`
+			Prompt         string   `json:"prompt"`
+			Seconds        string   `json:"seconds"`
+			Size           string   `json:"size"`
+			InputReference []string `json:"input_reference"`
+		}
+
+		// 将GeneralOpenAIRequest转换为map以便获取所有字段，包括视频生成特有的字段
+		requestMap := request.ToMap()
+
+		// 从requestMap中提取所有字段
+		if model, ok := requestMap["model"].(string); ok {
+			videoRequest.Model = model
+		} else {
+			// 从request对象获取model
+			videoRequest.Model = request.Model
+		}
+
+		if prompt, ok := requestMap["prompt"].(string); ok {
+			videoRequest.Prompt = prompt
+		} else if request.Prompt != nil {
+			// 从request对象获取prompt
+			if promptStr, ok := request.Prompt.(string); ok {
+				videoRequest.Prompt = promptStr
+			}
+		}
+
+		// 处理Seconds字段，支持多种类型
+		if seconds, ok := requestMap["seconds"].(string); ok {
+			videoRequest.Seconds = seconds
+		} else if secondsFloat, ok := requestMap["seconds"].(float64); ok {
+			videoRequest.Seconds = fmt.Sprintf("%.0f", secondsFloat)
+		} else if secondsInt, ok := requestMap["seconds"].(int); ok {
+			videoRequest.Seconds = fmt.Sprintf("%d", secondsInt)
+		} else {
+			// 默认值
+			videoRequest.Seconds = "15"
+		}
+
+		if size, ok := requestMap["size"].(string); ok {
+			videoRequest.Size = size
+		} else {
+			// 默认值
+			videoRequest.Size = "1024×1792"
+		}
+
+		// 处理InputReference字段
+		if inputReference, ok := requestMap["input_reference"].([]string); ok {
+			videoRequest.InputReference = inputReference
+		} else if inputReferenceInterface, ok := requestMap["input_reference"].([]any); ok {
+			for _, ref := range inputReferenceInterface {
+				if refStr, ok := ref.(string); ok {
+					videoRequest.InputReference = append(videoRequest.InputReference, refStr)
+				}
+			}
+		}
+
+		// 确保使用正确的模型
+		if videoRequest.Model == "" {
+			videoRequest.Model = request.Model
+		}
+
+		// 设置默认值
+		if videoRequest.Seconds == "" {
+			videoRequest.Seconds = "15" // 默认15秒
+		}
+
+		// 转换size到aspectRatio
+		aspectRatio := "16:9" // 默认16:9
+		if videoRequest.Size == "720×1280" || videoRequest.Size == "720x1280" || videoRequest.Size == "1024×1792" || videoRequest.Size == "1024x1792" {
+			aspectRatio = "9:16"
+		}
+
+		// 获取input_reference中的URL，默认取第一个
+		url := ""
+		if len(videoRequest.InputReference) > 0 {
+			url = strings.Trim(videoRequest.InputReference[0], " `")
+		}
+
+		// 构建sora-2 API请求体
+		// 将seconds转换为数字类型
+		var duration int
+		if secondsStr := videoRequest.Seconds; secondsStr != "" {
+			if d, err := strconv.Atoi(secondsStr); err == nil {
+				duration = d
+			} else {
+				// 默认15秒
+				duration = 15
+			}
+		} else {
+			// 默认15秒
+			duration = 15
+		}
+
+		// 根据模型类型构建不同的请求体
+		soraRequest := map[string]interface{}{
+			"prompt":      videoRequest.Prompt,
+			"duration":    duration,
+			"aspectRatio": aspectRatio,
+			"url":         url,
+		}
+
+		// 只有当模型不是sora-2-pro时，才添加size字段
+		if videoRequest.Model != "sora-2-pro" && info.UpstreamModelName != "sora-2-pro" {
+			soraRequest["size"] = "auto"
+		}
+
+		requestData, _ := json.Marshal(soraRequest)
+		logger.LogDebug(ctx, "[SUCHUANG] Generated sora-2 video request body: %s", string(requestData))
+		return soraRequest, nil
 	}
 
 	// 支持视频内容识别请求（支持gemini-3-pro和gpt-5模型）
@@ -434,9 +573,60 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 		return &dto.Usage{}, nil
 	}
 
+	// 从RequestURLPath中提取路径部分，因为它包含完整URL
+	path := info.RequestURLPath
+	if idx := strings.Index(path, "?"); idx > 0 {
+		path = path[:idx]
+	}
+
 	// 根据请求路径处理响应
-	switch info.RequestURLPath {
-	case "/v1/images/generations":
+	switch {
+	case strings.HasPrefix(path, "/v1/videos"):
+		// 处理sora-2视频生成响应
+		var soraResp struct {
+			Msg  string `json:"msg"`
+			Data struct {
+				ID string `json:"id"`
+			} `json:"data"`
+			Code     int     `json:"code"`
+			ExecTime float64 `json:"exec_time,omitempty"`
+			IP       string  `json:"ip,omitempty"`
+		}
+
+		if err := json.Unmarshal(body, &soraResp); err != nil {
+			logger.LogError(ctx, fmt.Sprintf("[SUCHUANG] DoResponse failed to parse sora-2 response: %v, body: %s", err, string(body)))
+			return nil, types.NewErrorWithStatusCode(errors.New("Failed to parse response"), types.ErrorCodeBadResponse, 500)
+		}
+
+		if soraResp.Code != 200 {
+			return nil, types.NewErrorWithStatusCode(errors.New(soraResp.Msg), types.ErrorCodeBadResponse, 500)
+		}
+
+		logger.LogDebug(ctx, "[SUCHUANG] Sora-2 video task created with ID: %s", soraResp.Data.ID)
+
+		// 构造视频生成响应，返回任务ID
+		// 使用默认值10秒，因为在DoResponse方法中无法直接访问原始请求
+		seconds := "10"
+
+		// 使用与其他视频API一致的OpenAIVideo格式
+		videoResponse := &dto.OpenAIVideo{
+			ID:        fmt.Sprintf("%s", soraResp.Data.ID),
+			Status:    dto.VideoStatusQueued,
+			CreatedAt: time.Now().UnixMilli(),
+			Model:     "sora-2",
+			Object:    "video",
+			Seconds:   seconds,
+			Progress:  0,
+		}
+
+		// 将转换后的响应写回响应体
+		if httpResp != nil {
+			videoRespBody, _ := json.Marshal(videoResponse)
+			httpResp.Body = io.NopCloser(bytes.NewBuffer(videoRespBody))
+		}
+
+		return &dto.Usage{}, nil
+	case strings.HasPrefix(path, "/v1/images/generations"):
 		// 处理图片生成任务创建响应
 		var createTaskResp struct {
 			Msg  string `json:"msg"`
@@ -488,7 +678,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 
 		return &dto.Usage{}, nil
 
-	case "/api/img/drawDetail":
+	case strings.HasPrefix(path, "/api/img/drawDetail"):
 		// 处理轮询结果响应
 		var pollResp struct {
 			Code int    `json:"code"`
@@ -545,7 +735,9 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 		// 返回空的usage信息和nil错误
 		return &dto.Usage{}, nil
 
-	case "/v1/chat/completions", "/plus/v1/chat/completions":
+	case strings.HasPrefix(path, "/v1/chat/completions"):
+		fallthrough
+	case strings.HasPrefix(path, "/plus/v1/chat/completions"):
 		// 处理gemini-3-pro或gemini-2.5-pro视频内容识别响应
 		if info.OriginModelName == "gemini-3-pro" || info.OriginModelName == "gemini-2.5-pro" || info.OriginModelName == "gemini-3-pro-preview" {
 			var suchuangResp struct {
@@ -883,6 +1075,329 @@ func (s *SuchuangAdaptor) ConvertClaudeRequest(c *gin.Context, info *relaycommon
 // 目前不支持Gemini请求，直接返回错误
 func (s *SuchuangAdaptor) ConvertGeminiRequest(c *gin.Context, info *relaycommon.RelayInfo, request *dto.GeminiChatRequest) (any, error) {
 	return nil, errors.New("ConvertGeminiRequest not implemented for suchuang channel")
+}
+
+// ============================// TaskAdaptor Implementation// ============================
+
+// ValidateRequestAndSetAction 验证请求并设置操作
+// 实现channel.TaskAdaptor接口的ValidateRequestAndSetAction方法
+func (t *TaskAdaptor) ValidateRequestAndSetAction(c *gin.Context, info *relaycommon.RelayInfo) *dto.TaskError {
+	// 验证请求并设置操作
+	return relaycommon.ValidateMultipartDirect(c, info)
+}
+
+// BuildRequestURL 构建请求URL
+// 实现channel.TaskAdaptor接口的BuildRequestURL方法
+func (t *TaskAdaptor) BuildRequestURL(info *relaycommon.RelayInfo) (string, error) {
+	// 根据模型选择不同的API端点
+	url := "https://api.wuyinkeji.com/api/sora2/submit"
+	if info.UpstreamModelName == "sora-2-pro" {
+		url = "https://api.wuyinkeji.com/api/sora2pro/submit"
+	}
+	return url, nil
+}
+
+// BuildRequestHeader 构建请求头
+// 实现channel.TaskAdaptor接口的BuildRequestHeader方法
+func (t *TaskAdaptor) BuildRequestHeader(c *gin.Context, req *http.Request, info *relaycommon.RelayInfo) error {
+	// 设置请求头，不需要Bearer拼接
+	req.Header.Set("Authorization", t.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+	return nil
+}
+
+// BuildRequestBody 构建请求体
+// 实现channel.TaskAdaptor接口的BuildRequestBody方法
+func (t *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayInfo) (io.Reader, error) {
+	// 获取任务请求
+	req, err := relaycommon.GetTaskRequest(c)
+	if err != nil {
+		return nil, err
+	}
+
+	// 构建视频请求结构体
+	var videoRequest struct {
+		Model          string   `json:"model"`
+		Prompt         string   `json:"prompt"`
+		Seconds        string   `json:"seconds"`
+		Size           string   `json:"size"`
+		InputReference []string `json:"input_reference"`
+	}
+
+	// 从TaskSubmitReq中提取字段
+	videoRequest.Model = req.Model
+	videoRequest.Prompt = req.Prompt
+	videoRequest.Seconds = req.Seconds
+	videoRequest.Size = req.Size
+
+	// 处理InputReference字段
+	if req.InputReference != nil {
+		switch v := req.InputReference.(type) {
+		case string:
+			videoRequest.InputReference = []string{v}
+		case []string:
+			videoRequest.InputReference = v
+		case []interface{}:
+			for _, ref := range v {
+				if refStr, ok := ref.(string); ok {
+					videoRequest.InputReference = append(videoRequest.InputReference, refStr)
+				}
+			}
+		}
+	}
+
+	// 转换size到aspectRatio
+	aspectRatio := "16:9" // 默认16:9
+	if videoRequest.Size == "720×1280" || videoRequest.Size == "720x1280" || videoRequest.Size == "1024×1792" || videoRequest.Size == "1024x1792" {
+		aspectRatio = "9:16"
+	}
+
+	// 获取input_reference中的URL，默认取第一个
+	url := ""
+	if len(videoRequest.InputReference) > 0 {
+		url = strings.Trim(videoRequest.InputReference[0], " `")
+	}
+
+	// 构建速创API请求体
+	// 将seconds转换为数字类型
+	var duration int
+	if secondsStr := videoRequest.Seconds; secondsStr != "" {
+		if d, err := strconv.Atoi(secondsStr); err == nil {
+			duration = d
+		} else {
+			// 默认15秒
+			duration = 15
+		}
+	} else {
+		// 默认15秒
+		duration = 15
+	}
+
+	// 根据模型类型构建不同的请求体
+	soraRequest := map[string]interface{}{
+		"prompt":      videoRequest.Prompt,
+		"duration":    duration,
+		"aspectRatio": aspectRatio,
+		"url":         url,
+	}
+
+	// 只有当模型不是sora-2-pro时，才添加size字段
+	if videoRequest.Model != "sora-2-pro" && info.UpstreamModelName != "sora-2-pro" {
+		soraRequest["size"] = "auto"
+	}
+
+	// 转换为JSON
+	requestBody, err := json.Marshal(soraRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes.NewBuffer(requestBody), nil
+}
+
+// DoRequest 执行请求
+// 实现channel.TaskAdaptor接口的DoRequest方法
+func (t *TaskAdaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo, requestBody io.Reader) (*http.Response, error) {
+	// 使用通用的API请求方法
+	return channel.DoTaskApiRequest(t, c, info, requestBody)
+}
+
+// DoResponse 处理响应
+// 实现channel.TaskAdaptor接口的DoResponse方法
+func (t *TaskAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *relaycommon.RelayInfo) (taskID string, taskData []byte, taskErr *dto.TaskError) {
+	// 读取响应体
+	responseBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		taskErr = service.TaskErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
+		return
+	}
+
+	// 解析响应
+	var suchuangResp struct {
+		Code int    `json:"code"`
+		Msg  string `json:"msg"`
+		Data struct {
+			ID string `json:"id"`
+		} `json:"data"`
+	}
+
+	if err := json.Unmarshal(responseBody, &suchuangResp); err != nil {
+		taskErr = service.TaskErrorWrapper(err, "unmarshal_response_failed", http.StatusInternalServerError)
+		return
+	}
+
+	// 检查响应代码
+	if suchuangResp.Code != 200 {
+		taskErr = service.TaskErrorWrapper(fmt.Errorf(suchuangResp.Msg), "api_request_failed", http.StatusInternalServerError)
+		return
+	}
+
+	// 返回任务ID和响应数据
+	return suchuangResp.Data.ID, responseBody, nil
+}
+
+// FetchTask 获取任务
+// 实现channel.TaskAdaptor接口的FetchTask方法
+func (t *TaskAdaptor) FetchTask(baseUrl, key string, body map[string]any) (*http.Response, error) {
+	// 从body中获取task_id
+	taskID, ok := body["task_id"].(string)
+	if !ok {
+		return nil, fmt.Errorf("invalid task_id")
+	}
+
+	// 构建轮询URL
+	url := fmt.Sprintf("https://api.wuyinkeji.com/api/sora2/detail?id=%s", taskID)
+
+	// 创建GET请求
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// 设置请求头
+	req.Header.Set("Authorization", key)
+
+	// 发送请求
+	return service.GetHttpClient().Do(req)
+}
+
+// ParseTaskResult 解析任务结果
+// 实现channel.TaskAdaptor接口的ParseTaskResult方法
+func (t *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, error) {
+	// 解析响应
+	var suchuangResp struct {
+		Code int    `json:"code"`
+		Msg  string `json:"msg"`
+		Data struct {
+			Content     string `json:"content"`
+			Status      int    `json:"status"`
+			FailReason  string `json:"fail_reason"`
+			CreatedAt   string `json:"created_at"`
+			UpdatedAt   string `json:"updated_at"`
+			RemoteURL   string `json:"remote_url"`
+			Size        string `json:"size"`
+			Duration    int    `json:"duration"`
+			AspectRatio string `json:"aspectRatio"`
+			URL         string `json:"url"`
+			PID         string `json:"pid"`
+			ID          string `json:"id"`
+		} `json:"data"`
+	}
+
+	if err := json.Unmarshal(respBody, &suchuangResp); err != nil {
+		return nil, err
+	}
+
+	// 转换状态和进度
+	var status model.TaskStatus
+	var progress int
+	switch suchuangResp.Data.Status {
+	case 0: // 排队中
+		status = model.TaskStatusQueued
+		progress = 0
+	case 1: // 成功
+		status = model.TaskStatusSuccess
+		progress = 100
+	case 2: // 失败
+		status = model.TaskStatusFailure
+		progress = 0
+	case 3: // 生成中
+		status = model.TaskStatusInProgress
+		progress = 50
+	default: // 其他状态默认处理中
+		status = model.TaskStatusInProgress
+		progress = 0
+	}
+
+	// 构建任务结果
+	taskResult := &relaycommon.TaskInfo{
+		Code:     0,
+		TaskID:   suchuangResp.Data.ID,
+		Status:   string(status),
+		Progress: fmt.Sprintf("%d%%", progress),
+	}
+
+	// 如果任务成功，设置URL
+	if status == model.TaskStatusSuccess {
+		taskResult.Url = suchuangResp.Data.RemoteURL
+		taskResult.RemoteUrl = suchuangResp.Data.RemoteURL
+	}
+
+	// 如果任务失败，设置失败原因
+	if status == model.TaskStatusFailure {
+		taskResult.Reason = suchuangResp.Data.FailReason
+	}
+
+	return taskResult, nil
+}
+
+// GetModelList 获取支持的模型列表
+// 实现channel.TaskAdaptor接口的GetModelList方法
+func (t *TaskAdaptor) GetModelList() []string {
+	return ModelList
+}
+
+// GetChannelName 获取渠道名称
+// 实现channel.TaskAdaptor接口的GetChannelName方法
+func (t *TaskAdaptor) GetChannelName() string {
+	return ChannelName
+}
+
+// UserExpectedVideoResponse 用户期望的视频响应格式
+// 与其他视频API保持一致
+type UserExpectedVideoResponse struct {
+	ID        string `json:"id"`
+	Size      string `json:"size"`
+	Model     string `json:"model"`
+	Object    string `json:"object"`
+	Status    string `json:"status"`
+	Seconds   string `json:"seconds"`
+	Progress  int    `json:"progress"`
+	VideoURL  string `json:"video_url"`
+	CreatedAt int64  `json:"created_at"`
+}
+
+// ConvertToOpenAIVideo 转换任务为OpenAI格式的视频响应
+// 实现channel.OpenAIVideoConverter接口的ConvertToOpenAIVideo方法
+func (t *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
+	// 解析任务数据，获取原始请求的seconds和size
+	var taskData struct {
+		Seconds string `json:"seconds"`
+		Size    string `json:"size"`
+	}
+	if err := json.Unmarshal(task.Data, &taskData); err != nil {
+		// 如果解析失败，使用默认值
+		taskData.Seconds = "10"
+		taskData.Size = "1024×1792"
+	}
+
+	// 构建用户期望的视频响应格式
+	response := UserExpectedVideoResponse{
+		ID:        task.TaskID,
+		Size:      taskData.Size,
+		Model:     "sora-2",
+		Object:    "video",
+		Status:    task.Status.ToVideoStatus(),
+		Seconds:   taskData.Seconds,
+		Progress:  0,
+		CreatedAt: task.CreatedAt,
+	}
+
+	// 根据任务状态设置进度和视频URL
+	switch task.Status {
+	case model.TaskStatusSuccess:
+		response.Progress = 100
+		response.VideoURL = task.FailReason // 使用FailReason字段存储视频URL
+	case model.TaskStatusInProgress:
+		response.Progress = 50
+	case model.TaskStatusQueued, model.TaskStatusSubmitted:
+		response.Progress = 0
+	case model.TaskStatusFailure:
+		response.Progress = 0
+	}
+
+	// 序列化响应为JSON
+	return json.Marshal(response)
 }
 
 // createImageTask 创建图片生成任务

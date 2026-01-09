@@ -163,6 +163,8 @@ func GetTaskAdaptor(platform constant.TaskPlatform) channel.TaskAdaptor {
 			return &tasksorag.TaskAdaptor{}
 		case constant.ChannelTypeSoraS:
 			return &tasksoras.TaskAdaptor{}
+		case constant.ChannelTypeSuchuang:
+			return &suchuang.TaskAdaptor{}
 		}
 	}
 	return nil

@@ -178,8 +178,29 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 			return
 		}
 
-		// 直接使用速创适配器的DoRequest方法处理请求
-		result, err := channelAdaptor.DoRequest(c, info, bytes.NewBuffer(bodyBytes))
+		// 解析原始请求为GeneralOpenAIRequest
+		var generalRequest dto.GeneralOpenAIRequest
+		if err := json.Unmarshal(bodyBytes, &generalRequest); err != nil {
+			taskErr = service.TaskErrorWrapper(err, "unmarshal_request_failed", http.StatusBadRequest)
+			return
+		}
+
+		// 转换OpenAI请求到速创API请求格式
+		convertedRequest, err := channelAdaptor.ConvertOpenAIRequest(c, info, &generalRequest)
+		if err != nil {
+			taskErr = service.TaskErrorWrapper(err, "convert_request_failed", http.StatusInternalServerError)
+			return
+		}
+
+		// 将转换后的请求序列化为JSON
+		convertedBody, err := json.Marshal(convertedRequest)
+		if err != nil {
+			taskErr = service.TaskErrorWrapper(err, "marshal_converted_request_failed", http.StatusInternalServerError)
+			return
+		}
+
+		// 使用转换后的请求体调用DoRequest方法
+		result, err := channelAdaptor.DoRequest(c, info, bytes.NewBuffer(convertedBody))
 		if err != nil {
 			taskErr = service.TaskErrorWrapper(err, "do_request_failed", http.StatusInternalServerError)
 			return
