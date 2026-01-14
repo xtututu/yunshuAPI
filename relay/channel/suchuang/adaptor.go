@@ -499,7 +499,7 @@ func (s *SuchuangAdaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo,
 	}
 
 	// 发送请求
-	client := &http.Client{}
+	client := service.GetHttpClient()
 	logger.LogDebug(ctx, "[SUCHUANG] Sending request to URL: %s with method: %s", req.URL.String(), req.Method)
 	logger.LogDebug(ctx, "[SUCHUANG] Request headers: %v", req.Header)
 	logger.LogDebug(ctx, "[SUCHUANG] Request body: %s", string(bodyBytes))
@@ -565,12 +565,29 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 
 	// 检查是否已经是OpenAI格式的响应（检查是否有choices字段）
 	var openAIRespCheck struct {
-		Choices []any `json:"choices"`
+		Choices []any          `json:"choices"`
+		Usage   map[string]any `json:"usage"`
 	}
 	if json.Unmarshal(body, &openAIRespCheck) == nil && openAIRespCheck.Choices != nil {
-		// 如果已经是OpenAI格式的响应，直接返回空的usage信息和nil错误
-		logger.LogDebug(ctx, "[SUCHUANG] Response is already in OpenAI format, skipping processing")
-		return &dto.Usage{}, nil
+		// 如果已经是OpenAI格式的响应，提取usage信息
+		logger.LogDebug(ctx, "[SUCHUANG] Response is already in OpenAI format, extracting usage")
+
+		// 从openAIRespCheck中提取usage信息
+		var usage dto.Usage
+		if openAIRespCheck.Usage != nil {
+			// 提取prompt_tokens
+			if promptTokens, ok := openAIRespCheck.Usage["prompt_tokens"].(float64); ok {
+				usage.PromptTokens = int(promptTokens)
+			}
+			// 提取completion_tokens
+			if completionTokens, ok := openAIRespCheck.Usage["completion_tokens"].(float64); ok {
+				usage.CompletionTokens = int(completionTokens)
+			}
+			// 计算total_tokens
+			usage.TotalTokens = usage.PromptTokens + usage.CompletionTokens
+		}
+
+		return &usage, nil
 	}
 
 	// 从RequestURLPath中提取路径部分，因为它包含完整URL
@@ -888,8 +905,22 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 			// 将转换后的响应写入客户端
 			service.IOCopyBytesGracefully(c, httpResp, openAIRespBody)
 
-			// 返回空的usage信息和nil错误
-			return &dto.Usage{}, nil
+			// 从openAIResp中提取usage信息并返回
+			var usage dto.Usage
+			if openAIResp.Usage != nil {
+				// 提取prompt_tokens
+				if promptTokens, ok := openAIResp.Usage["prompt_tokens"].(float64); ok {
+					usage.PromptTokens = int(promptTokens)
+				}
+				// 提取completion_tokens
+				if completionTokens, ok := openAIResp.Usage["completion_tokens"].(float64); ok {
+					usage.CompletionTokens = int(completionTokens)
+				}
+				// 计算total_tokens
+				usage.TotalTokens = usage.PromptTokens + usage.CompletionTokens
+			}
+
+			return &usage, nil
 		}
 		// 对于其他模型，也尝试解析响应
 		logger.LogDebug(ctx, "[SUCHUANG] Handling chat completion for other model: %s", info.OriginModelName)
@@ -1039,8 +1070,22 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 		// 将转换后的响应写入客户端
 		service.IOCopyBytesGracefully(c, httpResp, openAIRespBody)
 
-		// 返回空的usage信息和nil错误
-		return &dto.Usage{}, nil
+		// 从openAIResp中提取usage信息并返回
+		var usage dto.Usage
+		if openAIResp.Usage != nil {
+			// 提取prompt_tokens
+			if promptTokens, ok := openAIResp.Usage["prompt_tokens"].(float64); ok {
+				usage.PromptTokens = int(promptTokens)
+			}
+			// 提取completion_tokens
+			if completionTokens, ok := openAIResp.Usage["completion_tokens"].(float64); ok {
+				usage.CompletionTokens = int(completionTokens)
+			}
+			// 计算total_tokens
+			usage.TotalTokens = usage.PromptTokens + usage.CompletionTokens
+		}
+
+		return &usage, nil
 
 	default:
 		// 其他请求返回空的usage信息
@@ -1428,7 +1473,7 @@ func (s *SuchuangAdaptor) createImageTask(c *gin.Context, info *relaycommon.Rela
 	}
 
 	// 发送请求
-	client := &http.Client{}
+	client := service.GetHttpClient()
 	resp, err := client.Do(req)
 	if err != nil {
 		logger.LogError(ctx, fmt.Sprintf("[SUCHUANG] Client Do failed: %v", err))
@@ -1499,7 +1544,7 @@ func (s *SuchuangAdaptor) pollImageResult(c *gin.Context, info *relaycommon.Rela
 		}
 
 		// 发送请求
-		client := &http.Client{}
+		client := service.GetHttpClient()
 		resp, err := client.Do(req)
 		if err != nil {
 			logger.LogError(ctx, fmt.Sprintf("[SUCHUANG] Client Do failed: %v", err))
