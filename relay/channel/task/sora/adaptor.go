@@ -110,10 +110,119 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 		return nil, errors.Wrap(err, "get_request_body_failed")
 	}
 
+	contentType := c.GetHeader("Content-Type")
+	
+	// 处理JSON请求，将input_reference转换为base64附件
+	if strings.HasPrefix(contentType, "application/json") {
+		// 解析JSON请求
+		var jsonReq map[string]interface{}
+		if err := json.Unmarshal(cachedBody, &jsonReq); err != nil {
+			return nil, errors.Wrap(err, "parse_json_request_failed")
+		}
+
+		// 检查是否有input_reference字段
+		inputReference, hasInputRef := jsonReq["input_reference"]
+		if hasInputRef {
+			// 创建multipart请求体
+			var newBody bytes.Buffer
+			writer := multipart.NewWriter(&newBody)
+
+			// 保存新的boundary
+			a.newBoundary = writer.Boundary()
+
+			// 处理input_reference中的图片URL
+			var urls []string
+			
+			// 支持多种格式：字符串、字符串数组
+			switch v := inputReference.(type) {
+			case string:
+				urls = []string{v}
+			case []interface{}:
+				for _, item := range v {
+					if url, ok := item.(string); ok {
+						urls = append(urls, url)
+					}
+				}
+			}
+
+			// 下载图片并添加为附件
+			for i, url := range urls {
+				// 清理URL（去掉首尾空格和反引号）
+				cleanURL := strings.Trim(url, " `")
+				if cleanURL == "" {
+					continue
+				}
+
+				// 下载图片
+				resp, err := service.DoDownloadRequest(cleanURL)
+				if err != nil {
+					writer.Close()
+					return nil, errors.Wrapf(err, "download_image_failed: %s", cleanURL)
+				}
+				defer resp.Body.Close()
+
+				// 读取图片内容
+				imageData, err := io.ReadAll(resp.Body)
+				if err != nil {
+					writer.Close()
+					return nil, errors.Wrapf(err, "read_image_failed: %s", cleanURL)
+				}
+
+				// 生成文件名
+				filename := fmt.Sprintf("image_%d.jpg", i+1)
+				
+				// 创建form文件并写入图片内容
+				part, err := writer.CreateFormFile("input_reference", filename)
+				if err != nil {
+					writer.Close()
+					return nil, errors.Wrapf(err, "create_form_file_failed: %s", filename)
+				}
+				
+				// 写入图片内容
+				if _, err := part.Write(imageData); err != nil {
+					writer.Close()
+					return nil, errors.Wrapf(err, "write_image_failed: %s", filename)
+				}
+			}
+
+			// 移除input_reference字段，因为已经转换为附件
+			delete(jsonReq, "input_reference")
+
+			// 添加其他JSON字段到multipart请求中
+			for key, value := range jsonReq {
+				// 转换值为字符串
+				var strValue string
+				switch v := value.(type) {
+				case string:
+					strValue = v
+				case float64:
+					strValue = fmt.Sprintf("%.0f", v)
+				case bool:
+					strValue = fmt.Sprintf("%t", v)
+				default:
+					// 对于复杂类型，序列化为JSON字符串
+					jsonBytes, err := json.Marshal(v)
+					if err != nil {
+						writer.Close()
+						return nil, errors.Wrapf(err, "marshal_value_failed: %v", v)
+					}
+					strValue = string(jsonBytes)
+				}
+
+				writer.WriteField(key, strValue)
+			}
+
+			writer.Close()
+
+			// 创建一个新的 bytes.Buffer 来支持多次读取
+			bodyCopy := bytes.NewBuffer(newBody.Bytes())
+			return bodyCopy, nil
+		}
+	}
+
 	// 检查是否需要更新模型名
 	if info.IsModelMapped && info.UpstreamModelName != "" {
 		// 检查请求是否是multipart/form-data格式
-		contentType := c.GetHeader("Content-Type")
 		if strings.HasPrefix(contentType, "multipart/form-data") {
 			// 对于multipart请求，需要重新构建请求体
 			// 先解析原始请求体
