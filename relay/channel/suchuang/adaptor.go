@@ -1619,10 +1619,8 @@ func (s *SuchuangAdaptor) pollImageResult(c *gin.Context, info *relaycommon.Rela
 	// 构造轮询URL（使用GET方法，参数通过查询字符串传递）
 	pollURL := fmt.Sprintf("%s/api/img/drawDetail?id=%d", s.baseURL, taskID)
 
-	// 设置轮询间隔和超时
+	// 设置轮询间隔（不设置超时，与视频生成保持一致）
 	pollInterval := 2 * time.Second
-	timeout := 900 * time.Second
-	startTime := time.Now()
 
 	// 轮询获取结果
 	for {
@@ -1714,13 +1712,7 @@ func (s *SuchuangAdaptor) pollImageResult(c *gin.Context, info *relaycommon.Rela
 			return nil, errors.New(failReason)
 		}
 
-		// 检查是否超时
-		if time.Since(startTime) > timeout {
-			logger.LogError(ctx, "[SUCHUANG] Image generation timeout")
-			return nil, errors.New("Image generation timeout")
-		}
-
-		// 等待一段时间后继续轮询
+		// 等待一段时间后继续轮询（不检查超时，与视频生成保持一致）
 		time.Sleep(pollInterval)
 	}
 }
