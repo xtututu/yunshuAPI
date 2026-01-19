@@ -38,6 +38,10 @@ const ChannelName = "suchuang"
 
 // ModelList 模型列表
 var ModelList = []string{
+	"nano-banana",
+	"nano-banana-pro",
+	"nano-banana-pro_1k",
+	"nano-banana-pro_2k",
 	"nano-banana-pro_4k",
 	"gemini-3-pro",
 	"gemini-2.5-pro",
@@ -102,10 +106,46 @@ func (s *SuchuangAdaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, er
 	if common.DebugEnabled {
 		// 直接输出到控制台以确保我们能看到日志
 		fmt.Println("[SUCHUANG] DEBUG MODE IS ENABLED")
-		fmt.Printf("[SUCHUANG] GetRequestURL called with: baseURL=%s, RequestURLPath=%s\n", s.baseURL, info.RequestURLPath)
+		modelName := info.OriginModelName
+		upstreamModelName := ""
+		if info.ChannelMeta != nil && info.ChannelMeta.UpstreamModelName != "" {
+			upstreamModelName = info.ChannelMeta.UpstreamModelName
+		} else if info.UpstreamModelName != "" {
+			upstreamModelName = info.UpstreamModelName
+		}
+		if upstreamModelName != "" {
+			fmt.Printf("[SUCHUANG] GetRequestURL called with: baseURL=%s, RequestURLPath=%s, Model=%s, UpstreamModel=%s\n", s.baseURL, info.RequestURLPath, modelName, upstreamModelName)
+		} else {
+			fmt.Printf("[SUCHUANG] GetRequestURL called with: baseURL=%s, RequestURLPath=%s, Model=%s\n", s.baseURL, info.RequestURLPath, modelName)
+		}
 	}
-	// 如果是图片生成请求，返回特定的API端点
+	// 如果是图片生成请求，根据模型返回不同的API端点
 	if info.RequestURLPath == "/v1/images/generations" {
+		// 确定当前实际使用的模型名称（优先使用映射后的模型名称）
+		currentModelName := info.OriginModelName
+		if info.ChannelMeta != nil && info.ChannelMeta.UpstreamModelName != "" {
+			currentModelName = info.ChannelMeta.UpstreamModelName
+		} else if info.UpstreamModelName != "" {
+			currentModelName = info.UpstreamModelName
+		}
+
+		// 为nano-banana模型使用专用API接口
+		if currentModelName == "nano-banana" {
+			url := "https://api.wuyinkeji.com/api/img/nanoBanana"
+			if common.DebugEnabled {
+				fmt.Printf("[SUCHUANG] Generated image generation URL for nano-banana: %s\n", url)
+			}
+			return url, nil
+		}
+		// 所有其他nano-banana模型变体使用统一的API接口
+		if strings.HasPrefix(currentModelName, "nano-banana-pro") {
+			url := "https://api.wuyinkeji.com/api/img/nanoBanana-pro"
+			if common.DebugEnabled {
+				fmt.Printf("[SUCHUANG] Generated image generation URL for %s: %s\n", currentModelName, url)
+			}
+			return url, nil
+		}
+		// 其他图片模型使用默认接口
 		url := fmt.Sprintf("%s/api/img/nanoBanana-pro", s.baseURL)
 		if common.DebugEnabled {
 			fmt.Printf("[SUCHUANG] Generated image generation URL: %s\n", url)
@@ -417,7 +457,22 @@ func (s *SuchuangAdaptor) ConvertAudioRequest(c *gin.Context, info *relaycommon.
 // 转换OpenAI格式的图片请求到速创API格式
 func (s *SuchuangAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInfo, request dto.ImageRequest) (any, error) {
 	ctx := c.Request.Context()
-	logger.LogDebug(ctx, "[SUCHUANG] ConvertImageRequest called with: Model=%s, Prompt=%s", request.Model, request.Prompt)
+	// 确定当前实际使用的模型名称（优先使用映射后的模型名称）
+	currentModelName := info.OriginModelName
+	upstreamModelName := ""
+	if info.ChannelMeta != nil && info.ChannelMeta.UpstreamModelName != "" {
+		upstreamModelName = info.ChannelMeta.UpstreamModelName
+		currentModelName = upstreamModelName
+	} else if info.UpstreamModelName != "" {
+		upstreamModelName = info.UpstreamModelName
+		currentModelName = upstreamModelName
+	}
+
+	if upstreamModelName != "" {
+		logger.LogDebug(ctx, "[SUCHUANG] ConvertImageRequest called with: Model=%s, UpstreamModel=%s, Prompt=%s", request.Model, upstreamModelName, request.Prompt)
+	} else {
+		logger.LogDebug(ctx, "[SUCHUANG] ConvertImageRequest called with: Model=%s, Prompt=%s", request.Model, request.Prompt)
+	}
 	// 解析image数组
 	var imageUrls []string
 	if request.Image != nil {
@@ -439,7 +494,48 @@ func (s *SuchuangAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.
 		}
 	}
 
-	// 构建速创API请求体
+	// 为nano-banana模型使用专用入参结构
+	if currentModelName == "nano-banana" {
+		// 构建nano-banana模型的速创API请求体
+		suchuangRequest := map[string]interface{}{
+			"model":       "nano-banana",
+			"prompt":      request.Prompt,
+			"aspectRatio": "auto", // 默认值
+			"img_url":     imageUrls,
+		}
+
+		requestData, _ := json.Marshal(suchuangRequest)
+		logger.LogDebug(ctx, "[SUCHUANG] Generated request body for nano-banana: %s", string(requestData))
+		return suchuangRequest, nil
+	}
+
+	// 为nano-banana-pro模型变体构建请求体
+	if strings.HasPrefix(currentModelName, "nano-banana-pro") {
+		// 确定当前使用的模型名称
+		modelName := currentModelName
+
+		// 根据模型名称设置正确的imageSize
+		imageSize := "1K" // 默认值，对应nano-banana-pro
+		re := regexp.MustCompile(`nano-banana-pro_(\d+)k`)
+		if matches := re.FindStringSubmatch(strings.ToLower(modelName)); len(matches) == 2 {
+			// 提取尺寸数字并大写K
+			imageSize = matches[1] + "K"
+		}
+
+		// 构建速创API请求体
+		suchuangRequest := map[string]interface{}{
+			"prompt":      request.Prompt,
+			"aspectRatio": "auto",
+			"imageSize":   imageSize,
+			"img_url":     imageUrls,
+		}
+
+		requestData, _ := json.Marshal(suchuangRequest)
+		logger.LogDebug(ctx, "[SUCHUANG] Generated request body for %s with imageSize=%s: %s", modelName, imageSize, string(requestData))
+		return suchuangRequest, nil
+	}
+
+	// 其他模型使用默认入参结构
 	suchuangRequest := map[string]interface{}{
 		"prompt":      request.Prompt,
 		"aspectRatio": "auto", // 固定值
