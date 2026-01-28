@@ -1,6 +1,6 @@
 services:
   new-api:
-    build: .
+    image: xunkecloudapi-new-api
     container_name: new-api
     restart: always
     command: --log-dir /app/logs

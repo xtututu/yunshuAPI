@@ -739,12 +739,20 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 		}
 
 		return &dto.Usage{}, nil
-	case strings.HasPrefix(path, "/v1/images/generations"):
+	case strings.HasPrefix(path, "/v1/images/generations") || strings.HasPrefix(path, "/api/img/nanoBanana") || strings.HasPrefix(path, "/api/img/nanoBanana-pro"):
 		// 处理图片生成任务创建响应
 		var createTaskResp struct {
 			Msg  string `json:"msg"`
 			Data struct {
-				ID int `json:"id"`
+				ID         int    `json:"id"`
+				TaskID     string `json:"task_id"`
+				Status     int    `json:"status"` // 2表示完成，3表示失败
+				Size       string `json:"size"`
+				Prompt     string `json:"prompt"`
+				ImageURL   string `json:"image_url"`
+				FailReason string `json:"fail_reason"`
+				CreatedAt  string `json:"created_at"`
+				UpdatedAt  string `json:"updated_at"`
 			} `json:"data"`
 			Code     int     `json:"code"`
 			ExecTime float64 `json:"exec_time,omitempty"`
@@ -760,27 +768,47 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 			return nil, types.NewErrorWithStatusCode(errors.New(createTaskResp.Msg), types.ErrorCodeBadResponse, 500)
 		}
 
+		// 检查任务是否失败（status=3）
+		if createTaskResp.Data.Status == 3 {
+			failReason := createTaskResp.Data.FailReason
+			if failReason == "" {
+				failReason = "Image generation failed"
+			}
+			logger.LogError(ctx, fmt.Sprintf("[SUCHUANG] Image generation failed: %s", failReason))
+			return nil, types.NewErrorWithStatusCode(errors.New(failReason), types.ErrorCodeInvalidRequest, 400)
+		}
+
+		// 检查任务是否已完成（status=2）
+		if createTaskResp.Data.Status == 2 {
+			// 任务已完成，直接返回结果
+			openAIResp := struct {
+				Data []struct {
+					URL string `json:"url"`
+				} `json:"data"`
+				Created int64 `json:"created"`
+			}{
+				Data: []struct {
+					URL string `json:"url"`
+				}{{createTaskResp.Data.ImageURL}},
+				Created: time.Now().Unix(),
+			}
+
+			if httpResp != nil {
+				openAIRespBody, _ := json.Marshal(openAIResp)
+				httpResp.Body = io.NopCloser(bytes.NewBuffer(openAIRespBody))
+			}
+
+			return &dto.Usage{}, nil
+		}
+
 		logger.LogDebug(ctx, "[SUCHUANG] Image task created with ID: %d", createTaskResp.Data.ID)
 
 		// 立即轮询获取结果
 		pollResult, pollErr := s.pollImageResult(c, info, createTaskResp.Data.ID)
 		if pollErr != nil {
 			logger.LogError(ctx, fmt.Sprintf("[SUCHUANG] Polling image result failed: %v", pollErr))
-			// 轮询失败时返回空URL，让用户稍后手动查询
-			openAIResp := map[string]interface{}{
-				"data": []map[string]interface{}{
-					{
-						"url":            "",
-						"revised_prompt": "",
-					},
-				},
-				"created": time.Now().Unix(),
-			}
-			if httpResp != nil {
-				openAIRespBody, _ := json.Marshal(openAIResp)
-				httpResp.Body = io.NopCloser(bytes.NewBuffer(openAIRespBody))
-			}
-			return &dto.Usage{}, nil
+			// 轮询失败时返回错误信息，而不是空URL
+			return nil, types.NewErrorWithStatusCode(pollErr, types.ErrorCodeInvalidRequest, 400)
 		}
 
 		// 将轮询结果转换为OpenAI格式响应
@@ -820,33 +848,42 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 		}
 
 		// 检查任务状态
-		if pollResp.Data.Status != 2 {
+		if pollResp.Data.Status == 2 {
+			// 任务完成，转换为OpenAI格式响应
+			openAIResp := struct {
+				Data []struct {
+					URL string `json:"url"`
+				} `json:"data"`
+				Created int64 `json:"created"`
+			}{
+				Data: []struct {
+					URL string `json:"url"`
+				}{{
+					URL: pollResp.Data.ImageURL,
+				}},
+				Created: time.Now().Unix(),
+			}
+
+			// 如果响应体不为空，将转换后的响应写回响应体
+			if httpResp != nil {
+				openAIRespBody, _ := json.Marshal(openAIResp)
+				httpResp.Body = io.NopCloser(bytes.NewBuffer(openAIRespBody))
+			}
+
+			// 返回空的usage信息和nil错误
+			return &dto.Usage{}, nil
+		} else if pollResp.Data.Status == 3 {
+			// 任务失败，返回失败原因
+			failReason := pollResp.Data.FailReason
+			if failReason == "" {
+				failReason = "Image generation failed"
+			}
+			logger.LogError(ctx, fmt.Sprintf("[SUCHUANG] Image generation failed: %s", failReason))
+			return nil, types.NewErrorWithStatusCode(errors.New(failReason), types.ErrorCodeInvalidRequest, 400)
+		} else {
+			// 其他状态，返回通用错误
 			return nil, types.NewErrorWithStatusCode(errors.New("Task not completed yet"), types.ErrorCodeInvalidRequest, 400)
 		}
-
-		// 转换为OpenAI格式响应
-		openAIResp := struct {
-			Data []struct {
-				URL string `json:"url"`
-			} `json:"data"`
-			Created int64 `json:"created"`
-		}{
-			Data: []struct {
-				URL string `json:"url"`
-			}{{
-				URL: pollResp.Data.ImageURL,
-			}},
-			Created: time.Now().Unix(),
-		}
-
-		// 如果响应体不为空，将转换后的响应写回响应体
-		if httpResp != nil {
-			openAIRespBody, _ := json.Marshal(openAIResp)
-			httpResp.Body = io.NopCloser(bytes.NewBuffer(openAIRespBody))
-		}
-
-		// 返回空的usage信息和nil错误
-		return &dto.Usage{}, nil
 
 	case strings.HasPrefix(path, "/v1/chat/completions"):
 		fallthrough
