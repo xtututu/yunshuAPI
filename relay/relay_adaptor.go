@@ -18,6 +18,7 @@ import (
 	"xunkecloudAPI/relay/channel/gemini"
 	"xunkecloudAPI/relay/channel/jimeng"
 	"xunkecloudAPI/relay/channel/jina"
+	"xunkecloudAPI/relay/channel/kieai"
 	"xunkecloudAPI/relay/channel/minimax"
 	"xunkecloudAPI/relay/channel/mistral"
 	"xunkecloudAPI/relay/channel/mokaai"
@@ -122,6 +123,8 @@ func GetAdaptor(apiType int) channel.Adaptor {
 		return &replicate.Adaptor{}
 	case constant.APITypeSuchuang:
 		return &suchuang.Adaptor{}
+	case constant.ChannelTypeKieai:
+		return &kieai.Adaptor{}
 	}
 	return nil
 }
@@ -165,6 +168,8 @@ func GetTaskAdaptor(platform constant.TaskPlatform) channel.TaskAdaptor {
 			return &tasksoras.TaskAdaptor{}
 		case constant.ChannelTypeSuchuang:
 			return &suchuang.TaskAdaptor{}
+		case constant.ChannelTypeKieai:
+			return &kieai.TaskAdaptor{}
 		}
 	}
 	return nil

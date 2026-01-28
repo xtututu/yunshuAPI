@@ -199,6 +199,11 @@ export const CHANNEL_OPTIONS = [
     color: 'purple',
     label: '速创',
   },
+  {
+    value: 61,
+    color: 'blue',
+    label: 'Kie AI',
+  },
 ];
 
 export const MODEL_TABLE_PAGE_SIZE = 10;
