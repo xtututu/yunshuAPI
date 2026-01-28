@@ -14,6 +14,7 @@ import (
 	"xunkecloudAPI/common"
 	"xunkecloudAPI/dto"
 	"xunkecloudAPI/logger"
+	"xunkecloudAPI/model"
 	"xunkecloudAPI/relay/channel"
 	relaycommon "xunkecloudAPI/relay/common"
 	"xunkecloudAPI/service"
@@ -909,4 +910,64 @@ func (t *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 	}
 
 	return taskInfo, nil
+}
+
+// ConvertToOpenAIVideo 转换为期望的视频格式
+// 实现channel.OpenAIVideoConverter接口的ConvertToOpenAIVideo方法
+func (t *TaskAdaptor) ConvertToOpenAIVideo(originTask *model.Task) ([]byte, error) {
+	// 构建期望的视频响应格式
+	type VideoResponse struct {
+		ID        string `json:"id"`
+		Size      string `json:"size"`
+		Model     string `json:"model"`
+		Object    string `json:"object"`
+		Status    string `json:"status"`
+		Seconds   string `json:"seconds"`
+		Progress  int    `json:"progress"`
+		VideoURL  string `json:"video_url"`
+		CreatedAt int64  `json:"created_at"`
+	}
+
+	var videoResponse VideoResponse
+	videoResponse.ID = originTask.TaskID
+	videoResponse.Size = ""
+	videoResponse.Model = "sora-2"
+	videoResponse.Object = "video"
+
+	// 设置任务状态
+	switch originTask.Status {
+	case model.TaskStatusSuccess:
+		videoResponse.Status = "completed"
+	case model.TaskStatusFailure:
+		videoResponse.Status = "failed"
+	case model.TaskStatusInProgress:
+		videoResponse.Status = "processing"
+	default:
+		videoResponse.Status = "queued"
+	}
+
+	videoResponse.Seconds = ""
+	videoResponse.Progress = 100
+	videoResponse.CreatedAt = originTask.SubmitTime
+
+	// 解析任务数据获取视频URL
+	var taskData map[string]interface{}
+	if err := json.Unmarshal(originTask.Data, &taskData); err == nil {
+		if url, ok := taskData["URL"].(string); ok && url != "" {
+			videoResponse.VideoURL = strings.Trim(url, " `")
+		}
+	}
+
+	// 如果VideoURL为空，尝试从FailReason获取URL
+	if videoResponse.VideoURL == "" && originTask.FailReason != "" {
+		videoResponse.VideoURL = strings.Trim(originTask.FailReason, " `")
+	}
+
+	// 序列化响应
+	videoResponseJSON, err := json.Marshal(videoResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return videoResponseJSON, nil
 }
