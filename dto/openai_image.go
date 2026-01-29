@@ -31,6 +31,7 @@ type ImageRequest struct {
 	Watermark       *bool           `json:"watermark,omitempty"`
 	Image           json.RawMessage `json:"image,omitempty"`
 	InputReference  json.RawMessage `json:"input_reference,omitempty"`
+	AspectRatio     string          `json:"aspect_ratio,omitempty"`
 	// 用匿名参数接收额外参数
 	Extra map[string]json.RawMessage `json:"-"`
 }

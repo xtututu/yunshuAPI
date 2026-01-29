@@ -494,13 +494,56 @@ func (s *SuchuangAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.
 		}
 	}
 
+	// 提取aspectRatio参数
+	aspectRatio := "auto" // 默认值
+
+	// 首先从AspectRatio字段获取
+	if request.AspectRatio != "" {
+		// 验证aspectRatio值是否在允许范围内
+		validRatios := []string{"1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "5:4", "4:5", "21:9", "auto"}
+		for _, validRatio := range validRatios {
+			if request.AspectRatio == validRatio {
+				aspectRatio = request.AspectRatio
+				break
+			}
+		}
+	} else if request.Extra != nil {
+		// 从Extra字段中获取aspectRatio
+		if aspectRatioRaw, ok := request.Extra["aspectRatio"]; ok {
+			var aspectRatioStr string
+			if err := json.Unmarshal(aspectRatioRaw, &aspectRatioStr); err == nil {
+				// 验证aspectRatio值是否在允许范围内
+				validRatios := []string{"1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "5:4", "4:5", "21:9", "auto"}
+				for _, validRatio := range validRatios {
+					if aspectRatioStr == validRatio {
+						aspectRatio = aspectRatioStr
+						break
+					}
+				}
+			}
+		} else if aspectRatioRaw, ok := request.Extra["aspect_ratio"]; ok {
+			// 也支持aspect_ratio格式
+			var aspectRatioStr string
+			if err := json.Unmarshal(aspectRatioRaw, &aspectRatioStr); err == nil {
+				// 验证aspectRatio值是否在允许范围内
+				validRatios := []string{"1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "5:4", "4:5", "21:9", "auto"}
+				for _, validRatio := range validRatios {
+					if aspectRatioStr == validRatio {
+						aspectRatio = aspectRatioStr
+						break
+					}
+				}
+			}
+		}
+	}
+
 	// 为nano-banana模型使用专用入参结构
 	if currentModelName == "nano-banana" {
 		// 构建nano-banana模型的速创API请求体
 		suchuangRequest := map[string]interface{}{
 			"model":       "nano-banana",
 			"prompt":      request.Prompt,
-			"aspectRatio": "auto", // 默认值
+			"aspectRatio": aspectRatio,
 			"img_url":     imageUrls,
 		}
 
@@ -525,21 +568,21 @@ func (s *SuchuangAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.
 		// 构建速创API请求体
 		suchuangRequest := map[string]interface{}{
 			"prompt":      request.Prompt,
-			"aspectRatio": "auto",
+			"aspectRatio": aspectRatio,
 			"imageSize":   imageSize,
 			"img_url":     imageUrls,
 		}
 
 		requestData, _ := json.Marshal(suchuangRequest)
-		logger.LogDebug(ctx, "[SUCHUANG] Generated request body for %s with imageSize=%s: %s", modelName, imageSize, string(requestData))
+		logger.LogDebug(ctx, "[SUCHUANG] Generated request body for %s with imageSize=%s, aspectRatio=%s: %s", modelName, imageSize, aspectRatio, string(requestData))
 		return suchuangRequest, nil
 	}
 
 	// 其他模型使用默认入参结构
 	suchuangRequest := map[string]interface{}{
 		"prompt":      request.Prompt,
-		"aspectRatio": "auto", // 固定值
-		"imageSize":   "4K",   // 固定值
+		"aspectRatio": aspectRatio,
+		"imageSize":   "4K", // 固定值
 		"img_url":     imageUrls,
 	}
 
