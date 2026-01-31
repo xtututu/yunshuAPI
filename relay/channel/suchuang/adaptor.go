@@ -171,7 +171,7 @@ func (s *SuchuangAdaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, er
 	// 如果是视频生成请求，根据模型返回不同的API端点
 	if strings.HasPrefix(info.RequestURLPath, "/v1/videos") {
 		// 根据模型选择不同的API端点
-		url := "https://api.wuyinkeji.com/api/sora2/submit"
+		url := "https://api.wuyinkeji.com/api/sora2-new/submit"
 		if info.UpstreamModelName == "sora-2-pro" {
 			url = "https://api.wuyinkeji.com/api/sora2pro/submit"
 		}
@@ -1311,7 +1311,7 @@ func (t *TaskAdaptor) ValidateRequestAndSetAction(c *gin.Context, info *relaycom
 // 实现channel.TaskAdaptor接口的BuildRequestURL方法
 func (t *TaskAdaptor) BuildRequestURL(info *relaycommon.RelayInfo) (string, error) {
 	// 根据模型选择不同的API端点
-	url := "https://api.wuyinkeji.com/api/sora2/submit"
+	url := "https://api.wuyinkeji.com/api/sora2-new/submit"
 	if info.UpstreamModelName == "sora-2-pro" {
 		url = "https://api.wuyinkeji.com/api/sora2pro/submit"
 	}

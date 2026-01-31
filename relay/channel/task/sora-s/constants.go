@@ -6,7 +6,7 @@ const (
 	ChannelType = "sora-s"
 	
 	// API端点
-	APIEndpointSora2     = "https://api.wuyinkeji.com/api/sora2/submit"
+	APIEndpointSora2     = "https://api.wuyinkeji.com/api/sora2-new/submit"
 	APIEndpointSora2Pro  = "https://api.wuyinkeji.com/api/sora2pro/submit"
 	APIEndpointDetail    = "https://api.wuyinkeji.com/api/sora2/detail"
 	
