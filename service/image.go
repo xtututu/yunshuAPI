@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
 
 	"golang.org/x/image/webp"
 )

@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
 
 	"github.com/gin-gonic/gin"
 )
@@ -107,12 +107,12 @@ func validateMultipartTaskRequest(c *gin.Context, info *RelayInfo, action string
 		if seconds, err := strconv.Atoi(secondsStr); err == nil {
 			// 根据不同模型设置不同的seconds限制
 			if model == "sora-2-pro" {
-				// sora-2-pro模型：允许15或25秒
+				// sora-2-pro模型：允许15秒和25秒
 				if seconds != 15 && seconds != 25 {
 					secondsStr = "15"
 				}
 			} else {
-				// 其他sora-2模型：只允许10或15秒
+				// 其他sora-2模型：只允许10秒和15秒
 				if seconds != 10 && seconds != 15 {
 					secondsStr = "15"
 				}
@@ -151,10 +151,10 @@ func validateMultipartTaskRequest(c *gin.Context, info *RelayInfo, action string
 	// 处理 input_reference 字段
 	if inputRefs := formData["input_reference"]; len(inputRefs) > 0 {
 		inputRefValue := inputRefs[0]
-		// 尝试解析为 JSON
+		// 尝试解析为JSON
 		var parsed interface{}
 		if err := json.Unmarshal([]byte(inputRefValue), &parsed); err == nil {
-			// 成功解析为 JSON
+			// 成功解析为JSON
 			switch v := parsed.(type) {
 			case string:
 				req.InputReference = v
@@ -221,13 +221,13 @@ func ValidateMultipartDirect(c *gin.Context, info *RelayInfo) *dto.TaskError {
 
 		// 检查是否需要转换为 multipart
 		if shouldConvertToMultipart(modelName, contentType) {
-			// 直接使用已经获取的 body 进行转换，避免重复读取
+			// 直接使用已经获取�?body 进行转换，避免重复读�?
 			body, err := common.GetRequestBody(c)
 			if err == nil {
 				if err := convertJSONToMultipartWithBody(c, body); err != nil {
 					return createTaskError(err, "conversion_failed", http.StatusBadRequest, true)
 				}
-				// 转换后重新获取 Content-Type
+				// 转换后重新获�?Content-Type
 				contentType = c.GetHeader("Content-Type")
 			}
 		}
@@ -237,13 +237,13 @@ func ValidateMultipartDirect(c *gin.Context, info *RelayInfo) *dto.TaskError {
 	var err error
 
 	if strings.HasPrefix(contentType, "multipart/form-data") {
-		// 手动解析 multipart 数据，避免 interface{} 类型绑定问题
+		// 手动解析 multipart 数据，避�?interface{} 类型绑定问题
 		req, err = validateMultipartTaskRequest(c, info, constant.TaskActionGenerate)
 		if err != nil {
 			return createTaskError(err, "invalid_multipart_form", http.StatusBadRequest, true)
 		}
 	} else {
-		// 对于 JSON，使用 UnmarshalBodyReusable
+		// 对于 JSON，使�?UnmarshalBodyReusable
 		if err := common.UnmarshalBodyReusable(c, &req); err != nil {
 			return createTaskError(err, "invalid_request_body", http.StatusBadRequest, true)
 		}
@@ -336,14 +336,14 @@ func ValidateMultipartDirect(c *gin.Context, info *RelayInfo) *dto.TaskError {
 			size = "720x1280"
 		}
 
-		// 处理用户需求：使用sora-2或sora-2-pro模型时的seconds值限制
+		// 处理用户需求：使用sora-2或sora-2-pro模型时的seconds值限�?
 		if model == "sora-2" || model == "sora-2-hd" {
-			// sora-2模型：如果seconds等于25，强制变为15秒
+			// sora-2模型：如果seconds等于25，强制变�?5�?
 			if seconds == 25 {
 				seconds = 15
 			}
 		} else if model == "sora-2-pro" {
-			// sora-2-pro模型：只允许15或25秒，如果传入10则变15
+			// sora-2-pro模型：只允许15�?5秒，如果传入10则变15
 			if seconds == 10 {
 				seconds = 15
 			} else if seconds != 15 && seconds != 25 {
@@ -384,20 +384,20 @@ func isKnownTaskField(field string) bool {
 	return knownFields[field]
 }
 
-// shouldConvertToMultipart 检查是否需要将 JSON 请求转换为 multipart/form-data
+// shouldConvertToMultipart 检查是否需要将 JSON 请求转换�?multipart/form-data
 func shouldConvertToMultipart(model string, contentType string) bool {
 	if !strings.HasPrefix(contentType, "application/json") {
 		return false
 	}
 
-	// 检查 model 是否包含 sora 或 veo
+	// 检�?model 是否包含 sora �?veo
 	modelLower := strings.ToLower(model)
 	return strings.Contains(modelLower, "sora") || strings.Contains(modelLower, "veo")
 }
 
-// convertJSONToMultipart 将 JSON 请求转换为 multipart/form-data
+// convertJSONToMultipart �?JSON 请求转换�?multipart/form-data
 func convertJSONToMultipart(c *gin.Context) error {
-	// 读取原始 JSON 请求体
+	// 读取原始 JSON 请求�?
 	body, err := common.GetRequestBody(c)
 	if err != nil {
 		return fmt.Errorf("failed to get request body: %w", err)
@@ -405,7 +405,7 @@ func convertJSONToMultipart(c *gin.Context) error {
 	return convertJSONToMultipartWithBody(c, body)
 }
 
-// convertJSONToMultipartWithBody 使用已经读取的 body 将 JSON 请求转换为 multipart/form-data
+// convertJSONToMultipartWithBody 使用已经读取�?body �?JSON 请求转换�?multipart/form-data
 func convertJSONToMultipartWithBody(c *gin.Context, body []byte) error {
 	// 解析 JSON
 	var jsonReq map[string]interface{}
@@ -413,7 +413,7 @@ func convertJSONToMultipartWithBody(c *gin.Context, body []byte) error {
 		return fmt.Errorf("failed to parse JSON: %w", err)
 	}
 
-	// 处理用户需求：使用sora-2或sora-2-pro模型时的seconds值限制
+	// 处理用户需求：使用sora-2或sora-2-pro模型时的seconds值限�?
 	if model, ok := jsonReq["model"].(string); ok {
 		// 检查并修改seconds字段
 		if seconds, ok := jsonReq["seconds"]; ok {
@@ -429,18 +429,18 @@ func convertJSONToMultipartWithBody(c *gin.Context, body []byte) error {
 				secondsVal = v
 			}
 
-			// 根据模型类型处理seconds值
+			// 根据模型类型处理seconds�?
 			if model == "sora-2" || model == "sora-2-hd" {
-				// sora-2模型：如果seconds等于25，强制变为15秒
+				// sora-2模型：如果seconds等于25，强制变�?5�?
 				if secondsVal == 25 {
-					jsonReq["seconds"] = "15" // 设置为字符串形式，与表单字段格式一致
+					jsonReq["seconds"] = "15" // 设置为字符串形式，与表单字段格式一�?
 				}
 			} else if model == "sora-2-pro" {
-				// sora-2-pro模型：只允许15或25秒，如果传入10则变15
+				// sora-2-pro模型：只允许15�?5秒，如果传入10则变15
 				if secondsVal == 10 {
-					jsonReq["seconds"] = "15" // 设置为字符串形式，与表单字段格式一致
+					jsonReq["seconds"] = "15" // 设置为字符串形式，与表单字段格式一�?
 				} else if secondsVal != 15 && secondsVal != 25 {
-					jsonReq["seconds"] = "15" // 设置为字符串形式，与表单字段格式一致
+					jsonReq["seconds"] = "15" // 设置为字符串形式，与表单字段格式一�?
 				}
 			}
 		}
@@ -460,36 +460,36 @@ func convertJSONToMultipartWithBody(c *gin.Context, body []byte) error {
 
 			// 根据模型类型处理duration
 			if model == "sora-2-pro" {
-				// sora-2-pro模型：允许15或25秒，如果传入10则变15
+				// sora-2-pro模型：允�?5�?5秒，如果传入10则变15
 				if durationVal == 10 {
-					jsonReq["duration"] = 15 // 设置为整数形式，与JSON字段格式一致
+					jsonReq["duration"] = 15 // 设置为整数形式，与JSON字段格式一�?
 				} else if durationVal != 15 && durationVal != 25 {
-					jsonReq["duration"] = 15 // 设置为整数形式，与JSON字段格式一致
+					jsonReq["duration"] = 15 // 设置为整数形式，与JSON字段格式一�?
 				}
 			} else {
-				// 其他模型：如果duration不是10或15，强制设置为15
+				// 其他模型：如果duration不是10�?5，强制设置为15
 				if durationVal != 10 && durationVal != 15 {
-					jsonReq["duration"] = 15 // 设置为整数形式，与JSON字段格式一致
+					jsonReq["duration"] = 15 // 设置为整数形式，与JSON字段格式一�?
 				}
 			}
 		}
 	}
 
-	// 创建一个 buffer 来存储 multipart 数据
+	// 创建一�?buffer 来存�?multipart 数据
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
 
-	// 转换字段并写入 multipart
+	// 转换字段并写�?multipart
 	for key, value := range jsonReq {
 		if key == "input" {
-			// 特殊处理 input 对象 - 展开其中的字段
+			// 特殊处理 input 对象 - 展开其中的字�?
 			if inputMap, ok := value.(map[string]interface{}); ok {
 				for inputKey, inputValue := range inputMap {
 					if inputKey == "input_reference" {
 						// 处理 input_reference 字段 - 将数组中的每个URL作为独立字段写入
 						switch v := inputValue.(type) {
 						case string:
-							// 单个字符串直接写入
+							// 单个字符串直接写�?
 							if v != "" {
 								writer.WriteField(inputKey, v)
 							}
@@ -508,13 +508,13 @@ func convertJSONToMultipartWithBody(c *gin.Context, body []byte) error {
 								}
 							}
 						default:
-							// 其他类型，尝试序列化为JSON字符串
+							// 其他类型，尝试序列化为JSON字符�?
 							if jsonBytes, err := json.Marshal(inputValue); err == nil {
 								writer.WriteField(inputKey, string(jsonBytes))
 							}
 						}
 					} else {
-						// 处理 input 对象中的其他字段（如 prompt）
+						// 处理 input 对象中的其他字段（如 prompt�?
 						if valueStr, ok := inputValue.(string); ok && valueStr != "" {
 							writer.WriteField(inputKey, valueStr)
 						} else if valueNum, ok := inputValue.(float64); ok {
@@ -531,7 +531,7 @@ func convertJSONToMultipartWithBody(c *gin.Context, body []byte) error {
 				}
 			}
 		} else if key == "input_reference" {
-			// 处理顶层的 input_reference 字段（兼容性）
+			// 处理顶层�?input_reference 字段（兼容性）
 			switch v := value.(type) {
 			case string:
 				if v != "" {
@@ -569,34 +569,34 @@ func convertJSONToMultipartWithBody(c *gin.Context, body []byte) error {
 			// 处理数字类型，如 duration
 			writer.WriteField(key, strconv.FormatFloat(valueNum, 'f', -1, 64))
 		} else if valueMap, ok := value.(map[string]interface{}); ok {
-			// 处理 metadata 等复杂对象，将其序列化为 JSON 字符串
+			// 处理 metadata 等复杂对象，将其序列化为 JSON 字符�?
 			if jsonBytes, err := json.Marshal(valueMap); err == nil {
 				writer.WriteField(key, string(jsonBytes))
 			}
 		}
 	}
 
-	// 关闭 writer 以完成 multipart 写入
+	// 关闭 writer 以完�?multipart 写入
 	if err := writer.Close(); err != nil {
 		return fmt.Errorf("failed to close multipart writer: %w", err)
 	}
 
-	// 更新请求体
+	// 更新请求�?
 	multipartBody := buf.Bytes()
 	c.Request.Body = io.NopCloser(bytes.NewReader(multipartBody))
 
-	// 更新 Content-Type 为 multipart/form-data，包含 boundary
+	// 更新 Content-Type �?multipart/form-data，包�?boundary
 	contentType := writer.FormDataContentType()
 	c.Request.Header.Set("Content-Type", contentType)
 
-	// 重要：更新缓存，确保后续 GetRequestBody 调用返回正确的 multipart 数据
+	// 重要：更新缓存，确保后续 GetRequestBody 调用返回正确�?multipart 数据
 	c.Set(common.KeyRequestBody, multipartBody)
 
 	// 调试信息
 	fmt.Printf("DEBUG: Converted to multipart, Content-Type: %s, Body length: %d\n", contentType, len(multipartBody))
 	fmt.Printf("DEBUG: Multipart body preview: %s\n", string(multipartBody[:min(200, len(multipartBody))]))
 
-	// 注意：不要在这里调用 ParseMultipartForm，让后续的 c.ShouldBind 来处理
+	// 注意：不要在这里调用 ParseMultipartForm，让后续�?c.ShouldBind 来处�?
 	return nil
 }
 
@@ -604,10 +604,10 @@ func ValidateBasicTaskRequest(c *gin.Context, info *RelayInfo, action string) *d
 	var err error
 	var req TaskSubmitReq
 
-	// 先尝试获取 model 参数来判断是否需要转换
+	// 先尝试获�?model 参数来判断是否需要转�?
 	contentType := c.GetHeader("Content-Type")
 
-	// 如果是 JSON 请求，先尝试解析获取 model
+	// 如果�?JSON 请求，先尝试解析获取 model
 	if strings.HasPrefix(contentType, "application/json") {
 		var tempReq struct {
 			Model string `json:"model"`
@@ -618,11 +618,11 @@ func ValidateBasicTaskRequest(c *gin.Context, info *RelayInfo, action string) *d
 
 			// 检查是否需要转换为 multipart
 			if shouldConvertToMultipart(tempReq.Model, contentType) {
-				// 直接使用已经获取的 body 进行转换，避免重复读取
+				// 直接使用已经获取�?body 进行转换，避免重复读�?
 				if err := convertJSONToMultipartWithBody(c, body); err != nil {
 					return createTaskError(err, "conversion_failed", http.StatusBadRequest, true)
 				}
-				// 转换后重新获取 Content-Type
+				// 转换后重新获�?Content-Type
 				contentType = c.GetHeader("Content-Type")
 			}
 		}

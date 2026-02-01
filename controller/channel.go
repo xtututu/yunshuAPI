@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/service"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/model"
+	"yunshuAPI/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -387,7 +387,7 @@ func GetChannel(c *gin.Context) {
 }
 
 // GetChannelKey 获取渠道密钥（需要通过安全验证中间件）
-// 此函数依赖 SecureVerificationRequired 中间件，确保用户已通过安全验证
+// 此函数依赖SecureVerificationRequired 中间件，确保用户已通过安全验证
 func GetChannelKey(c *gin.Context) {
 	userId := c.GetInt("id")
 	channelId, err := strconv.Atoi(c.Param("id"))
@@ -421,7 +421,7 @@ func GetChannelKey(c *gin.Context) {
 	})
 }
 
-// validateTwoFactorAuth 统一的2FA验证函数
+// validateTwoFactorAuth 统一�?FA验证函数
 func validateTwoFactorAuth(twoFA *model.TwoFA, code string) bool {
 	// 尝试验证TOTP
 	if cleanCode, err := common.ValidateNumericCode(code); err == nil {
@@ -430,7 +430,7 @@ func validateTwoFactorAuth(twoFA *model.TwoFA, code string) bool {
 		}
 	}
 
-	// 尝试验证备用码
+	// 尝试验证备用�?
 	if isValid, err := twoFA.ValidateBackupCodeAndUpdateUsage(code); err == nil && isValid {
 		return true
 	}
@@ -438,20 +438,20 @@ func validateTwoFactorAuth(twoFA *model.TwoFA, code string) bool {
 	return false
 }
 
-// validateChannel 通用的渠道校验函数
+// validateChannel 通用的渠道校验函�?
 func validateChannel(channel *model.Channel, isAdd bool) error {
 	// 校验 channel settings
 	if err := channel.ValidateSettings(); err != nil {
-		return fmt.Errorf("渠道额外设置[channel setting] 格式错误：%s", err.Error())
+		return fmt.Errorf("渠道额外设置[channel setting] 格式错误�?s", err.Error())
 	}
 
-	// 如果是添加操作，检查 channel 和 key 是否为空
+	// 如果是添加操作，检�?channel �?key 是否为空
 	if isAdd {
 		if channel == nil || channel.Key == "" {
 			return fmt.Errorf("channel cannot be empty")
 		}
 
-		// 检查模型名称长度是否超过 255
+		// 检查模型名称长度是否超�?255
 		for _, m := range channel.GetModels() {
 			if len(m) > 255 {
 				return fmt.Errorf("模型名称过长: %s", m)
@@ -492,7 +492,7 @@ func getVertexArrayKeys(keys string) ([]string, error) {
 	var keyArray []interface{}
 	err := common.Unmarshal([]byte(keys), &keyArray)
 	if err != nil {
-		return nil, fmt.Errorf("批量添加 Vertex AI 必须使用标准的JsonArray格式，例如[{key1}, {key2}...]，请检查输入: %w", err)
+		return nil, fmt.Errorf("批量添加 Vertex AI 必须使用标准的JsonArray格式，例如[{key1}, {key2}...]，请检查输�? %w", err)
 	}
 	cleanKeys := make([]string, 0, len(keyArray))
 	for _, key := range keyArray {
@@ -512,7 +512,7 @@ func getVertexArrayKeys(keys string) ([]string, error) {
 		}
 	}
 	if len(cleanKeys) == 0 {
-		return nil, fmt.Errorf("批量添加 Vertex AI 的 keys 不能为空")
+		return nil, fmt.Errorf("批量添加 Vertex AI �?keys 不能为空")
 	}
 	return cleanKeys, nil
 }
@@ -525,7 +525,7 @@ func AddChannel(c *gin.Context) {
 		return
 	}
 
-	// 使用统一的校验函数
+	// 使用统一的校验函�?
 	if err := validateChannel(addChannelRequest.Channel, true); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -739,7 +739,7 @@ func EditTagChannels(c *gin.Context) {
 		if trimmed != "" && !json.Valid([]byte(trimmed)) {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "请求头覆盖必须是合法的 JSON 格式",
+				"message": "请求头覆盖必须是合法�?JSON 格式",
 			})
 			return
 		}
@@ -790,7 +790,7 @@ func DeleteChannelBatch(c *gin.Context) {
 type PatchChannel struct {
 	model.Channel
 	MultiKeyMode *string `json:"multi_key_mode"`
-	KeyMode      *string `json:"key_mode"` // 多key模式下密钥覆盖或者追加
+	KeyMode      *string `json:"key_mode"` // 多key模式下密钥覆盖或者追�?
 }
 
 func UpdateChannel(c *gin.Context) {
@@ -801,7 +801,7 @@ func UpdateChannel(c *gin.Context) {
 		return
 	}
 
-	// 使用统一的校验函数
+	// 使用统一的校验函�?
 	if err := validateChannel(&channel.Channel, false); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -851,7 +851,7 @@ func UpdateChannel(c *gin.Context) {
 					existingKeys = strings.Split(strings.Trim(originChannel.Key, "\n"), "\n")
 				}
 
-				// 处理 Vertex AI 的特殊情况
+				// 处理 Vertex AI 的特殊情�?
 				if channel.Type == constant.ChannelTypeVertexAi && channel.GetOtherSettings().VertexKeyType != dto.VertexKeyTypeAPIKey {
 					// 尝试解析新密钥为JSON数组
 					if strings.HasPrefix(strings.TrimSpace(channel.Key), "[") {
@@ -1339,7 +1339,7 @@ func ManageMultiKeys(c *gin.Context) {
 			return
 		}
 
-		// 从状态列表中删除该密钥的记录，使其回到默认启用状态
+		// 从状态列表中删除该密钥的记录，使其回到默认启用状�?
 		if channel.ChannelInfo.MultiKeyStatusList != nil {
 			delete(channel.ChannelInfo.MultiKeyStatusList, keyIndex)
 		}
@@ -1578,7 +1578,7 @@ func ManageMultiKeys(c *gin.Context) {
 		model.InitChannelCache()
 		c.JSON(http.StatusOK, gin.H{
 			"success": true,
-			"message": fmt.Sprintf("已删除 %d 个自动禁用的密钥", deletedCount),
+			"message": fmt.Sprintf("已删�?%d 个自动禁用的密钥", deletedCount),
 			"data":    deletedCount,
 		})
 		return

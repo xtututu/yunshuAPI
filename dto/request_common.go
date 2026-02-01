@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"xunkecloudAPI/types"
+	"yunshuAPI/types"
 	"github.com/gin-gonic/gin"
 )
 

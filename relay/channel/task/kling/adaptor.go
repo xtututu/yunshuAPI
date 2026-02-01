@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/model"
+	"yunshuAPI/common"
+	"yunshuAPI/model"
 
 	"github.com/samber/lo"
 
@@ -18,11 +18,11 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/pkg/errors"
 
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/relay/channel"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/service"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/relay/channel"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/service"
 )
 
 // ============================

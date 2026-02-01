@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/setting/operation_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/setting/operation_setting"
 
 	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/gin-gonic/gin"
@@ -119,7 +119,7 @@ func LogQuota(quota int) string {
 	case operation_setting.QuotaDisplayTypeTokens:
 		return fmt.Sprintf("%d 点额度", quota)
 	default: // USD
-		return fmt.Sprintf("＄%.6f 额度", q/common.QuotaPerUnit)
+		return fmt.Sprintf("$%.6f 额度", q/common.QuotaPerUnit)
 	}
 }
 
@@ -145,7 +145,7 @@ func FormatQuota(quota int) string {
 	case operation_setting.QuotaDisplayTypeTokens:
 		return fmt.Sprintf("%d", quota)
 	default:
-		return fmt.Sprintf("＄%.6f", q/common.QuotaPerUnit)
+		return fmt.Sprintf("$%.6f", q/common.QuotaPerUnit)
 	}
 }
 

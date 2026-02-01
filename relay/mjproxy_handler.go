@@ -11,16 +11,16 @@ import (
 	"strings"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/model"
-	relaycommon "xunkecloudAPI/relay/common"
-	relayconstant "xunkecloudAPI/relay/constant"
-	"xunkecloudAPI/relay/helper"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/setting"
-	"xunkecloudAPI/setting/system_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/model"
+	relaycommon "yunshuAPI/relay/common"
+	relayconstant "yunshuAPI/relay/constant"
+	"yunshuAPI/relay/helper"
+	"yunshuAPI/service"
+	"yunshuAPI/setting"
+	"yunshuAPI/setting/system_setting"
 
 	"github.com/gin-gonic/gin"
 )
@@ -517,7 +517,7 @@ func RelayMidjourneySubmit(c *gin.Context, relayInfo *relaycommon.RelayInfo) *dt
 				common.SysLog("error consuming token remain quota: " + err.Error())
 			}
 			tokenName := c.GetString("token_name")
-			logContent := fmt.Sprintf("模型固定价格 %.2f，分组倍率 %.2f，操作 %s，ID %s", priceData.ModelPrice, priceData.GroupRatioInfo.GroupRatio, midjRequest.Action, midjResponse.Result)
+			logContent := fmt.Sprintf("模型固定价格 %.2f，分组倍率 %.2f，操�?%s，ID %s", priceData.ModelPrice, priceData.GroupRatioInfo.GroupRatio, midjRequest.Action, midjResponse.Result)
 			other := service.GenerateMjOtherInfo(relayInfo, priceData)
 			model.RecordConsumeLog(c, relayInfo.UserId, model.RecordConsumeLogParams{
 				ChannelId: relayInfo.ChannelId,
@@ -536,11 +536,11 @@ func RelayMidjourneySubmit(c *gin.Context, relayInfo *relaycommon.RelayInfo) *dt
 
 	// 文档：https://github.com/novicezk/midjourney-proxy/blob/main/docs/api.md
 	//1-提交成功
-	// 21-任务已存在（处理中或者有结果了） {"code":21,"description":"任务已存在","result":"0741798445574458","properties":{"status":"SUCCESS","imageUrl":"https://xxxx"}}
-	// 22-排队中 {"code":22,"description":"排队中，前面还有1个任务","result":"0741798445574458","properties":{"numberOfQueues":1,"discordInstanceId":"1118138338562560102"}}
+	// 21-任务已存在（处理中或者有结果了） {"code":21,"description":"任务已存�?,"result":"0741798445574458","properties":{"status":"SUCCESS","imageUrl":"https://xxxx"}}
+	// 22-排队�?{"code":22,"description":"排队中，前面还有1个任�?,"result":"0741798445574458","properties":{"numberOfQueues":1,"discordInstanceId":"1118138338562560102"}}
 	// 23-队列已满，请稍后再试 {"code":23,"description":"队列已满，请稍后尝试","result":"14001929738841620","properties":{"discordInstanceId":"1118138338562560102"}}
-	// 24-prompt包含敏感词 {"code":24,"description":"可能包含敏感词","properties":{"promptEn":"nude body","bannedWord":"nude"}}
-	// other: 提交错误，description为错误描述
+	// 24-prompt包含敏感�?{"code":24,"description":"可能包含敏感�?,"properties":{"promptEn":"nude body","bannedWord":"nude"}}
+	// other: 提交错误，description为错误描�?
 	midjourneyTask := &model.Midjourney{
 		UserId:      relayInfo.UserId,
 		Code:        midjResponse.Code,
@@ -561,7 +561,7 @@ func RelayMidjourneySubmit(c *gin.Context, relayInfo *relaycommon.RelayInfo) *dt
 		Quota:       priceData.Quota,
 	}
 	if midjResponse.Code == 3 {
-		//无实例账号自动禁用渠道（No available account instance）
+		//无实例账号自动禁用渠道（No available account instance�?
 		channel, err := model.GetChannelById(midjourneyTask.ChannelId, true)
 		if err != nil {
 			common.SysLog("get_channel_null: " + err.Error())
@@ -571,13 +571,13 @@ func RelayMidjourneySubmit(c *gin.Context, relayInfo *relaycommon.RelayInfo) *dt
 		}
 	}
 	if midjResponse.Code != 1 && midjResponse.Code != 21 && midjResponse.Code != 22 {
-		//非1-提交成功,21-任务已存在和22-排队中，则记录错误原因
+		//�?-提交成功,21-任务已存在和22-排队中，则记录错误原�?
 		midjourneyTask.FailReason = midjResponse.Description
 		consumeQuota = false
 	}
 
 	if midjResponse.Code == 21 { //21-任务已存在（处理中或者有结果了）
-		// 将 properties 转换为一个 map
+		// �?properties 转换为一�?map
 		properties, ok := midjResponse.Properties.(map[string]interface{})
 		if ok {
 			imageUrl, ok1 := properties["imageUrl"].(string)
@@ -593,7 +593,7 @@ func RelayMidjourneySubmit(c *gin.Context, relayInfo *relaycommon.RelayInfo) *dt
 				}
 			}
 		}
-		//修改返回值
+		//修改返回�?
 		if midjRequest.Action != constant.MjActionInPaint && midjRequest.Action != constant.MjActionCustomZoom {
 			newBody := strings.Replace(string(responseBody), `"code":21`, `"code":1`, -1)
 			responseBody = []byte(newBody)
@@ -611,8 +611,8 @@ func RelayMidjourneySubmit(c *gin.Context, relayInfo *relaycommon.RelayInfo) *dt
 		}
 	}
 
-	if midjResponse.Code == 22 { //22-排队中，说明任务已存在
-		//修改返回值
+	if midjResponse.Code == 22 { //22-排队中，说明任务已存�?
+		//修改返回�?
 		newBody := strings.Replace(string(responseBody), `"code":22`, `"code":1`, -1)
 		responseBody = []byte(newBody)
 	}

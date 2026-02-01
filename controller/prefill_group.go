@@ -3,8 +3,8 @@ package controller
 import (
 	"strconv"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/model"
+	"yunshuAPI/common"
+	"yunshuAPI/model"
 
 	"github.com/gin-gonic/gin"
 )
@@ -47,7 +47,7 @@ func CreatePrefillGroup(c *gin.Context) {
 	common.ApiSuccess(c, &g)
 }
 
-// UpdatePrefillGroup 更新预填组
+// UpdatePrefillGroup 更新预填�?
 func UpdatePrefillGroup(c *gin.Context) {
 	var g model.PrefillGroup
 	if err := c.ShouldBindJSON(&g); err != nil {
@@ -55,10 +55,10 @@ func UpdatePrefillGroup(c *gin.Context) {
 		return
 	}
 	if g.Id == 0 {
-		common.ApiErrorMsg(c, "缺少组 ID")
+		common.ApiErrorMsg(c, "缺少�?ID")
 		return
 	}
-	// 名称冲突检查
+	// 名称冲突检�?
 	if dup, err := model.IsPrefillGroupNameDuplicated(g.Id, g.Name); err != nil {
 		common.ApiError(c, err)
 		return
@@ -74,7 +74,7 @@ func UpdatePrefillGroup(c *gin.Context) {
 	common.ApiSuccess(c, &g)
 }
 
-// DeletePrefillGroup 删除预填组
+// DeletePrefillGroup 删除预填�?
 func DeletePrefillGroup(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)

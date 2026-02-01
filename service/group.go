@@ -3,8 +3,8 @@ package service
 import (
 	"strings"
 
-	"xunkecloudAPI/setting"
-	"xunkecloudAPI/setting/ratio_setting"
+	"yunshuAPI/setting"
+	"yunshuAPI/setting/ratio_setting"
 )
 
 func GetUserUsableGroups(userGroup string) map[string]string {

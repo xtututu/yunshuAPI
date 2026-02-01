@@ -1,6 +1,6 @@
 package dto
 
-import "xunkecloudAPI/types"
+import "yunshuAPI/types"
 
 type OpenAIError struct {
 	Message string `json:"message"`

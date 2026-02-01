@@ -8,15 +8,15 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/relay/helper"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/setting/model_setting"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/relay/helper"
+	"yunshuAPI/service"
+	"yunshuAPI/setting/model_setting"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -109,7 +109,7 @@ func ImageHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *type
 				}
 			}
 		} else {
-			// 如果返回的不是*http.Response类型，可能是已经处理好的数据
+			// 如果返回的不是 http.Response类型，可能是已经处理好的数据
 			// 将数据转换为JSON并写入响应体
 			jsonData, err := json.Marshal(resp)
 			if err != nil {

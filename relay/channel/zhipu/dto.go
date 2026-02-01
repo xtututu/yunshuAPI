@@ -3,7 +3,7 @@ package zhipu
 import (
 	"time"
 
-	"xunkecloudAPI/dto"
+	"yunshuAPI/dto"
 )
 
 type ZhipuMessage struct {

@@ -3,9 +3,9 @@ package middleware
 import (
 	"fmt"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/logger"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/logger"
 
 	"github.com/gin-gonic/gin"
 )

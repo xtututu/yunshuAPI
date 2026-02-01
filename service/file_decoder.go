@@ -12,15 +12,15 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/logger"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
 
-// GetFileTypeFromUrl 获取文件类型，返回 mime type， 例如 image/jpeg, image/png, image/gif, image/bmp, image/tiff, application/pdf
+// GetFileTypeFromUrl 获取文件类型，返回 mime type，例如 image/jpeg, image/png, image/gif, image/bmp, image/tiff, application/pdf
 // 如果获取失败，返回 application/octet-stream
 func GetFileTypeFromUrl(c *gin.Context, url string, reason ...string) (string, error) {
 	response, err := DoDownloadRequest(url, []string{"get_mime_type", strings.Join(reason, ", ")}...)

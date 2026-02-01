@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"xunkecloudAPI/common"
+	"yunshuAPI/common"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -61,7 +61,7 @@ func TurnstileCheck() gin.HandlerFunc {
 			if !res.Success {
 				c.JSON(http.StatusOK, gin.H{
 					"success": false,
-					"message": "Turnstile 校验失败，请刷新重试！",
+					"message": "Turnstile 校验失败，请刷新重试",
 				})
 				c.Abort()
 				return

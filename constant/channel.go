@@ -59,6 +59,7 @@ const (
 	ChannelTypeOpenAIS        = 59
 	ChannelTypeSuchuang       = 60
 	ChannelTypeKieai          = 61
+	ChannelTypeYushu          = 62
 	ChannelTypeDummy          // this one is only for count, do not add any channel after this
 
 )
@@ -126,7 +127,7 @@ var ChannelBaseURLs = []string{
 	"https://api.wuyinkeji.com",  // 59
 	"https://api.wuyinkeji.com",  // 60
 	"https://api.kie.ai",         // 61
-
+	"https://api.vectorengine.ai", // 62
 }
 
 var ChannelTypeNames = map[int]string{
@@ -188,6 +189,7 @@ var ChannelTypeNames = map[int]string{
 	ChannelTypeOpenAIS:        "OpenAI-s",
 	ChannelTypeSuchuang:       "Suchuang",
 	ChannelTypeKieai:          "KieAI",
+	ChannelTypeYushu:          "Yushu",
 }
 
 func GetChannelTypeName(channelType int) string {

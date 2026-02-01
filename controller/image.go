@@ -33,7 +33,7 @@ func UploadImage(c *gin.Context) {
 		return
 	}
 
-	// 验证URL是否为图片
+	// 验证URL是否为图�?
 	if !isValidImageURL(req.ImageURL) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "请提供有效的图片URL",
@@ -54,7 +54,7 @@ func UploadImage(c *gin.Context) {
 	}
 	defer resp.Body.Close()
 
-	// 检查响应状态
+	// 检查响应状�?
 	if resp.StatusCode != http.StatusOK {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "图片下载失败，状态码: " + fmt.Sprintf("%d", resp.StatusCode),
@@ -63,7 +63,7 @@ func UploadImage(c *gin.Context) {
 		return
 	}
 
-	// 获取文件扩展名
+	// 获取文件扩展�?
 	ext := filepath.Ext(req.ImageURL)
 	if ext == "" {
 		// 如果没有扩展名，尝试从Content-Type推断
@@ -74,11 +74,11 @@ func UploadImage(c *gin.Context) {
 		}
 	}
 
-	// 生成唯一文件名
+	// 生成唯一文件�?
 	filename := generateUniqueFilename() + ext
 	fullPath := filepath.Join("./images", filename)
 
-	// 创建目录（如果不存在）
+	// 创建目录（如果不存在�?
 	if err := os.MkdirAll(filepath.Dir(fullPath), 0755); err != nil {
 		log.Printf("创建目录失败: %v", err)
 		c.JSON(http.StatusOK, gin.H{
@@ -118,7 +118,7 @@ func UploadImage(c *gin.Context) {
 	})
 }
 
-// GetImage 获取图片控制器
+// GetImage 获取图片控制�?
 func GetImage(c *gin.Context) {
 	filename := c.Param("filename")
 	if filename == "" {
@@ -140,7 +140,7 @@ func GetImage(c *gin.Context) {
 
 	fullPath := filepath.Join("./images", filename)
 
-	// 检查文件是否存在
+	// 检查文件是否存�?
 	_, err := os.Stat(fullPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -167,7 +167,7 @@ func GetImage(c *gin.Context) {
 		return
 	}
 
-	// 设置Content-Length头
+	// 设置Content-Length�?
 	c.Header("Content-Length", fmt.Sprintf("%d", len(fileData)))
 
 	// 根据文件扩展名设置正确的Content-Type
@@ -192,7 +192,7 @@ func GetImage(c *gin.Context) {
 	c.Data(http.StatusOK, contentType, fileData)
 }
 
-// 辅助函数：验证URL是否为图片
+// 辅助函数：验证URL是否为图�?
 func isValidImageURL(url string) bool {
 	lowerURL := strings.ToLower(url)
 	validExtensions := []string{".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
@@ -204,7 +204,7 @@ func isValidImageURL(url string) bool {
 	return false
 }
 
-// 辅助函数：根据Content-Type获取文件扩展名
+// 辅助函数：根据Content-Type获取文件扩展�?
 func getFileExtensionFromContentType(contentType string) string {
 	typeMap := map[string]string{
 		"image/jpeg": ".jpg",
@@ -216,9 +216,9 @@ func getFileExtensionFromContentType(contentType string) string {
 	return typeMap[strings.ToLower(contentType)]
 }
 
-// 辅助函数：生成唯一文件名
+// 辅助函数：生成唯一文件�?
 func generateUniqueFilename() string {
-	// 使用时间戳和随机字符串生成唯一文件名
+	// 使用时间戳和随机字符串生成唯一文件�?
 	timestamp := time.Now().UnixNano()
 	hasher := md5.New()
 	hasher.Write([]byte(fmt.Sprintf("%d", timestamp)))

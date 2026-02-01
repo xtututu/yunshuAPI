@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/model"
+	"yunshuAPI/common"
+	"yunshuAPI/model"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -50,7 +50,7 @@ func LinuxDoBind(c *gin.Context) {
 	if model.IsLinuxDOIdAlreadyTaken(user.LinuxDOId) {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "该 Linux DO 账户已被绑定",
+			"message": "此 Linux DO 账户已被绑定",
 		})
 		return
 	}

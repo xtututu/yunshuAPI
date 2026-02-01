@@ -1,6 +1,6 @@
 package xunfei
 
-import "xunkecloudAPI/dto"
+import "yunshuAPI/dto"
 
 type XunfeiMessage struct {
 	Role    string `json:"role"`

@@ -3,7 +3,7 @@ package zhipu_4v
 import (
 	"strings"
 
-	"xunkecloudAPI/dto"
+	"yunshuAPI/dto"
 )
 
 func requestOpenAI2Zhipu(request dto.GeneralOpenAIRequest) *dto.GeneralOpenAIRequest {

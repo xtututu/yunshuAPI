@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/common"
+	"yunshuAPI/common"
 )
 
 type OpenAIError struct {

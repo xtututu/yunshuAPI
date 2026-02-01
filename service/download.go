@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/setting/system_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/setting/system_setting"
 )
 
 // WorkerRequest Worker请求的数据结构
@@ -20,7 +20,7 @@ type WorkerRequest struct {
 	Body    json.RawMessage   `json:"body,omitempty"`
 }
 
-// DoWorkerRequest 通过Worker发送请求
+// DoWorkerRequest 通过Worker发送请�?
 func DoWorkerRequest(req *WorkerRequest) (*http.Response, error) {
 	if !system_setting.EnableWorker() {
 		return nil, fmt.Errorf("worker not enabled")
@@ -58,7 +58,7 @@ func DoDownloadRequest(originUrl string, reason ...string) (resp *http.Response,
 		}
 		return DoWorkerRequest(req)
 	} else {
-		// SSRF防护：验证请求URL（非Worker模式）
+		// SSRF防护：验证请求URL（非Worker模式�?
 		fetchSetting := system_setting.GetFetchSetting()
 		if err := common.ValidateURLWithFetchSetting(originUrl, fetchSetting.EnableSSRFProtection, fetchSetting.AllowPrivateIp, fetchSetting.DomainFilterMode, fetchSetting.IpFilterMode, fetchSetting.DomainList, fetchSetting.IpList, fetchSetting.AllowedPorts, fetchSetting.ApplyIPFilterForDomain); err != nil {
 			return nil, fmt.Errorf("request reject: %v", err)

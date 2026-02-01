@@ -1,4 +1,4 @@
-module xunkecloudAPI
+module yunshuAPI
 
 // +heroku goVersion go1.18
 go 1.25.1

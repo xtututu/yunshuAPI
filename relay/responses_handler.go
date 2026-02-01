@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/relay/helper"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/setting/model_setting"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/relay/helper"
+	"yunshuAPI/service"
+	"yunshuAPI/setting/model_setting"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

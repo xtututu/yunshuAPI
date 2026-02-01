@@ -3,10 +3,10 @@ package controller
 import (
 	"net/http"
 
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/setting"
-	"xunkecloudAPI/setting/ratio_setting"
+	"yunshuAPI/model"
+	"yunshuAPI/service"
+	"yunshuAPI/setting"
+	"yunshuAPI/setting/ratio_setting"
 
 	"github.com/gin-gonic/gin"
 )

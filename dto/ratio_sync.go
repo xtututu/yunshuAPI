@@ -22,7 +22,7 @@ type TestResult struct {
 
 // DifferenceItem 差异项
 // Current 为本地值，可能为 nil
-// Upstreams 为各渠道的上游值，具体数值 / "same" / nil
+// Upstreams 为各渠道的上游值，具体数量/ "same" / nil
 
 type DifferenceItem struct {
 	Current    interface{}            `json:"current"`

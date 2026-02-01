@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"xunkecloudAPI/common"
+	"yunshuAPI/common"
 )
 
 // ConfigManager 统一管理所有配置
@@ -24,7 +24,7 @@ func NewConfigManager() *ConfigManager {
 	}
 }
 
-// Register 注册一个配置模块
+// Register 注册一个配置模�?
 func (cm *ConfigManager) Register(name string, config interface{}) {
 	cm.mutex.Lock()
 	defer cm.mutex.Unlock()
@@ -55,7 +55,7 @@ func (cm *ConfigManager) LoadFromDB(options map[string]string) error {
 			}
 		}
 
-		// 如果找到配置项，则更新配置
+		// 如果找到配置项，则更新配�?
 		if len(configMap) > 0 {
 			if err := updateConfigFromMap(config, configMap); err != nil {
 				common.SysError("failed to update config " + name + ": " + err.Error())
@@ -67,7 +67,7 @@ func (cm *ConfigManager) LoadFromDB(options map[string]string) error {
 	return nil
 }
 
-// SaveToDB 将配置保存到数据库
+// SaveToDB 将配置保存到数据�?
 func (cm *ConfigManager) SaveToDB(updateFunc func(key, value string) error) error {
 	cm.mutex.RLock()
 	defer cm.mutex.RUnlock()
@@ -107,7 +107,7 @@ func configToMap(config interface{}) (map[string]string, error) {
 		field := val.Field(i)
 		fieldType := typ.Field(i)
 
-		// 跳过未导出字段
+		// 跳过未导出字�?
 		if !fieldType.IsExported() {
 			continue
 		}
@@ -118,7 +118,7 @@ func configToMap(config interface{}) (map[string]string, error) {
 			key = fieldType.Name
 		}
 
-		// 处理不同类型的字段
+		// 处理不同类型的字�?
 		var strValue string
 		switch field.Kind() {
 		case reflect.String:
@@ -132,7 +132,7 @@ func configToMap(config interface{}) (map[string]string, error) {
 		case reflect.Float32, reflect.Float64:
 			strValue = strconv.FormatFloat(field.Float(), 'f', -1, 64)
 		case reflect.Ptr:
-			// 处理指针类型：如果非 nil，序列化指向的值
+			// 处理指针类型：如果非 nil，序列化指向的�?
 			if !field.IsNil() {
 				bytes, err := json.Marshal(field.Interface())
 				if err != nil {
@@ -144,7 +144,7 @@ func configToMap(config interface{}) (map[string]string, error) {
 				strValue = "null"
 			}
 		case reflect.Map, reflect.Slice, reflect.Struct:
-			// 复杂类型使用JSON序列化
+			// 复杂类型使用JSON序列�?
 			bytes, err := json.Marshal(field.Interface())
 			if err != nil {
 				return nil, err
@@ -178,7 +178,7 @@ func updateConfigFromMap(config interface{}, configMap map[string]string) error 
 		field := val.Field(i)
 		fieldType := typ.Field(i)
 
-		// 跳过未导出字段
+		// 跳过未导出字�?
 		if !fieldType.IsExported() {
 			continue
 		}
@@ -189,13 +189,13 @@ func updateConfigFromMap(config interface{}, configMap map[string]string) error 
 			key = fieldType.Name
 		}
 
-		// 检查map中是否有对应的值
+		// 检查map中是否有对应的�?
 		strValue, ok := configMap[key]
 		if !ok {
 			continue
 		}
 
-		// 根据字段类型设置值
+		// 根据字段类型设置�?
 		if !field.CanSet() {
 			continue
 		}
@@ -232,11 +232,11 @@ func updateConfigFromMap(config interface{}, configMap map[string]string) error 
 			if strValue == "null" {
 				field.Set(reflect.Zero(field.Type()))
 			} else {
-				// 如果指针是 nil，需要先初始化
+				// 如果指针�?nil，需要先初始�?
 				if field.IsNil() {
 					field.Set(reflect.New(field.Type().Elem()))
 				}
-				// 反序列化到指针指向的值
+				// 反序列化到指针指向的�?
 				err := json.Unmarshal([]byte(strValue), field.Interface())
 				if err != nil {
 					continue
@@ -277,7 +277,7 @@ func (cm *ConfigManager) ExportAllConfigs() map[string]string {
 			continue
 		}
 
-		// 使用 "模块名.配置项" 的格式添加到结果中
+		// 使用 "模块�?配置�? 的格式添加到结果�?
 		for key, value := range configMap {
 			result[name+"."+key] = value
 		}

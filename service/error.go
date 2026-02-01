@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	"yunshuAPI/types"
 )
 
 func MidjourneyErrorWrapper(code int, desc string) *dto.MidjourneyResponse {

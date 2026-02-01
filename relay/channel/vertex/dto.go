@@ -1,7 +1,7 @@
 package vertex
 
 import (
-	"xunkecloudAPI/dto"
+	"yunshuAPI/dto"
 )
 
 type VertexAIClaudeRequest struct {

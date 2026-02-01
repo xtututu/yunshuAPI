@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -43,7 +43,7 @@ func (i *ImageRequest) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	// 用 struct tag 获取所有已定义字段名
+	// 通过 struct tag 获取所有已定义字段名
 	knownFields := GetJSONFieldNames(reflect.TypeOf(*i))
 
 	// 再正常解析已定义字段

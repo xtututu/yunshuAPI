@@ -13,8 +13,8 @@ import (
 	"sync"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/model"
+	"yunshuAPI/common"
+	"yunshuAPI/model"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -249,7 +249,7 @@ func ensureVendorID(vendorName string, vendorByName map[string]upstreamVendor, v
 	return 0
 }
 
-// SyncUpstreamModels 同步上游模型与供应商，仅对「未配置模型」生效
+// SyncUpstreamModels 同步上游模型与供应商，仅对「未配置模型」生成
 func SyncUpstreamModels(c *gin.Context) {
 	var req syncRequest
 	// 允许空体
@@ -269,7 +269,7 @@ func SyncUpstreamModels(c *gin.Context) {
 		return
 	}
 
-	// 2) 拉取上游 vendors 与 models
+	// 2) 拉取上游 vendors & models
 	timeoutSec := common.GetEnvOrDefault("SYNC_HTTP_TIMEOUT_SECONDS", 15)
 	ctx, cancel := context.WithTimeout(c.Request.Context(), time.Duration(timeoutSec)*time.Second)
 	defer cancel()
@@ -282,7 +282,7 @@ func SyncUpstreamModels(c *gin.Context) {
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		// vendor 失败不拦截
+		// vendor 失败不拦�?
 		_ = fetchJSON(ctx, vendorsURL, &vendorsEnv)
 	}()
 	go func() {
@@ -361,7 +361,7 @@ func SyncUpstreamModels(c *gin.Context) {
 
 	// 4) 处理可选覆盖（更新本地已有模型的差异字段）
 	if len(req.Overwrite) > 0 {
-		// vendorIDCache 已用于创建阶段，可复用
+		// vendorIDCache 已用于创建阶段，可复�?
 		for _, ow := range req.Overwrite {
 			up, ok := modelByName[ow.ModelName]
 			if !ok {

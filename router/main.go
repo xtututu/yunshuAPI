@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"xunkecloudAPI/common"
+	"yunshuAPI/common"
 
 	"github.com/gin-gonic/gin"
 )

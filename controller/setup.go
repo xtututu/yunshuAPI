@@ -3,10 +3,10 @@ package controller
 import (
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/setting/operation_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/model"
+	"yunshuAPI/setting/operation_setting"
 	"github.com/gin-gonic/gin"
 )
 
@@ -80,7 +80,7 @@ func PostSetup(c *gin.Context) {
 		if len(req.Username) > 12 {
 			c.JSON(200, gin.H{
 				"success": false,
-				"message": "用户名长度不能超过12个字符",
+				"message": "用户名长度不能超过12个字",
 			})
 			return
 		}
@@ -96,7 +96,7 @@ func PostSetup(c *gin.Context) {
 		if len(req.Password) < 8 {
 			c.JSON(200, gin.H{
 				"success": false,
-				"message": "密码长度至少为8个字符",
+				"message": "密码长度至少8个字",
 			})
 			return
 		}
@@ -123,7 +123,7 @@ func PostSetup(c *gin.Context) {
 		if err != nil {
 			c.JSON(200, gin.H{
 				"success": false,
-				"message": "创建管理员账号失败: " + err.Error(),
+				"message": "创建管理员账号失�? " + err.Error(),
 			})
 			return
 		}
@@ -163,7 +163,7 @@ func PostSetup(c *gin.Context) {
 	if err != nil {
 		c.JSON(200, gin.H{
 			"success": false,
-			"message": "系统初始化失败: " + err.Error(),
+			"message": "系统初始化失�? " + err.Error(),
 		})
 		return
 	}

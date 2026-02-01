@@ -1,6 +1,6 @@
 package console_setting
 
-import "xunkecloudAPI/setting/config"
+import "yunshuAPI/setting/config"
 
 type ConsoleSetting struct {
 	ApiInfo              string `json:"api_info"`              // 控制台 API 信息 (JSON 数组字符串)

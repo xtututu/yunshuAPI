@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/logger"
+	"yunshuAPI/common"
+	"yunshuAPI/logger"
 
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -98,7 +98,7 @@ func Recharge(referenceId string, customerId string) (err error) {
 		return errors.New("充值失败，" + err.Error())
 	}
 
-	RecordLog(topUp.UserId, LogTypeTopup, fmt.Sprintf("使用在线充值成功，充值金额: %v，支付金额：%d", logger.FormatQuota(int(quota)), topUp.Amount))
+	RecordLog(topUp.UserId, LogTypeTopup, fmt.Sprintf("使用在线充值成功，充值金额 %v，支付金额：%d", logger.FormatQuota(int(quota)), topUp.Amount))
 
 	return nil
 }
@@ -266,7 +266,7 @@ func ManualCompleteTopUp(tradeNo string) error {
 		}
 
 		// 计算应充值额度：
-		// - Stripe 订单：Money 代表经分组倍率换算后的美元数量，直接 * QuotaPerUnit
+		// - Stripe 订单：Money 代表经分组倍率换算后的美元数量，直接* QuotaPerUnit
 		// - 其他订单（如易支付）：Amount 为美元数量，* QuotaPerUnit
 		if topUp.PaymentMethod == "stripe" {
 			dQuotaPerUnit := decimal.NewFromFloat(common.QuotaPerUnit)
@@ -302,7 +302,7 @@ func ManualCompleteTopUp(tradeNo string) error {
 	}
 
 	// 事务外记录日志，避免阻塞
-	RecordLog(userId, LogTypeTopup, fmt.Sprintf("管理员补单成功，充值金额: %v，支付金额：%f", logger.FormatQuota(quotaToAdd), payMoney))
+	RecordLog(userId, LogTypeTopup, fmt.Sprintf("管理员补单成功，充值金额 %v，支付金额：%f", logger.FormatQuota(quotaToAdd), payMoney))
 	return nil
 }
 func RechargeCreem(referenceId string, customerEmail string, customerName string) (err error) {
@@ -352,7 +352,7 @@ func RechargeCreem(referenceId string, customerEmail string, customerName string
 				return err
 			}
 
-			// 如果用户邮箱为空，则更新为支付时使用的邮箱
+			// 如果用户邮箱为空，则更新为支付时使用的邮�?
 			if user.Email == "" {
 				updateFields["email"] = customerEmail
 			}
@@ -370,7 +370,7 @@ func RechargeCreem(referenceId string, customerEmail string, customerName string
 		return errors.New("充值失败，" + err.Error())
 	}
 
-	RecordLog(topUp.UserId, LogTypeTopup, fmt.Sprintf("使用Creem充值成功，充值额度: %v，支付金额：%.2f", quota, topUp.Money))
+	RecordLog(topUp.UserId, LogTypeTopup, fmt.Sprintf("使用Creem充值成功，充值额�? %v，支付金额：%.2f", quota, topUp.Money))
 
 	return nil
 }

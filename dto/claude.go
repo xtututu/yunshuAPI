@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

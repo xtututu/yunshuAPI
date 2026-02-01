@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/setting/ratio_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/setting/ratio_setting"
 )
 
 var group2model2channels map[string]map[string][]int // enabled channel

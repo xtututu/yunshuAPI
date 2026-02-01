@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"xunkecloudAPI/constant"
+	"yunshuAPI/constant"
 )
 
 var (
@@ -23,7 +23,7 @@ var (
 func printHelp() {
 	fmt.Println("NewAPI(Based OneAPI) " + Version + " - The next-generation LLM gateway and AI asset management system supports multiple languages.")
 	fmt.Println("Original Project: OneAPI by JustSong - https://github.com/songquanpeng/one-api")
-	fmt.Println("Maintainer: QuantumNous - https://xunkecloudAPI")
+	fmt.Println("Maintainer: QuantumNous - https://yunshuAPI")
 	fmt.Println("Usage: newapi [--port <port>] [--log-dir <log directory>] [--version] [--help]")
 }
 
@@ -118,7 +118,7 @@ func initConstantEnv() {
 	constant.GeminiVisionMaxImageNum = GetEnvOrDefault("GEMINI_VISION_MAX_IMAGE_NUM", 16)
 	constant.NotifyLimitCount = GetEnvOrDefault("NOTIFY_LIMIT_COUNT", 2)
 	constant.NotificationLimitDurationMinute = GetEnvOrDefault("NOTIFICATION_LIMIT_DURATION_MINUTE", 10)
-	// GenerateDefaultToken 是否生成初始令牌，默认关闭。
+	// GenerateDefaultToken 是否生成初始令牌，默认关闭：
 	constant.GenerateDefaultToken = GetEnvOrDefaultBool("GENERATE_DEFAULT_TOKEN", false)
 	// 是否启用错误日志
 	constant.ErrorLogEnabled = GetEnvOrDefaultBool("ERROR_LOG_ENABLED", false)

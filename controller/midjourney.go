@@ -9,13 +9,13 @@ import (
 	"net/http"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/setting"
-	"xunkecloudAPI/setting/system_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	"yunshuAPI/model"
+	"yunshuAPI/service"
+	"yunshuAPI/setting"
+	"yunshuAPI/setting/system_setting"
 
 	"github.com/gin-gonic/gin"
 )
@@ -60,7 +60,7 @@ func UpdateMidjourneyTaskBulk() {
 		}
 
 		for channelId, taskIds := range taskChannelM {
-			logger.LogInfo(ctx, fmt.Sprintf("渠道 #%d 未完成的任务有: %d", channelId, len(taskIds)))
+			logger.LogInfo(ctx, fmt.Sprintf("渠道 #%d 未完成的任务数: %d", channelId, len(taskIds)))
 			if len(taskIds) == 0 {
 				continue
 			}
@@ -68,7 +68,7 @@ func UpdateMidjourneyTaskBulk() {
 			if err != nil {
 				logger.LogError(ctx, fmt.Sprintf("CacheGetChannel: %v", err))
 				err := model.MjBulkUpdate(taskIds, map[string]any{
-					"fail_reason": fmt.Sprintf("获取渠道信息失败，请联系管理员，渠道ID：%d", channelId),
+					"fail_reason": fmt.Sprintf("获取渠道信息失败，请联系管理员，渠道ID: %d", channelId),
 					"status":      "FAILURE",
 					"progress":    "100%",
 				})
@@ -90,7 +90,7 @@ func UpdateMidjourneyTaskBulk() {
 			// 设置超时时间
 			timeout := time.Second * 15
 			ctx, cancel := context.WithTimeout(context.Background(), timeout)
-			// 使用带有超时的 context 创建新的请求
+			// 使用带有超时的context 创建新的请求
 			req = req.WithContext(ctx)
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("mj-api-secret", midjourneyChannel.Key)
@@ -124,7 +124,7 @@ func UpdateMidjourneyTaskBulk() {
 				useTime := (time.Now().UnixNano() / int64(time.Millisecond)) - task.SubmitTime
 				// 如果时间超过一小时，且进度不是100%，则认为任务失败
 				if useTime > 3600000 && task.Progress != "100%" {
-					responseItem.FailReason = "上游任务超时（超过1小时）"
+					responseItem.FailReason = "上游任务超时（超时1小时）"
 					responseItem.Status = "FAILURE"
 				}
 				if !checkMjTaskNeedUpdate(task, responseItem) {
@@ -151,11 +151,11 @@ func UpdateMidjourneyTaskBulk() {
 				// 映射 VideoUrl
 				task.VideoUrl = responseItem.VideoUrl
 
-				// 映射 VideoUrls - 将数组序列化为 JSON 字符串
+				// 映射 VideoUrls - 将数组序列化�?JSON 字符�?
 				if responseItem.VideoUrls != nil && len(responseItem.VideoUrls) > 0 {
 					videoUrlsStr, err := json.Marshal(responseItem.VideoUrls)
 					if err != nil {
-						logger.LogError(ctx, fmt.Sprintf("序列化 VideoUrls 失败: %v", err))
+						logger.LogError(ctx, fmt.Sprintf("序列化VideoUrls 失败: %v", err))
 						task.VideoUrls = "[]" // 失败时设置为空数组
 					} else {
 						task.VideoUrls = string(videoUrlsStr)
@@ -166,7 +166,7 @@ func UpdateMidjourneyTaskBulk() {
 
 				shouldReturnQuota := false
 				if (task.Progress != "100%" && responseItem.FailReason != "") || (task.Progress == "100%" && task.Status == "FAILURE") {
-					logger.LogInfo(ctx, task.MjId+" 构建失败，"+task.FailReason)
+					logger.LogInfo(ctx, task.MjId+" 构建失败："+task.FailReason)
 					task.Progress = "100%"
 					if task.Quota != 0 {
 						shouldReturnQuota = true
@@ -181,7 +181,7 @@ func UpdateMidjourneyTaskBulk() {
 						if err != nil {
 							logger.LogError(ctx, "fail to increase user quota: "+err.Error())
 						}
-						logContent := fmt.Sprintf("构图失败 %s，补偿 %s", task.MjId, logger.LogQuota(task.Quota))
+						logContent := fmt.Sprintf("构图失败 %s，补�?%s", task.MjId, logger.LogQuota(task.Quota))
 						model.RecordLog(task.UserId, model.LogTypeSystem, logContent)
 					}
 				}
@@ -227,18 +227,18 @@ func checkMjTaskNeedUpdate(oldTask *model.Midjourney, newTask dto.MidjourneyDto)
 	if oldTask.Progress != "100%" && newTask.FailReason != "" {
 		return true
 	}
-	// 检查 VideoUrl 是否需要更新
+	// 检�?VideoUrl 是否需要更�?
 	if oldTask.VideoUrl != newTask.VideoUrl {
 		return true
 	}
-	// 检查 VideoUrls 是否需要更新
+	// 检�?VideoUrls 是否需要更�?
 	if newTask.VideoUrls != nil && len(newTask.VideoUrls) > 0 {
 		newVideoUrlsStr, _ := json.Marshal(newTask.VideoUrls)
 		if oldTask.VideoUrls != string(newVideoUrlsStr) {
 			return true
 		}
 	} else if oldTask.VideoUrls != "" {
-		// 如果新数据没有 VideoUrls 但旧数据有，需要更新（清空）
+		// 如果新数据没�?VideoUrls 但旧数据有，需要更新（清空�?
 		return true
 	}
 

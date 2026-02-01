@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/logger"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

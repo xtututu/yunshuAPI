@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/common/limiter"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/setting"
+	"yunshuAPI/common"
+	"yunshuAPI/common/limiter"
+	"yunshuAPI/constant"
+	"yunshuAPI/setting"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -90,14 +90,14 @@ func redisRateLimitHandler(duration int64, totalMaxCount, successMaxCount int) g
 			return
 		}
 		if !allowed {
-			abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到请求数限制：%d分钟内最多请求%d次", setting.ModelRequestRateLimitDurationMinutes, successMaxCount))
+			abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到请求数限制：%d分钟内最多请求 %d 次", setting.ModelRequestRateLimitDurationMinutes, successMaxCount))
 			return
 		}
 
-		//2.检查总请求数限制并记录总请求（当totalMaxCount为0时会自动跳过，使用令牌桶限流器
+		//2.检查总请求数限制并记录总请求（当totalMaxCount为0时会自动跳过，使用令牌桶限流）
 		if totalMaxCount > 0 {
 			totalKey := fmt.Sprintf("rateLimit:%s", userId)
-			// 初始化
+			// 初始值
 			tb := limiter.New(ctx, rdb)
 			allowed, err = tb.Allow(
 				ctx,
@@ -114,7 +114,7 @@ func redisRateLimitHandler(duration int64, totalMaxCount, successMaxCount int) g
 			}
 
 			if !allowed {
-				abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到总请求数限制：%d分钟内最多请求%d次，包括失败次数，请检查您的请求是否正确", setting.ModelRequestRateLimitDurationMinutes, totalMaxCount))
+				abortWithOpenAiMessage(c, http.StatusTooManyRequests, fmt.Sprintf("您已达到总请求数限制：%d分钟内最多请求 %d 次，包括失败次数，请检查您的请求是否正确", setting.ModelRequestRateLimitDurationMinutes, totalMaxCount))
 			}
 		}
 
@@ -163,10 +163,10 @@ func memoryRateLimitHandler(duration int64, totalMaxCount, successMaxCount int) 
 	}
 }
 
-// ModelRequestRateLimit 模型请求限流中间件
+// ModelRequestRateLimit 模型请求限流中间�?
 func ModelRequestRateLimit() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		// 在每个请求时检查是否启用限流
+		// 在每个请求时检查是否启用限�?
 		if !setting.ModelRequestRateLimitEnabled {
 			c.Next()
 			return
@@ -183,7 +183,7 @@ func ModelRequestRateLimit() func(c *gin.Context) {
 			group = common.GetContextKeyString(c, constant.ContextKeyUserGroup)
 		}
 
-		//获取分组的限流配置
+		//获取分组的限流配�?
 		groupTotalCount, groupSuccessCount, found := setting.GetGroupRateLimit(group)
 		if found {
 			totalMaxCount = groupTotalCount

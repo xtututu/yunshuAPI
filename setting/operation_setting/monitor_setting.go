@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	"xunkecloudAPI/setting/config"
+	"yunshuAPI/setting/config"
 )
 
 type MonitorSetting struct {

@@ -122,7 +122,7 @@ func OptionalSecureVerification() gin.HandlerFunc {
 	}
 }
 
-// ClearSecureVerification 清除安全验证状态
+// ClearSecureVerification 清除安全验证状�?
 // 用于用户登出或需要强制重新验证的场景
 func ClearSecureVerification(c *gin.Context) {
 	session := sessions.Default(c)

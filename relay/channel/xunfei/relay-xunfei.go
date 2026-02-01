@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/relay/helper"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/relay/helper"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"

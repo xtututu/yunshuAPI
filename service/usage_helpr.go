@@ -1,7 +1,7 @@
 package service
 
 import (
-	"xunkecloudAPI/dto"
+	"yunshuAPI/dto"
 )
 
 //func GetPromptTokens(textRequest dto.GeneralOpenAIRequest, relayMode int) (int, error) {

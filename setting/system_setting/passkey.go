@@ -4,8 +4,8 @@ import (
 	"net/url"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/setting/config"
+	"yunshuAPI/common"
+	"yunshuAPI/setting/config"
 )
 
 type PasskeySettings struct {

@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/relay/channel"
-	"xunkecloudAPI/relay/channel/claude"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/types"
+	"yunshuAPI/dto"
+	"yunshuAPI/relay/channel"
+	"yunshuAPI/relay/channel/claude"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/service"
+	"yunshuAPI/types"
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
 	"github.com/pkg/errors"
 

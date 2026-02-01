@@ -6,13 +6,13 @@ import (
 	"io"
 	"net/http"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/relay/channel"
-	"xunkecloudAPI/relay/channel/openai"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/relay/constant"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/relay/channel"
+	"yunshuAPI/relay/channel/openai"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/relay/constant"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -36,7 +36,7 @@ func (a *Adaptor) ConvertAudioRequest(c *gin.Context, info *relaycommon.RelayInf
 }
 
 func (a *Adaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInfo, request dto.ImageRequest) (any, error) {
-	// 解析extra到SFImageRequest里，以填入SiliconFlow特殊字段。若失败重建一个空的。
+	// 解析extra到SFImageRequest里，以填入SiliconFlow特殊字段。若失败重建一个空的
 	sfRequest := &SFImageRequest{}
 	extra, err := common.Marshal(request.Extra)
 	if err == nil {

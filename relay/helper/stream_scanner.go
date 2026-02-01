@@ -10,11 +10,11 @@ import (
 	"sync"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/logger"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/setting/operation_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/logger"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/setting/operation_setting"
 
 	"github.com/bytedance/gopkg/util/gopool"
 
@@ -79,7 +79,7 @@ func StreamScannerHandler(c *gin.Context, resp *http.Response, info *relaycommon
 			pingTicker.Stop()
 		}
 
-		// 等待所有 goroutine 退出，最多等待5秒
+		// 等待所有 goroutine 退出，最多等待 5 秒
 		done := make(chan struct{})
 		go func() {
 			wg.Wait()
@@ -127,7 +127,7 @@ func StreamScannerHandler(c *gin.Context, resp *http.Response, info *relaycommon
 			for {
 				select {
 				case <-pingTicker.C:
-					// 使用超时机制防止写操作阻塞
+					// 使用超时机制防止写操作阻�?
 					done := make(chan error, 1)
 					go func() {
 						writeMutex.Lock()
@@ -182,7 +182,7 @@ func StreamScannerHandler(c *gin.Context, resp *http.Response, info *relaycommon
 		}()
 
 		for scanner.Scan() {
-			// 检查是否需要停止
+			// 检查是否需要停�?
 			select {
 			case <-stopChan:
 				return
@@ -211,7 +211,7 @@ func StreamScannerHandler(c *gin.Context, resp *http.Response, info *relaycommon
 			if !strings.HasPrefix(data, "[DONE]") {
 				info.SetFirstResponseTime()
 
-				// 使用超时机制防止写操作阻塞
+				// 使用超时机制防止写操作阻�?
 				done := make(chan bool, 1)
 				go func() {
 					writeMutex.Lock()
@@ -233,7 +233,7 @@ func StreamScannerHandler(c *gin.Context, resp *http.Response, info *relaycommon
 					return
 				}
 			} else {
-				// done, 处理完成标志，直接退出停止读取剩余数据防止出错
+				// done, 处理完成标志，直接退出停止读取剩余数据防止出�?
 				if common.DebugEnabled {
 					println("received [DONE], stopping scanner")
 				}

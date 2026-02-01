@@ -8,13 +8,13 @@ import (
 	"sync"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/setting"
-	"xunkecloudAPI/setting/operation_setting"
-	"xunkecloudAPI/setting/system_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/logger"
+	"yunshuAPI/model"
+	"yunshuAPI/service"
+	"yunshuAPI/setting"
+	"yunshuAPI/setting/operation_setting"
+	"yunshuAPI/setting/system_setting"
 
 	"github.com/Calcium-Ion/go-epay/epay"
 	"github.com/gin-gonic/gin"
@@ -90,7 +90,7 @@ func GetEpayClient() *epay.Client {
 func getPayMoney(amount int64, group string) float64 {
 	dAmount := decimal.NewFromInt(amount)
 	// 充值金额以“展示类型”为准：
-	// - USD/CNY: 前端传 amount 为金额单位；TOKENS: 前端传 tokens，需要换成 USD 金额
+	// - USD/CNY: 前端传 amount 为金额单位；TOKENS: 前端传 tokens，需要换算 USD 金额
 	if operation_setting.GetQuotaDisplayType() == operation_setting.QuotaDisplayTypeTokens {
 		dQuotaPerUnit := decimal.NewFromFloat(common.QuotaPerUnit)
 		dAmount = dAmount.Div(dQuotaPerUnit)
@@ -135,7 +135,7 @@ func RequestEpay(c *gin.Context) {
 		return
 	}
 	if req.Amount < getMinTopup() {
-		c.JSON(200, gin.H{"message": "error", "data": fmt.Sprintf("充值数量不能小于 %d", getMinTopup())})
+		c.JSON(200, gin.H{"message": "error", "data": fmt.Sprintf("充值数量不能小于%d", getMinTopup())})
 		return
 	}
 
@@ -147,7 +147,7 @@ func RequestEpay(c *gin.Context) {
 	}
 	payMoney := getPayMoney(req.Amount, group)
 	if payMoney < 0.01 {
-		c.JSON(200, gin.H{"message": "error", "data": "充值金额过低"})
+		c.JSON(200, gin.H{"message": "error", "data": "充值金额过小"})
 		return
 	}
 
@@ -221,7 +221,7 @@ func LockOrder(tradeNo string) {
 	lock.(*sync.Mutex).Lock()
 }
 
-// UnlockOrder 释放给定订单号的锁
+// UnlockOrder 释放给定订单号的�?
 func UnlockOrder(tradeNo string) {
 	lock, ok := orderLocks.Load(tradeNo)
 	if ok {
@@ -236,7 +236,7 @@ func EpayNotify(c *gin.Context) {
 	}, map[string]string{})
 	client := GetEpayClient()
 	if client == nil {
-		log.Println("易支付回调失败 未找到配置信息")
+		log.Println("易支付回调失败：未找到配置信息")
 		_, err := c.Writer.Write([]byte("fail"))
 		if err != nil {
 			log.Println("易支付回调写入失败")
@@ -271,7 +271,7 @@ func EpayNotify(c *gin.Context) {
 			topUp.Status = "success"
 			err := topUp.Update()
 			if err != nil {
-				log.Printf("易支付回调更新订单失败: %v", topUp)
+				log.Printf("易支付回调更新订单失�? %v", topUp)
 				return
 			}
 			//user, _ := model.GetUserById(topUp.UserId, false)
@@ -281,14 +281,14 @@ func EpayNotify(c *gin.Context) {
 			quotaToAdd := int(dAmount.Mul(dQuotaPerUnit).IntPart())
 			err = model.IncreaseUserQuota(topUp.UserId, quotaToAdd, true)
 			if err != nil {
-				log.Printf("易支付回调更新用户失败: %v", topUp)
+				log.Printf("易支付回调更新用户失�? %v", topUp)
 				return
 			}
-			log.Printf("易支付回调更新用户成功 %v", topUp)
-			model.RecordLog(topUp.UserId, model.LogTypeTopup, fmt.Sprintf("使用在线充值成功，充值金额: %v，支付金额：%f", logger.LogQuota(quotaToAdd), topUp.Money))
+			log.Printf("易支付回调更新用户成�?%v", topUp)
+			model.RecordLog(topUp.UserId, model.LogTypeTopup, fmt.Sprintf("使用在线充值成功，充值金�? %v，支付金额：%f", logger.LogQuota(quotaToAdd), topUp.Money))
 		}
 	} else {
-		log.Printf("易支付异常回调: %v", verifyInfo)
+		log.Printf("易支付异常回�? %v", verifyInfo)
 	}
 }
 
@@ -301,7 +301,7 @@ func RequestAmount(c *gin.Context) {
 	}
 
 	if req.Amount < getMinTopup() {
-		c.JSON(200, gin.H{"message": "error", "data": fmt.Sprintf("充值数量不能小于 %d", getMinTopup())})
+		c.JSON(200, gin.H{"message": "error", "data": fmt.Sprintf("充值数量不能小�?%d", getMinTopup())})
 		return
 	}
 	id := c.GetInt("id")
@@ -312,7 +312,7 @@ func RequestAmount(c *gin.Context) {
 	}
 	payMoney := getPayMoney(req.Amount, group)
 	if payMoney <= 0.01 {
-		c.JSON(200, gin.H{"message": "error", "data": "充值金额过低"})
+		c.JSON(200, gin.H{"message": "error", "data": "充值金额过小"})
 		return
 	}
 	c.JSON(200, gin.H{"message": "success", "data": strconv.FormatFloat(payMoney, 'f', 2, 64)})
@@ -343,7 +343,7 @@ func GetUserTopUps(c *gin.Context) {
 	common.ApiSuccess(c, pageInfo)
 }
 
-// GetAllTopUps 管理员获取全平台充值记录
+// GetAllTopUps 管理员获取全平台充值记�?
 func GetAllTopUps(c *gin.Context) {
 	pageInfo := common.GetPageQuery(c)
 	keyword := c.Query("keyword")
@@ -372,7 +372,7 @@ type AdminCompleteTopupRequest struct {
 	TradeNo string `json:"trade_no"`
 }
 
-// AdminCompleteTopUp 管理员补单接口
+// AdminCompleteTopUp 管理员补单接�?
 func AdminCompleteTopUp(c *gin.Context) {
 	var req AdminCompleteTopupRequest
 	if err := c.ShouldBindJSON(&req); err != nil || req.TradeNo == "" {

@@ -3,7 +3,7 @@ package model_setting
 import (
 	"strings"
 
-	"xunkecloudAPI/setting/config"
+	"yunshuAPI/setting/config"
 )
 
 type GlobalSettings struct {

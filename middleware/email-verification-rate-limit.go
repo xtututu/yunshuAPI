@@ -6,14 +6,14 @@ import (
 	"net/http"
 	"time"
 
-	"xunkecloudAPI/common"
+	"yunshuAPI/common"
 
 	"github.com/gin-gonic/gin"
 )
 
 const (
 	EmailVerificationRateLimitMark = "EV"
-	EmailVerificationMaxRequests   = 2  // 30秒内最多2次
+	EmailVerificationMaxRequests   = 2  // 30秒内最多请求
 	EmailVerificationDuration      = 30 // 30秒时间窗口
 )
 

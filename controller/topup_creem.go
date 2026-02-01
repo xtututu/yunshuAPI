@@ -10,9 +10,9 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/setting"
+	"yunshuAPI/common"
+	"yunshuAPI/model"
+	"yunshuAPI/setting"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -121,7 +121,7 @@ func (*CreemAdaptor) RequestPay(c *gin.Context, req *CreemPayRequest) {
 		return
 	}
 
-	// 创建支付链接，传入用户邮箱
+	// 创建支付链接，传入用户邮�?
 	checkoutUrl, err := genCreemLink(referenceId, selectedProduct, user.Email, user.Username)
 	if err != nil {
 		log.Printf("获取Creem支付链接失败: %v", err)
@@ -129,7 +129,7 @@ func (*CreemAdaptor) RequestPay(c *gin.Context, req *CreemPayRequest) {
 		return
 	}
 
-	log.Printf("Creem订单创建成功 - 用户ID: %d, 订单号: %s, 产品: %s, 充值额度: %d, 支付金额: %.2f",
+	log.Printf("Creem订单创建成功 - 用户ID: %d, 订单�? %s, 产品: %s, 充值额�? %d, 支付金额: %.2f",
 		id, referenceId, selectedProduct.Name, selectedProduct.Quota, selectedProduct.Price)
 
 	c.JSON(200, gin.H{
@@ -227,7 +227,7 @@ type CreemWebhookEvent struct {
 	} `json:"object"`
 }
 
-// 保留旧的结构体作为兼容
+// 保留旧的结构体作为兼�?
 type CreemWebhookData struct {
 	Type string `json:"type"`
 	Data struct {
@@ -246,15 +246,15 @@ func CreemWebhook(c *gin.Context) {
 		return
 	}
 
-	// 获取签名头
+	// 获取签名�?
 	signature := c.GetHeader(CreemSignatureHeader)
 
-	// 打印关键信息（避免输出完整敏感payload）
+	// 打印关键信息（避免输出完整敏感payload�?
 	log.Printf("Creem Webhook - URI: %s", c.Request.RequestURI)
 	if setting.CreemTestMode {
 		log.Printf("Creem Webhook - Signature: %s , Body: %s", signature, bodyBytes)
 	} else if signature == "" {
-		log.Printf("Creem Webhook缺少签名头")
+		log.Printf("Creem Webhook缺少签名")
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
@@ -293,14 +293,14 @@ func CreemWebhook(c *gin.Context) {
 
 // 处理支付完成事件
 func handleCheckoutCompleted(c *gin.Context, event *CreemWebhookEvent) {
-	// 验证订单状态
+	// 验证订单状�?
 	if event.Object.Order.Status != "paid" {
 		log.Printf("订单状态不是已支付: %s, 跳过处理", event.Object.Order.Status)
 		c.Status(http.StatusOK)
 		return
 	}
 
-	// 获取引用ID（这是我们创建订单时传递的request_id）
+	// 获取引用ID（这是我们创建订单时传递的request_id�?
 	referenceId := event.Object.RequestId
 	if referenceId == "" {
 		log.Println("Creem Webhook缺少request_id字段")
@@ -308,15 +308,15 @@ func handleCheckoutCompleted(c *gin.Context, event *CreemWebhookEvent) {
 		return
 	}
 
-	// 验证订单类型，目前只处理一次性付款
+	// 验证订单类型，目前只处理一次性付�?
 	if event.Object.Order.Type != "onetime" {
-		log.Printf("暂不支持的订单类型: %s, 跳过处理", event.Object.Order.Type)
+		log.Printf("暂不支持的订单类�? %s, 跳过处理", event.Object.Order.Type)
 		c.Status(http.StatusOK)
 		return
 	}
 
-	// 记录详细的支付信息
-	log.Printf("处理Creem支付完成 - 订单号: %s, Creem订单ID: %s, 支付金额: %d %s, 客户邮箱: <redacted>, 产品: %s",
+	// 记录详细的支付信�?
+	log.Printf("处理Creem支付完成 - 订单�? %s, Creem订单ID: %s, 支付金额: %d %s, 客户邮箱: <redacted>, 产品: %s",
 		referenceId,
 		event.Object.Order.Id,
 		event.Object.Order.AmountPaid,
@@ -332,31 +332,31 @@ func handleCheckoutCompleted(c *gin.Context, event *CreemWebhookEvent) {
 	}
 
 	if topUp.Status != common.TopUpStatusPending {
-		log.Printf("Creem充值订单状态错误: %s, 当前状态: %s", referenceId, topUp.Status)
+		log.Printf("Creem充值订单状态错�? %s, 当前状�? %s", referenceId, topUp.Status)
 		c.Status(http.StatusOK) // 已处理过的订单，返回成功避免重复处理
 		return
 	}
 
-	// 处理充值，传入客户邮箱和姓名信息
+	// 处理充值，传入客户邮箱和姓名信�?
 	customerEmail := event.Object.Customer.Email
 	customerName := event.Object.Customer.Name
 
-	// 防护性检查，确保邮箱和姓名不为空字符串
+	// 防护性检查，确保邮箱和姓名不为空字符�?
 	if customerEmail == "" {
-		log.Printf("警告：Creem回调中客户邮箱为空 - 订单号: %s", referenceId)
+		log.Printf("警告：Creem回调中客户邮箱为�?- 订单�? %s", referenceId)
 	}
 	if customerName == "" {
-		log.Printf("警告：Creem回调中客户姓名为空 - 订单号: %s", referenceId)
+		log.Printf("警告：Creem回调中客户姓名为�?- 订单�? %s", referenceId)
 	}
 
 	err := model.RechargeCreem(referenceId, customerEmail, customerName)
 	if err != nil {
-		log.Printf("Creem充值处理失败: %s, 订单号: %s", err.Error(), referenceId)
+		log.Printf("Creem充值处理失�? %s, 订单�? %s", err.Error(), referenceId)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	log.Printf("Creem充值成功 - 订单号: %s, 充值额度: %d, 支付金额: %.2f",
+	log.Printf("Creem充值成�?- 订单�? %s, 充值额�? %d, 支付金额: %.2f",
 		referenceId, topUp.Amount, topUp.Money)
 	c.Status(http.StatusOK)
 }
@@ -387,14 +387,14 @@ func genCreemLink(referenceId string, product *CreemProduct, email string, usern
 		log.Printf("使用Creem测试环境: %s", apiUrl)
 	}
 
-	// 构建请求数据，确保包含用户邮箱
+	// 构建请求数据，确保包含用户邮�?
 	requestData := CreemCheckoutRequest{
 		ProductId: product.ProductId,
 		RequestId: referenceId, // 这个作为订单ID传递给Creem
 		Customer: struct {
 			Email string `json:"email"`
 		}{
-			Email: email, // 用户邮箱会在支付页面预填充
+			Email: email, // 用户邮箱会在支付页面预填�?
 		},
 		Metadata: map[string]string{
 			"username":     username,
@@ -404,10 +404,10 @@ func genCreemLink(referenceId string, product *CreemProduct, email string, usern
 		},
 	}
 
-	// 序列化请求数据
+	// 序列化请求数�?
 	jsonData, err := json.Marshal(requestData)
 	if err != nil {
-		return "", fmt.Errorf("序列化请求数据失败: %v", err)
+		return "", fmt.Errorf("序列化请求数据失�? %v", err)
 	}
 
 	// 创建 HTTP 请求
@@ -416,14 +416,14 @@ func genCreemLink(referenceId string, product *CreemProduct, email string, usern
 		return "", fmt.Errorf("创建HTTP请求失败: %v", err)
 	}
 
-	// 设置请求头
+	// 设置请求�?
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("x-api-key", setting.CreemApiKey)
 
-	log.Printf("发送Creem支付请求 - URL: %s, 产品ID: %s, 用户邮箱: %s, 订单号: %s",
+	log.Printf("发送Creem支付请求 - URL: %s, 产品ID: %s, 用户邮箱: %s, 订单�? %s",
 		apiUrl, product.ProductId, email, referenceId)
 
-	// 发送请求
+	// 发送请�?
 	client := &http.Client{
 		Timeout: 30 * time.Second,
 	}
@@ -441,7 +441,7 @@ func genCreemLink(referenceId string, product *CreemProduct, email string, usern
 
 	log.Printf("Creem API resp - status code: %d, resp: %s", resp.StatusCode, string(body))
 
-	// 检查响应状态
+	// 检查响应状�?
 	if resp.StatusCode/100 != 2 {
 		return "", fmt.Errorf("Creem API http status %d ", resp.StatusCode)
 	}
@@ -456,6 +456,6 @@ func genCreemLink(referenceId string, product *CreemProduct, email string, usern
 		return "", fmt.Errorf("Creem API resp no checkout url ")
 	}
 
-	log.Printf("Creem 支付链接创建成功 - 订单号: %s, 支付链接: %s", referenceId, checkoutResp.CheckoutUrl)
+	log.Printf("Creem 支付链接创建成功 - 订单�? %s, 支付链接: %s", referenceId, checkoutResp.CheckoutUrl)
 	return checkoutResp.CheckoutUrl, nil
 }

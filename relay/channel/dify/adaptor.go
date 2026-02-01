@@ -6,10 +6,10 @@ import (
 	"io"
 	"net/http"
 
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/relay/channel"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/types"
+	"yunshuAPI/dto"
+	"yunshuAPI/relay/channel"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

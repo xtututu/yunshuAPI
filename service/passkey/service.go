@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/setting/system_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/setting/system_setting"
 
 	"github.com/go-webauthn/webauthn/protocol"
 	webauthn "github.com/go-webauthn/webauthn/webauthn"
@@ -104,7 +104,7 @@ func resolveOrigins(r *http.Request, settings *system_setting.PasskeySettings) (
 autoDetect:
 	scheme := detectScheme(r)
 	if scheme == "http" && !settings.AllowInsecureOrigin && r.Host != "localhost" && r.Host != "127.0.0.1" && !strings.HasPrefix(r.Host, "127.0.0.1:") && !strings.HasPrefix(r.Host, "localhost:") {
-		return nil, fmt.Errorf("Passkey 仅支持 HTTPS，当前访问: %s://%s，请在 Passkey 设置中允许不安全 Origin 或配置 HTTPS", scheme, r.Host)
+		return nil, fmt.Errorf("Passkey 仅支持 HTTPS，当前访问 %s://%s，请在 Passkey 设置中允许不安全 Origin 或配置 HTTPS", scheme, r.Host)
 	}
 	// 优先使用请求的完整Host（包含端口）
 	host := r.Host

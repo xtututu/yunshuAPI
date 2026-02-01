@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"time"
 
-	"xunkecloudAPI/common"
+	"yunshuAPI/common"
 
 	"gorm.io/gorm"
 )
 
 var ErrTwoFANotEnabled = errors.New("用户未启用2FA")
 
-// TwoFA 用户2FA设置表
+// TwoFA 用户2FA设置
 type TwoFA struct {
 	Id             int            `json:"id" gorm:"primaryKey"`
 	UserId         int            `json:"user_id" gorm:"unique;not null;index"`
@@ -101,14 +101,14 @@ func (t *TwoFA) Delete() error {
 		return errors.New("2FA记录ID不能为空")
 	}
 
-	// 使用事务确保原子性
+	// 使用事务确保原子�?
 	return DB.Transaction(func(tx *gorm.DB) error {
-		// 同时删除相关的备用码记录（硬删除）
+		// 同时删除相关的备用码记录（硬删除�?
 		if err := tx.Unscoped().Where("user_id = ?", t.UserId).Delete(&TwoFABackupCode{}).Error; err != nil {
 			return err
 		}
 
-		// 硬删除2FA记录
+		// 硬删�?FA记录
 		return tx.Unscoped().Delete(t).Error
 	})
 }
@@ -124,7 +124,7 @@ func (t *TwoFA) ResetFailedAttempts() error {
 func (t *TwoFA) IncrementFailedAttempts() error {
 	t.FailedAttempts++
 
-	// 检查是否需要锁定
+	// 检查是否需要锁�?
 	if t.FailedAttempts >= common.MaxFailAttempts {
 		lockUntil := time.Now().Add(time.Duration(common.LockoutDuration) * time.Second)
 		t.LockedUntil = &lockUntil
@@ -141,15 +141,15 @@ func (t *TwoFA) IsLocked() bool {
 	return time.Now().Before(*t.LockedUntil)
 }
 
-// CreateBackupCodes 创建备用码
+// CreateBackupCodes 创建备用�?
 func CreateBackupCodes(userId int, codes []string) error {
 	return DB.Transaction(func(tx *gorm.DB) error {
-		// 先删除现有的备用码
+		// 先删除现有的备用�?
 		if err := tx.Where("user_id = ?", userId).Delete(&TwoFABackupCode{}).Error; err != nil {
 			return err
 		}
 
-		// 创建新的备用码记录
+		// 创建新的备用码记�?
 		for _, code := range codes {
 			hashedCode, err := common.HashBackupCode(code)
 			if err != nil {
@@ -179,13 +179,13 @@ func ValidateBackupCode(userId int, code string) (bool, error) {
 
 	normalizedCode := common.NormalizeBackupCode(code)
 
-	// 查找未使用的备用码
+	// 查找未使用的备用�?
 	var backupCodes []TwoFABackupCode
 	if err := DB.Where("user_id = ? AND is_used = false", userId).Find(&backupCodes).Error; err != nil {
 		return false, err
 	}
 
-	// 验证备用码
+	// 验证备用�?
 	for _, bc := range backupCodes {
 		if common.ValidatePasswordAndHash(normalizedCode, bc.CodeHash) {
 			// 标记为已使用
@@ -204,14 +204,14 @@ func ValidateBackupCode(userId int, code string) (bool, error) {
 	return false, nil
 }
 
-// GetUnusedBackupCodeCount 获取未使用的备用码数量
+// GetUnusedBackupCodeCount 获取未使用的备用码数�?
 func GetUnusedBackupCodeCount(userId int) (int, error) {
 	var count int64
 	err := DB.Model(&TwoFABackupCode{}).Where("user_id = ? AND is_used = false", userId).Count(&count).Error
 	return int(count), err
 }
 
-// DisableTwoFA 禁用用户的2FA
+// DisableTwoFA 禁用用户�?FA
 func DisableTwoFA(userId int) error {
 	twoFA, err := GetTwoFAByUserId(userId)
 	if err != nil {
@@ -237,7 +237,7 @@ func (t *TwoFA) Enable() error {
 func (t *TwoFA) ValidateTOTPAndUpdateUsage(code string) (bool, error) {
 	// 检查是否被锁定
 	if t.IsLocked() {
-		return false, fmt.Errorf("账户已被锁定，请在%v后重试", t.LockedUntil.Format("2006-01-02 15:04:05"))
+		return false, fmt.Errorf("账户已被锁定，请 %v 后重试", t.LockedUntil.Format("2006-01-02 15:04:05"))
 	}
 
 	// 验证TOTP码
@@ -249,7 +249,7 @@ func (t *TwoFA) ValidateTOTPAndUpdateUsage(code string) (bool, error) {
 		return false, nil
 	}
 
-	// 验证成功，重置失败次数并更新最后使用时间
+	// 验证成功，重置失败次数并更新最后使用时�?
 	now := time.Now()
 	t.FailedAttempts = 0
 	t.LockedUntil = nil
@@ -266,7 +266,7 @@ func (t *TwoFA) ValidateTOTPAndUpdateUsage(code string) (bool, error) {
 func (t *TwoFA) ValidateBackupCodeAndUpdateUsage(code string) (bool, error) {
 	// 检查是否被锁定
 	if t.IsLocked() {
-		return false, fmt.Errorf("账户已被锁定，请在%v后重试", t.LockedUntil.Format("2006-01-02 15:04:05"))
+		return false, fmt.Errorf("账户已被锁定，请 %v 后重试", t.LockedUntil.Format("2006-01-02 15:04:05"))
 	}
 
 	// 验证备用码
@@ -283,7 +283,7 @@ func (t *TwoFA) ValidateBackupCodeAndUpdateUsage(code string) (bool, error) {
 		return false, nil
 	}
 
-	// 验证成功，重置失败次数并更新最后使用时间
+	// 验证成功，重置失败次数并更新最后使用时�?
 	now := time.Now()
 	t.FailedAttempts = 0
 	t.LockedUntil = nil
@@ -296,7 +296,7 @@ func (t *TwoFA) ValidateBackupCodeAndUpdateUsage(code string) (bool, error) {
 	return true, nil
 }
 
-// GetTwoFAStats 获取2FA统计信息（管理员使用）
+// GetTwoFAStats 获取2FA统计信息（管理员使用�?
 func GetTwoFAStats() (map[string]interface{}, error) {
 	var totalUsers, enabledUsers int64
 

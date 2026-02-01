@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/logger"
+	"yunshuAPI/common"
+	"yunshuAPI/logger"
 
 	"gorm.io/gorm"
 )
@@ -104,7 +104,7 @@ func SearchRedemptions(keyword string, startIdx int, num int) (redemptions []*Re
 
 func GetRedemptionById(id int) (*Redemption, error) {
 	if id == 0 {
-		return nil, errors.New("id 为空！")
+		return nil, errors.New("id 为空")
 	}
 	redemption := Redemption{Id: id}
 	var err error = nil
@@ -148,7 +148,7 @@ func Redeem(key string, userId int) (quota int, err error) {
 		return err
 	})
 	if err != nil {
-		return 0, errors.New("兑换失败，" + err.Error())
+		return 0, errors.New("兑换失败: " + err.Error())
 	}
 	RecordLog(userId, LogTypeTopup, fmt.Sprintf("通过兑换码充值 %s，兑换码ID %d", logger.LogQuota(redemption.Quota), redemption.Id))
 	return redemption.Quota, nil
@@ -180,7 +180,7 @@ func (redemption *Redemption) Delete() error {
 
 func DeleteRedemptionById(id int) (err error) {
 	if id == 0 {
-		return errors.New("id 为空！")
+		return errors.New("id 为空")
 	}
 	redemption := Redemption{Id: id}
 	err = DB.Where(redemption).First(&redemption).Error

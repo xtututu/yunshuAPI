@@ -1,6 +1,6 @@
 package palm
 
-import "xunkecloudAPI/dto"
+import "yunshuAPI/dto"
 
 type PaLMChatMessage struct {
 	Author  string `json:"author"`

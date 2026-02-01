@@ -15,18 +15,18 @@ import (
 	"sync"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/middleware"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/relay"
-	relaycommon "xunkecloudAPI/relay/common"
-	relayconstant "xunkecloudAPI/relay/constant"
-	"xunkecloudAPI/relay/helper"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/setting/operation_setting"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/middleware"
+	"yunshuAPI/model"
+	"yunshuAPI/relay"
+	relaycommon "yunshuAPI/relay/common"
+	relayconstant "yunshuAPI/relay/constant"
+	"yunshuAPI/relay/helper"
+	"yunshuAPI/service"
+	"yunshuAPI/setting/operation_setting"
+	"yunshuAPI/types"
 
 	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/samber/lo"
@@ -134,7 +134,7 @@ func testChannel(channel *model.Channel, testModel string, endpointType string) 
 	// Determine relay format based on endpoint type or request path
 	var relayFormat types.RelayFormat
 	if endpointType != "" {
-		// 根据指定的端点类型设置 relayFormat
+		// 根据指定的端点类型设置relayFormat
 		switch constant.EndpointType(endpointType) {
 		case constant.EndpointTypeOpenAI:
 			relayFormat = types.RelayFormatOpenAI
@@ -213,7 +213,7 @@ func testChannel(channel *model.Channel, testModel string, endpointType string) 
 		}
 	}
 
-	//// 创建一个用于日志的 info 副本，移除 ApiKey
+	//// 创建一个用于日志的 info 副本，移除ApiKey
 	//logInfo := info
 	//logInfo.ApiKey = ""
 	common.SysLog(fmt.Sprintf("testing channel %d with model %s , info %+v ", channel.Id, testModel, info.ToString()))
@@ -572,10 +572,10 @@ func testAllChannels(notify bool) error {
 				shouldBanChannel = service.ShouldDisableChannel(channel.Type, result.newAPIError)
 			}
 
-			// 当错误检查通过，才检查响应时间
+			// 当错误检查通过，才检查响应时�?
 			if common.AutomaticDisableChannelEnabled && !shouldBanChannel {
 				if milliseconds > disableThreshold {
-					err := fmt.Errorf("响应时间 %.2fs 超过阈值 %.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0)
+					err := fmt.Errorf("响应时间 %.2fs 超过阈�?%.2fs", float64(milliseconds)/1000.0, float64(disableThreshold)/1000.0)
 					newAPIError = types.NewOpenAIError(err, types.ErrorCodeChannelResponseTimeExceeded, http.StatusRequestTimeout)
 					shouldBanChannel = true
 				}

@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"unicode/utf8"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/model"
+	"yunshuAPI/common"
+	"yunshuAPI/model"
 
 	"github.com/gin-gonic/gin"
 )
@@ -82,7 +82,7 @@ func AddRedemption(c *gin.Context) {
 	if redemption.Count > 100 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "一次兑换码批量生成的个数不能大于 100",
+			"message": "一次兑换码批量生成的个数不能大�?100",
 		})
 		return
 	}

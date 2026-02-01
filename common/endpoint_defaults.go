@@ -1,6 +1,6 @@
 package common
 
-import "xunkecloudAPI/constant"
+import "yunshuAPI/constant"
 
 // EndpointInfo 描述单个端点的默认请求信息
 // path: 上游路径
@@ -15,7 +15,7 @@ type EndpointInfo struct {
 	Method string `json:"method"`
 }
 
-// defaultEndpointInfoMap 保存内置端点的默认 Path 与 Method
+// defaultEndpointInfoMap 保存内置端点的默�?Path �?Method
 var defaultEndpointInfoMap = map[constant.EndpointType]EndpointInfo{
 	constant.EndpointTypeOpenAI:          {Path: "/v1/chat/completions", Method: "POST"},
 	constant.EndpointTypeOpenAIResponse:  {Path: "/v1/responses", Method: "POST"},
@@ -26,7 +26,7 @@ var defaultEndpointInfoMap = map[constant.EndpointType]EndpointInfo{
 	constant.EndpointTypeEmbeddings:      {Path: "/v1/embeddings", Method: "POST"},
 }
 
-// GetDefaultEndpointInfo 返回指定端点类型的默认信息以及是否存在
+// GetDefaultEndpointInfo 返回指定端点类型的默认信息以及是否存�?
 func GetDefaultEndpointInfo(et constant.EndpointType) (EndpointInfo, bool) {
 	info, ok := defaultEndpointInfoMap[et]
 	return info, ok

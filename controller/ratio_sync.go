@@ -11,11 +11,11 @@ import (
 	"sync"
 	"time"
 
-	"xunkecloudAPI/logger"
+	"yunshuAPI/logger"
 
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/setting/ratio_setting"
+	"yunshuAPI/dto"
+	"yunshuAPI/model"
+	"yunshuAPI/setting/ratio_setting"
 
 	"github.com/gin-gonic/gin"
 )
@@ -162,7 +162,7 @@ func FetchUpstreamRatios(c *gin.Context) {
 				return
 			}
 
-			// 简单重试：最多 3 次，指数退避
+			// 简单重试：最多3 次，指数退避
 			var resp *http.Response
 			var lastErr error
 			for attempt := 0; attempt < 3; attempt++ {
@@ -209,12 +209,12 @@ func FetchUpstreamRatios(c *gin.Context) {
 				return
 			}
 
-			// 若 Data 为空，将继续按 type1 尝试解析（与多数静态 ratio_config 兼容）
+			// �?Data 为空，将继续�?type1 尝试解析（与多数静�?ratio_config 兼容�?
 
-			// 尝试按 type1 解析
+			// 尝试�?type1 解析
 			var type1Data map[string]any
 			if err := json.Unmarshal(body.Data, &type1Data); err == nil {
-				// 如果包含至少一个 ratioTypes 字段，则认为是 type1
+				// 如果包含至少一�?ratioTypes 字段，则认为�?type1
 				isType1 := false
 				for _, rt := range ratioTypes {
 					if _, ok := type1Data[rt]; ok {
@@ -228,7 +228,7 @@ func FetchUpstreamRatios(c *gin.Context) {
 				}
 			}
 
-			// 如果不是 type1，则尝试按 type2 (/api/pricing) 解析
+			// 如果不是 type1，则尝试�?type2 (/api/pricing) 解析
 			var pricingItems []struct {
 				ModelName       string  `json:"model_name"`
 				QuotaType       int     `json:"quota_type"`
@@ -251,7 +251,7 @@ func FetchUpstreamRatios(c *gin.Context) {
 					modelPriceMap[item.ModelName] = item.ModelPrice
 				} else {
 					modelRatioMap[item.ModelName] = item.ModelRatio
-					// completionRatio 可能为 0，此时也直接赋值，保持与上游一致
+					// completionRatio 可能�?0，此时也直接赋值，保持与上游一�?
 					completionRatioMap[item.ModelName] = item.CompletionRatio
 				}
 			}
@@ -367,10 +367,10 @@ func buildDifferences(localData map[string]any, successfulChannels []struct {
 		if hasModelRatio && hasCompletionRatio {
 			// 遍历所有模型，检查是否满足不可信条件
 			for modelName := range allModels {
-				// 默认为可信
+				// 默认为可�?
 				confidenceMap[channel.name][modelName] = true
 
-				// 检查是否满足不可信条件：model_ratio为37.5且completion_ratio为1
+				// 检查是否满足不可信条件：model_ratio�?7.5且completion_ratio�?
 				if modelRatioVal, ok := modelRatios[modelName]; ok {
 					if completionRatioVal, ok := completionRatios[modelName]; ok {
 						// 转换为float64进行比较

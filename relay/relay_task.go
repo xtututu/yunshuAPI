@@ -11,17 +11,17 @@ import (
 	"strings"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/relay/channel"
-	relaycommon "xunkecloudAPI/relay/common"
-	relayconstant "xunkecloudAPI/relay/constant"
-	"xunkecloudAPI/relay/helper"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/setting/ratio_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	"yunshuAPI/model"
+	"yunshuAPI/relay/channel"
+	relaycommon "yunshuAPI/relay/common"
+	relayconstant "yunshuAPI/relay/constant"
+	"yunshuAPI/relay/helper"
+	"yunshuAPI/service"
+	"yunshuAPI/setting/ratio_setting"
 
 	"github.com/gin-gonic/gin"
 )
@@ -208,7 +208,7 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 
 		// 检查result类型
 		if httpResp, ok := result.(*http.Response); ok {
-			// 如果是*http.Response类型，调用DoResponse方法处理响应
+			// 如果是http.Response类型，调用DoResponse方法处理响应
 			defer httpResp.Body.Close()
 
 			// 先保存原始响应体
@@ -230,12 +230,12 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 				return
 			}
 
-			// 记录DoResponse后的响应头信息
+			// 记录DoResponse后的响应头信�?
 			logger.LogDebug(c.Request.Context(), "[SUCHUANG] After DoResponse - Content-Length: %d", httpResp.ContentLength)
 			logger.LogDebug(c.Request.Context(), "[SUCHUANG] After DoResponse - Content-Type: %s", httpResp.Header.Get("Content-Type"))
 			logger.LogDebug(c.Request.Context(), "[SUCHUANG] After DoResponse - Headers: %v", httpResp.Header)
 
-			// 重新读取转换后的响应体
+			// 重新读取转换后的响应�?
 			body, readErr := io.ReadAll(httpResp.Body)
 			if readErr != nil {
 				logger.LogError(c.Request.Context(), fmt.Sprintf("[SUCHUANG] Failed to read converted response body: %v", readErr))
@@ -243,16 +243,16 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 				return
 			}
 
-			// 调试日志：查看原始和转换后的响应体
+			// 调试日志：查看原始和转换后的响应�?
 			logger.LogDebug(c.Request.Context(), "[SUCHUANG] Original response body: %s", string(originalBody))
 			logger.LogDebug(c.Request.Context(), "[SUCHUANG] Final response body: %s", string(body))
 			logger.LogDebug(c.Request.Context(), "[SUCHUANG] Final response body length: %d", len(body))
 
 			// 直接使用DoResponse中已经转换好的响应体，不依赖重新读取
-			// 这是一个临时解决方案，确保响应能正确返回
+			// 这是一个临时解决方案，确保响应能正确返�?
 			if len(body) == 0 {
 				logger.LogError(c.Request.Context(), "[SUCHUANG] Final response body is empty after reading")
-				// 尝试直接从原始响应中解析速创格式并转换
+				// 尝试直接从原始响应中解析速创格式并转�?
 				var suchuangResp struct {
 					Data json.RawMessage `json:"data"`
 				}
@@ -299,7 +299,7 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 				}
 			}
 
-			// 使用Gin的c.Data方法直接返回转换后的响应体
+			// 使用Gin的c.Data方法直接返回转换后的响应�?
 			logger.LogDebug(c.Request.Context(), "[SUCHUANG] Returning response with length: %d", len(body))
 			c.Data(http.StatusOK, "application/json", body)
 		} else {
@@ -309,15 +309,15 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 				taskErr = service.TaskErrorWrapper(jsonErr, "marshal_response_failed", http.StatusInternalServerError)
 				return
 			}
-			// 使用Gin的c.Data方法直接返回响应体
+			// 使用Gin的c.Data方法直接返回响应�?
 			c.Data(http.StatusOK, "application/json", respBody)
 		}
 
-		// 图片生成请求已经完成，不需要继续处理
+		// 图片生成请求已经完成，不需要继续处�?
 		info.ConsumeQuota = true
 		return nil
 	} else {
-		// 对于其他渠道，使用TaskAdaptor接口的实现
+		// 对于其他渠道，使用TaskAdaptor接口的实�?
 		requestBody, err = adaptor.BuildRequestBody(c, info)
 		if err != nil {
 			taskErr = service.TaskErrorWrapper(err, "build_request_failed", http.StatusInternalServerError)
@@ -338,17 +338,17 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 		return
 	}
 
-	// 检查是否是图片生成请求，如果是，直接返回完整响应
+	// 检查是否是图片生成请求，如果是，直接返回完整响�?
 	if strings.HasPrefix(c.Request.RequestURI, "/v1/images") {
-		// 读取响应体
+		// 读取响应�?
 		body, readErr := io.ReadAll(resp.Body)
 		if readErr != nil {
 			taskErr = service.TaskErrorWrapper(readErr, "read_response_body_failed", http.StatusInternalServerError)
 			return
 		}
-		// 使用Gin的c.Data方法直接返回响应体
+		// 使用Gin的c.Data方法直接返回响应�?
 		c.Data(http.StatusOK, "application/json", body)
-		// 图片生成请求已经完成，不需要继续处理
+		// 图片生成请求已经完成，不需要继续处�?
 		info.ConsumeQuota = true
 		return nil
 	}
@@ -381,7 +381,7 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 							}
 						}
 						if len(contents) > 0 {
-							logContent = fmt.Sprintf("%s, 计算参数：%s", logContent, strings.Join(contents, ", "))
+							logContent = fmt.Sprintf("%s, 计算参数�?s", logContent, strings.Join(contents, ", "))
 						}
 					}
 				}
@@ -415,18 +415,18 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 		return
 	}
 
-	// 检查响应体是否已被修改（如在DoResponse中已设置）
+	// 检查响应体是否已被修改（如在DoResponse中已设置�?
 	if resp != nil && resp.Body != nil {
-		// 读取修改后的响应体
+		// 读取修改后的响应�?
 		respBody, readErr := io.ReadAll(resp.Body)
 		if readErr == nil && len(respBody) > 0 {
-			// 直接返回响应体
+			// 直接返回响应�?
 			c.Writer.Header().Set("Content-Type", "application/json")
 			c.Writer.Write(respBody)
 			info.ConsumeQuota = true
 			return nil
 		}
-		// 重置响应体以便后续处理
+		// 重置响应体以便后续处�?
 		resp.Body = io.NopCloser(bytes.NewBuffer(respBody))
 	}
 
@@ -445,14 +445,14 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 
 	// 检查是否是OpenAI兼容的视频API请求
 	if strings.HasPrefix(c.Request.RequestURI, "/v1/videos") {
-		// 为视频API返回OpenAI格式的响应
+		// 为视频API返回OpenAI格式的响�?
 		openAIVideo := dto.NewOpenAIVideo()
 		openAIVideo.ID = taskID
-		openAIVideo.Status = "queued"                                           // 新提交的任务默认为queued状态
-		openAIVideo.CreatedAt = time.Now().UnixNano() / int64(time.Millisecond) // 当前时间戳（毫秒）
+		openAIVideo.Status = "queued"                                           // 新提交的任务默认为queued状�?
+		openAIVideo.CreatedAt = time.Now().UnixNano() / int64(time.Millisecond) // 当前时间戳（毫秒�?
 		openAIVideo.Model = "sora-2"                                            // 根据实际情况设置模型名称
 
-		// 获取用户输入的秒数
+		// 获取用户输入的秒�?
 		var seconds string = "10" // 默认视频时长
 		if req, err := relaycommon.GetTaskRequest(c); err == nil {
 			if req.Seconds != "" {
@@ -476,7 +476,7 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 			return
 		}
 	} else {
-		// 其他API继续返回原有的包装格式
+		// 其他API继续返回原有的包装格�?
 		response := map[string]interface{}{
 			"code": 0,
 			"msg":  "success",
@@ -642,11 +642,11 @@ func videoFetchByIDRespBodyBuilder(c *gin.Context) (respBody []byte, taskResp *d
 			} else if originTask.Status == model.TaskStatusSuccess {
 				// 任务成功时，将相关URL填入FailReason
 				if ti.Reason != "" {
-					originTask.FailReason = ti.Reason // 优先使用Reason字段（通常是remote_url）
+					originTask.FailReason = ti.Reason // 优先使用Reason字段（通常是remote_url�?
 				} else if ti.RemoteUrl != "" {
 					originTask.FailReason = ti.RemoteUrl // 使用remote_url
 				} else if ti.Url != "" {
-					originTask.FailReason = ti.Url // 使用url字段（video_url）
+					originTask.FailReason = ti.Url // 使用url字段（video_url�?
 				} else {
 					// 尝试从任务data字段中解析URL（处理实时响应中URL缺失的情况）
 					var soraResp struct {

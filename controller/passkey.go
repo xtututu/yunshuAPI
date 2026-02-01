@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/model"
-	passkeysvc "xunkecloudAPI/service/passkey"
-	"xunkecloudAPI/setting/system_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/model"
+	passkeysvc "yunshuAPI/service/passkey"
+	"yunshuAPI/setting/system_setting"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -260,7 +260,7 @@ func PasskeyLoginFinish(c *gin.Context) {
 		// 首先通过凭证ID查找用户
 		credential, err := model.GetPasskeyByCredentialID(rawID)
 		if err != nil {
-			return nil, fmt.Errorf("未找到 Passkey 凭证: %w", err)
+			return nil, fmt.Errorf("未找�?Passkey 凭证: %w", err)
 		}
 
 		// 通过凭证获取用户
@@ -329,7 +329,7 @@ func PasskeyLoginFinish(c *gin.Context) {
 func AdminResetPasskey(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		common.ApiErrorMsg(c, "无效的用户 ID")
+		common.ApiErrorMsg(c, "无效的用�?ID")
 		return
 	}
 
@@ -343,7 +343,7 @@ func AdminResetPasskey(c *gin.Context) {
 		if errors.Is(err, model.ErrPasskeyNotFound) {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "该用户尚未绑定 Passkey",
+				"message": "该用户尚未绑�?Passkey",
 			})
 			return
 		}
@@ -384,7 +384,7 @@ func PasskeyVerifyBegin(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "该用户尚未绑定 Passkey",
+			"message": "该用户尚未绑�?Passkey",
 		})
 		return
 	}
@@ -444,7 +444,7 @@ func PasskeyVerifyFinish(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "该用户尚未绑定 Passkey",
+			"message": "该用户尚未绑�?Passkey",
 		})
 		return
 	}
@@ -462,7 +462,7 @@ func PasskeyVerifyFinish(c *gin.Context) {
 		return
 	}
 
-	// 更新凭证的最后使用时间
+	// 更新凭证的最后使用时�?
 	now := time.Now()
 	credential.LastUsedAt = &now
 	if err := model.UpsertPasskeyCredential(credential); err != nil {

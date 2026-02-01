@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/setting/system_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/model"
+	"yunshuAPI/setting/system_setting"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -59,7 +59,7 @@ func getOidcUserInfoByCode(code string) (*OidcUser, error) {
 	res, err := client.Do(req)
 	if err != nil {
 		common.SysLog(err.Error())
-		return nil, errors.New("无法连接至 OIDC 服务器，请稍后重试！")
+		return nil, errors.New("无法连接�?OIDC 服务器，请稍后重试！")
 	}
 	defer res.Body.Close()
 	var oidcResponse OidcResponse
@@ -81,7 +81,7 @@ func getOidcUserInfoByCode(code string) (*OidcUser, error) {
 	res2, err := client.Do(req)
 	if err != nil {
 		common.SysLog(err.Error())
-		return nil, errors.New("无法连接至 OIDC 服务器，请稍后重试！")
+		return nil, errors.New("无法连接�?OIDC 服务器，请稍后重试！")
 	}
 	defer res2.Body.Close()
 	if res2.StatusCode != http.StatusOK {
@@ -201,7 +201,7 @@ func OidcBind(c *gin.Context) {
 	if model.IsOidcIdAlreadyTaken(user.OidcId) {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "该 OIDC 账户已被绑定",
+			"message": "�?OIDC 账户已被绑定",
 		})
 		return
 	}

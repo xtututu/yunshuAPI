@@ -1,6 +1,6 @@
 package ali
 
-import "xunkecloudAPI/dto"
+import "yunshuAPI/dto"
 
 type AliMessage struct {
 	Content any    `json:"content"`

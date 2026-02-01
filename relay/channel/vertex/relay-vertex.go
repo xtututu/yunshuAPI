@@ -1,6 +1,6 @@
 package vertex
 
-import "xunkecloudAPI/common"
+import "yunshuAPI/common"
 
 func GetModelRegion(other string, localModelName string) string {
 	// if other is json string

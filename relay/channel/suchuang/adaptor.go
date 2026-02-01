@@ -12,14 +12,14 @@ import (
 	"strings"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/relay/channel"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	"yunshuAPI/model"
+	"yunshuAPI/relay/channel"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/service"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -49,13 +49,13 @@ var ModelList = []string{
 	"sora-2",
 }
 
-// SuchuangAdaptor 速创渠道适配器
+// SuchuangAdaptor 速创渠道适配�?
 // 用于处理速创API的请求和响应适配
 // 实现了channel.Adaptor接口
 // 目前仅支持图片生成功能，其他功能返回错误
 // 图片生成需要创建任务并轮询结果
-// 创建任务接口：/api/img/nanoBanana-pro
-// 轮询结果接口：/api/img/drawDetail
+// 创建任务接口�?api/img/nanoBanana-pro
+// 轮询结果接口�?api/img/drawDetail
 // 响应需要转换为OpenAI格式
 // 所有请求头中的Authorization不需要Bearer拼接
 type SuchuangAdaptor struct {
@@ -64,17 +64,17 @@ type SuchuangAdaptor struct {
 	apiKey      string
 }
 
-// Adaptor 实现channel.Adaptor接口的适配器类型
+// Adaptor 实现channel.Adaptor接口的适配器类�?
 type Adaptor struct {
 	SuchuangAdaptor
 }
 
-// TaskAdaptor 实现channel.TaskAdaptor接口的适配器类型
+// TaskAdaptor 实现channel.TaskAdaptor接口的适配器类�?
 type TaskAdaptor struct {
 	SuchuangAdaptor
 }
 
-// NewSuchuangAdaptor 创建速创渠道适配器实例
+// NewSuchuangAdaptor 创建速创渠道适配器实�?
 // 接收渠道类型、基础URL和API密钥作为参数
 // 返回SuchuangAdaptor实例
 func NewSuchuangAdaptor(channelType int, baseURL, apiKey string) *SuchuangAdaptor {
@@ -85,7 +85,7 @@ func NewSuchuangAdaptor(channelType int, baseURL, apiKey string) *SuchuangAdapto
 	}
 }
 
-// Init 初始化适配器
+// Init 初始化适配�?
 // 实现channel.Adaptor接口的Init方法
 // 接收relaycommon.RelayInfo参数
 // 从参数中获取渠道类型、基础URL和API密钥
@@ -121,7 +121,7 @@ func (s *SuchuangAdaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, er
 	}
 	// 如果是图片生成请求，根据模型返回不同的API端点
 	if info.RequestURLPath == "/v1/images/generations" {
-		// 确定当前实际使用的模型名称（优先使用映射后的模型名称）
+		// 确定当前实际使用的模型名称（优先使用映射后的模型名称�?
 		currentModelName := info.OriginModelName
 		if info.ChannelMeta != nil && info.ChannelMeta.UpstreamModelName != "" {
 			currentModelName = info.ChannelMeta.UpstreamModelName
@@ -187,10 +187,10 @@ func (s *SuchuangAdaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, er
 	return "", errors.New("unsupported request URL path for suchuang channel")
 }
 
-// SetupRequestHeader 设置请求头
+// SetupRequestHeader 设置请求�?
 // 实现channel.Adaptor接口的SetupRequestHeader方法
 // 接收gin.Context、http.Header和relaycommon.RelayInfo参数
-// 设置Content-Type和Authorization头
+// 设置Content-Type和Authorization�?
 // Authorization头不需要Bearer拼接
 func (s *SuchuangAdaptor) SetupRequestHeader(c *gin.Context, req *http.Header, info *relaycommon.RelayInfo) error {
 	// 设置Content-Type为application/json
@@ -202,7 +202,7 @@ func (s *SuchuangAdaptor) SetupRequestHeader(c *gin.Context, req *http.Header, i
 
 // ConvertOpenAIRequest 转换OpenAI请求到速创API请求
 // 实现channel.Adaptor接口的ConvertOpenAIRequest方法
-// 接收gin.Context、relaycommon.RelayInfo和*dto.GeneralOpenAIRequest参数
+// 接收gin.Context、relaycommon.RelayInfo�?dto.GeneralOpenAIRequest参数
 // 支持图片生成请求、Gemini-3-Pro视频内容识别请求和sora-2视频生成请求转换
 func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon.RelayInfo, request *dto.GeneralOpenAIRequest) (any, error) {
 	ctx := c.Request.Context()
@@ -222,7 +222,7 @@ func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon
 			}
 		}
 
-		// 对于ConvertOpenAIRequest，image字段可能不在request中
+		// 对于ConvertOpenAIRequest，image字段可能不在request�?
 		// 系统应该会为图片请求直接调用ConvertImageRequest方法
 
 		return s.ConvertImageRequest(c, info, *imageRequest)
@@ -232,7 +232,7 @@ func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon
 	if strings.HasPrefix(info.RequestURLPath, "/v1/videos") {
 		logger.LogDebug(ctx, "[SUCHUANG] Converting video generation request for %s", request.Model)
 
-		// 定义视频请求结构体
+		// 定义视频请求结构�?
 		var videoRequest struct {
 			Model          string   `json:"model"`
 			Prompt         string   `json:"prompt"`
@@ -241,10 +241,10 @@ func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon
 			InputReference []string `json:"input_reference"`
 		}
 
-		// 将GeneralOpenAIRequest转换为map以便获取所有字段，包括视频生成特有的字段
+		// 将GeneralOpenAIRequest转换为map以便获取所有字段，包括视频生成特有的字�?
 		requestMap := request.ToMap()
 
-		// 从requestMap中提取所有字段
+		// 从requestMap中提取所有字�?
 		if model, ok := requestMap["model"].(string); ok {
 			videoRequest.Model = model
 		} else {
@@ -261,7 +261,7 @@ func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon
 			}
 		}
 
-		// 处理Seconds字段，支持多种类型
+		// 处理Seconds字段，支持多种类�?
 		if seconds, ok := requestMap["seconds"].(string); ok {
 			videoRequest.Seconds = seconds
 		} else if secondsFloat, ok := requestMap["seconds"].(float64); ok {
@@ -269,14 +269,14 @@ func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon
 		} else if secondsInt, ok := requestMap["seconds"].(int); ok {
 			videoRequest.Seconds = fmt.Sprintf("%d", secondsInt)
 		} else {
-			// 默认值
+			// 默认�?
 			videoRequest.Seconds = "15"
 		}
 
 		if size, ok := requestMap["size"].(string); ok {
 			videoRequest.Size = size
 		} else {
-			// 默认值
+			// 默认�?
 			videoRequest.Size = "1024×1792"
 		}
 
@@ -291,14 +291,14 @@ func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon
 			}
 		}
 
-		// 确保使用正确的模型
+		// 确保使用正确的模�?
 		if videoRequest.Model == "" {
 			videoRequest.Model = request.Model
 		}
 
-		// 设置默认值
+		// 设置默认�?
 		if videoRequest.Seconds == "" {
-			videoRequest.Seconds = "15" // 默认15秒
+			videoRequest.Seconds = "15" // 默认15�?
 		}
 
 		// 转换size到aspectRatio
@@ -307,24 +307,24 @@ func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon
 			aspectRatio = "9:16"
 		}
 
-		// 获取input_reference中的URL，默认取第一个
+		// 获取input_reference中的URL，默认取第一�?
 		url := ""
 		if len(videoRequest.InputReference) > 0 {
 			url = strings.Trim(videoRequest.InputReference[0], " `")
 		}
 
-		// 构建sora-2 API请求体
-		// 将seconds转换为数字类型
+		// 构建sora-2 API请求�?
+		// 将seconds转换为数字类�?
 		var duration int
 		if secondsStr := videoRequest.Seconds; secondsStr != "" {
 			if d, err := strconv.Atoi(secondsStr); err == nil {
 				duration = d
 			} else {
-				// 默认15秒
+				// 默认15�?
 				duration = 15
 			}
 		} else {
-			// 默认15秒
+			// 默认15�?
 			duration = 15
 		}
 
@@ -346,7 +346,7 @@ func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon
 		return soraRequest, nil
 	}
 
-	// 支持视频内容识别请求（支持gemini-3-pro和gpt-5模型）
+	// 支持视频内容识别请求（支持gemini-3-pro和gpt-5模型�?
 	if info.RequestURLPath == "/v1/chat/completions" || info.RequestURLPath == "/plus/v1/chat/completions" {
 		logger.LogDebug(ctx, "[SUCHUANG] Converting chat completion request for %s", request.Model)
 
@@ -373,12 +373,12 @@ func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon
 
 			// 解析消息内容
 			if lastMessage.IsStringContent() {
-				// 纯文本内容
+				// 纯文本内�?
 				if contentStr, ok := lastMessage.Content.(string); ok {
 					content = contentStr
 				}
 			} else {
-				// 多媒体内容
+				// 多媒体内�?
 				mediaContents := lastMessage.ParseContent()
 				logger.LogDebug(ctx, "[SUCHUANG] Media contents: %+v", mediaContents)
 
@@ -391,12 +391,12 @@ func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon
 							videoUrl = videoUrlObj.Url
 						}
 					} else if media.Type == dto.ContentTypeImageURL {
-						// 处理图片URL（作为视频URL使用）
+						// 处理图片URL（作为视频URL使用�?
 						if imageUrlObj := media.GetImageMedia(); imageUrlObj != nil {
 							videoUrl = imageUrlObj.Url
 						}
 					} else if media.Type == dto.ContentTypeFileURL {
-						// 处理文件URL（作为视频URL使用）
+						// 处理文件URL（作为视频URL使用�?
 						if fileUrlObj := media.GetFileUrl(); fileUrlObj != nil {
 							// 清理URL中的反引号和其他无效字符
 							videoUrl = strings.Trim(fileUrlObj.Url, " `")
@@ -406,18 +406,18 @@ func (s *SuchuangAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon
 			}
 		}
 
-		// 设置默认的识别内容
+		// 设置默认的识别内�?
 		if content == "" {
 			content = "识别视频内容结果输出中文"
 		}
 
-		// 构建速创API请求体
+		// 构建速创API请求�?
 		suchuangRequest := map[string]interface{}{
 			"model":   request.Model, // 使用请求中的模型名称
 			"content": content,
 		}
 
-		// 如果有视频URL，添加到请求中
+		// 如果有视频URL，添加到请求�?
 		if videoUrl != "" {
 			suchuangRequest["image_url"] = videoUrl
 		}
@@ -457,7 +457,7 @@ func (s *SuchuangAdaptor) ConvertAudioRequest(c *gin.Context, info *relaycommon.
 // 转换OpenAI格式的图片请求到速创API格式
 func (s *SuchuangAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInfo, request dto.ImageRequest) (any, error) {
 	ctx := c.Request.Context()
-	// 确定当前实际使用的模型名称（优先使用映射后的模型名称）
+	// 确定当前实际使用的模型名称（优先使用映射后的模型名称�?
 	currentModelName := info.OriginModelName
 	upstreamModelName := ""
 	if info.ChannelMeta != nil && info.ChannelMeta.UpstreamModelName != "" {
@@ -479,7 +479,7 @@ func (s *SuchuangAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.
 		logger.LogDebug(ctx, "[SUCHUANG] Raw image data: %s", string(request.Image))
 		var images []string
 		if err := json.Unmarshal(request.Image, &images); err != nil {
-			// 如果解析失败，尝试解析为单个字符串
+			// 如果解析失败，尝试解析为单个字符�?
 			var singleImage string
 			if err2 := json.Unmarshal(request.Image, &singleImage); err2 == nil {
 				imageUrls = append(imageUrls, singleImage)
@@ -495,11 +495,11 @@ func (s *SuchuangAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.
 	}
 
 	// 提取aspectRatio参数
-	aspectRatio := "auto" // 默认值
+	aspectRatio := "auto" // 默认�?
 
 	// 首先从AspectRatio字段获取
 	if request.AspectRatio != "" {
-		// 验证aspectRatio值是否在允许范围内
+		// 验证aspectRatio值是否在允许范围�?
 		validRatios := []string{"1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "5:4", "4:5", "21:9", "auto"}
 		for _, validRatio := range validRatios {
 			if request.AspectRatio == validRatio {
@@ -512,7 +512,7 @@ func (s *SuchuangAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.
 		if aspectRatioRaw, ok := request.Extra["aspectRatio"]; ok {
 			var aspectRatioStr string
 			if err := json.Unmarshal(aspectRatioRaw, &aspectRatioStr); err == nil {
-				// 验证aspectRatio值是否在允许范围内
+				// 验证aspectRatio值是否在允许范围�?
 				validRatios := []string{"1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "5:4", "4:5", "21:9", "auto"}
 				for _, validRatio := range validRatios {
 					if aspectRatioStr == validRatio {
@@ -525,7 +525,7 @@ func (s *SuchuangAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.
 			// 也支持aspect_ratio格式
 			var aspectRatioStr string
 			if err := json.Unmarshal(aspectRatioRaw, &aspectRatioStr); err == nil {
-				// 验证aspectRatio值是否在允许范围内
+				// 验证aspectRatio值是否在允许范围�?
 				validRatios := []string{"1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "5:4", "4:5", "21:9", "auto"}
 				for _, validRatio := range validRatios {
 					if aspectRatioStr == validRatio {
@@ -539,7 +539,7 @@ func (s *SuchuangAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.
 
 	// 为nano-banana模型使用专用入参结构
 	if currentModelName == "nano-banana" {
-		// 构建nano-banana模型的速创API请求体
+		// 构建nano-banana模型的速创API请求�?
 		suchuangRequest := map[string]interface{}{
 			"model":       "nano-banana",
 			"prompt":      request.Prompt,
@@ -552,9 +552,9 @@ func (s *SuchuangAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.
 		return suchuangRequest, nil
 	}
 
-	// 为nano-banana-pro模型变体构建请求体
+	// 为nano-banana-pro模型变体构建请求�?
 	if strings.HasPrefix(currentModelName, "nano-banana-pro") {
-		// 确定当前使用的模型名称
+		// 确定当前使用的模型名�?
 		modelName := currentModelName
 
 		// 根据模型名称设置正确的imageSize
@@ -565,7 +565,7 @@ func (s *SuchuangAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.
 			imageSize = matches[1] + "K"
 		}
 
-		// 构建速创API请求体
+		// 构建速创API请求�?
 		suchuangRequest := map[string]interface{}{
 			"prompt":      request.Prompt,
 			"aspectRatio": aspectRatio,
@@ -582,7 +582,7 @@ func (s *SuchuangAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.
 	suchuangRequest := map[string]interface{}{
 		"prompt":      request.Prompt,
 		"aspectRatio": aspectRatio,
-		"imageSize":   "4K", // 固定值
+		"imageSize":   "4K", // 固定�?
 		"img_url":     imageUrls,
 	}
 
@@ -593,7 +593,7 @@ func (s *SuchuangAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.
 
 // ConvertOpenAIResponsesRequest 转换OpenAI响应请求
 // 实现channel.Adaptor接口的ConvertOpenAIResponsesRequest方法
-// 目前不支持此功能，直接返回错误
+// 目前不支持此功能，直接返回错�?
 func (s *SuchuangAdaptor) ConvertOpenAIResponsesRequest(c *gin.Context, info *relaycommon.RelayInfo, request dto.OpenAIResponsesRequest) (any, error) {
 	return nil, errors.New("OpenAIResponses not implemented for suchuang channel")
 }
@@ -601,7 +601,7 @@ func (s *SuchuangAdaptor) ConvertOpenAIResponsesRequest(c *gin.Context, info *re
 // DoRequest 执行请求
 // 实现channel.Adaptor接口的DoRequest方法
 // 接收gin.Context、relaycommon.RelayInfo和io.Reader参数
-// 执行HTTP请求并返回响应
+// 执行HTTP请求并返回响�?
 func (s *SuchuangAdaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo, requestBody io.Reader) (any, error) {
 	ctx := c.Request.Context()
 	logger.LogDebug(ctx, "[SUCHUANG] DoRequest called with RequestURLPath: %s", info.RequestURLPath)
@@ -631,13 +631,13 @@ func (s *SuchuangAdaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo,
 		return nil, err
 	}
 
-	// 设置请求头
+	// 设置请求�?
 	if err := s.SetupRequestHeader(c, &req.Header, info); err != nil {
 		logger.LogError(ctx, fmt.Sprintf("[SUCHUANG] SetupRequestHeader failed: %v", err))
 		return nil, err
 	}
 
-	// 发送请求
+	// 发送请�?
 	client := service.GetHttpClient()
 	logger.LogDebug(ctx, "[SUCHUANG] Sending request to URL: %s with method: %s", req.URL.String(), req.Method)
 	logger.LogDebug(ctx, "[SUCHUANG] Request headers: %v", req.Header)
@@ -652,7 +652,7 @@ func (s *SuchuangAdaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo,
 	// 不要关闭响应体，因为DoResponse方法需要使用它
 	// defer resp.Body.Close()
 
-	// 读取响应体以便记录日志
+	// 读取响应体以便记录日�?
 	respBody, _ := io.ReadAll(resp.Body)
 	logger.LogDebug(ctx, "[SUCHUANG] Response status: %d", resp.StatusCode)
 	logger.LogDebug(ctx, "[SUCHUANG] Response headers: %v", resp.Header)
@@ -669,7 +669,7 @@ func (s *SuchuangAdaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo,
 // 实现channel.Adaptor接口的DoResponse方法
 // 接收gin.Context、http.Response和relaycommon.RelayInfo参数
 // 处理响应并转换为OpenAI格式
-// 目前仅支持图片生成响应处理
+// 目前仅支持图片生成响应处�?
 func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *relaycommon.RelayInfo) (usage any, err *types.NewAPIError) {
 	ctx := c.Request.Context()
 
@@ -682,7 +682,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 		logger.LogDebug(ctx, "[SUCHUANG] Response is nil, returning empty usage")
 		return &dto.Usage{}, nil
 	}
-	// 读取响应体
+	// 读取响应�?
 	var readErr error
 	body, readErr = io.ReadAll(httpResp.Body)
 	if readErr != nil {
@@ -702,7 +702,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 		httpResp.Body = io.NopCloser(bytes.NewBuffer(body))
 	}
 
-	// 检查是否已经是OpenAI格式的响应（检查是否有choices字段）
+	// 检查是否已经是OpenAI格式的响应（检查是否有choices字段�?
 	var openAIRespCheck struct {
 		Choices []any          `json:"choices"`
 		Usage   map[string]any `json:"usage"`
@@ -761,7 +761,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 		logger.LogDebug(ctx, "[SUCHUANG] Sora-2 video task created with ID: %s", soraResp.Data.ID)
 
 		// 构造视频生成响应，返回任务ID
-		// 使用默认值10秒，因为在DoResponse方法中无法直接访问原始请求
+		// 使用默认�?0秒，因为在DoResponse方法中无法直接访问原始请�?
 		seconds := "10"
 
 		// 使用与其他视频API一致的OpenAIVideo格式
@@ -789,7 +789,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 			Data struct {
 				ID         int    `json:"id"`
 				TaskID     string `json:"task_id"`
-				Status     int    `json:"status"` // 2表示完成，3表示失败
+				Status     int    `json:"status"` // 2表示完成�?表示失败
 				Size       string `json:"size"`
 				Prompt     string `json:"prompt"`
 				ImageURL   string `json:"image_url"`
@@ -811,7 +811,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 			return nil, types.NewErrorWithStatusCode(errors.New(createTaskResp.Msg), types.ErrorCodeBadResponse, 500)
 		}
 
-		// 检查任务是否失败（status=3）
+		// 检查任务是否失败（status=3�?
 		if createTaskResp.Data.Status == 3 {
 			failReason := createTaskResp.Data.FailReason
 			if failReason == "" {
@@ -821,7 +821,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 			return nil, types.NewErrorWithStatusCode(errors.New(failReason), types.ErrorCodeInvalidRequest, 400)
 		}
 
-		// 检查任务是否已完成（status=2）
+		// 检查任务是否已完成（status=2�?
 		if createTaskResp.Data.Status == 2 {
 			// 任务已完成，直接返回结果
 			openAIResp := struct {
@@ -890,7 +890,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 			return nil, types.NewErrorWithStatusCode(errors.New(pollResp.Msg), types.ErrorCodeBadResponse, 500)
 		}
 
-		// 检查任务状态
+		// 检查任务状�?
 		if pollResp.Data.Status == 2 {
 			// 任务完成，转换为OpenAI格式响应
 			openAIResp := struct {
@@ -907,7 +907,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 				Created: time.Now().Unix(),
 			}
 
-			// 如果响应体不为空，将转换后的响应写回响应体
+			// 如果响应体不为空，将转换后的响应写回响应�?
 			if httpResp != nil {
 				openAIRespBody, _ := json.Marshal(openAIResp)
 				httpResp.Body = io.NopCloser(bytes.NewBuffer(openAIRespBody))
@@ -916,7 +916,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 			// 返回空的usage信息和nil错误
 			return &dto.Usage{}, nil
 		} else if pollResp.Data.Status == 3 {
-			// 任务失败，返回失败原因
+			// 任务失败，返回失败原�?
 			failReason := pollResp.Data.FailReason
 			if failReason == "" {
 				failReason = "Image generation failed"
@@ -980,7 +980,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 			logger.LogDebug(ctx, "[SUCHUANG] Data field content: %s", string(suchuangResp.Data))
 			logger.LogDebug(ctx, "[SUCHUANG] Data field length: %d", len(suchuangResp.Data))
 			if err := json.Unmarshal(suchuangResp.Data, &openAIResp); err != nil {
-				// 如果data字段不是预期的OpenAI格式，可能是直接的文本内容
+				// 如果data字段不是预期的OpenAI格式，可能是直接的文本内�?
 				logger.LogDebug(ctx, "[SUCHUANG] DoResponse failed to parse data field as OpenAI format, trying as text: %v", err)
 
 				// 创建一个新的OpenAI响应
@@ -1064,7 +1064,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 				}
 			}
 
-			// 确保object字段有值
+			// 确保object字段有�?
 			if openAIResp.Object == "" {
 				openAIResp.Object = "chat.completion"
 			}
@@ -1081,7 +1081,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 			// 将转换后的响应写入客户端
 			service.IOCopyBytesGracefully(c, httpResp, openAIRespBody)
 
-			// 从openAIResp中提取usage信息并返回
+			// 从openAIResp中提取usage信息并返�?
 			var usage dto.Usage
 			if openAIResp.Usage != nil {
 				// 提取prompt_tokens
@@ -1119,7 +1119,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 			return nil, types.NewErrorWithStatusCode(errors.New(suchuangResp.Msg), types.ErrorCodeBadResponse, 500)
 		}
 
-		// 创建OpenAI格式的响应
+		// 创建OpenAI格式的响�?
 		var openAIResp struct {
 			ID      string `json:"id"`
 			Object  string `json:"object"`
@@ -1147,7 +1147,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 
 		// 解析data字段
 		if err := json.Unmarshal(suchuangResp.Data, &openAIResp); err != nil {
-			// 如果data字段不是预期的OpenAI格式，可能是直接的文本内容
+			// 如果data字段不是预期的OpenAI格式，可能是直接的文本内�?
 			logger.LogDebug(ctx, "[SUCHUANG] DoResponse failed to parse data field as OpenAI format, trying as text: %v", err)
 
 			// 创建一个新的OpenAI响应
@@ -1231,7 +1231,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 			}
 		}
 
-		// 确保object字段有值
+		// 确保object字段有�?
 		if openAIResp.Object == "" {
 			openAIResp.Object = "chat.completion"
 		}
@@ -1246,7 +1246,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 		// 将转换后的响应写入客户端
 		service.IOCopyBytesGracefully(c, httpResp, openAIRespBody)
 
-		// 从openAIResp中提取usage信息并返回
+		// 从openAIResp中提取usage信息并返�?
 		var usage dto.Usage
 		if openAIResp.Usage != nil {
 			// 提取prompt_tokens
@@ -1270,7 +1270,7 @@ func (s *SuchuangAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *
 	}
 }
 
-// GetModelList 获取支持的模型列表
+// GetModelList 获取支持的模型列�?
 // 实现channel.Adaptor接口的GetModelList方法
 // 返回ModelList变量
 func (s *SuchuangAdaptor) GetModelList() []string {
@@ -1286,24 +1286,24 @@ func (s *SuchuangAdaptor) GetChannelName() string {
 
 // ConvertClaudeRequest 转换Claude请求
 // 实现channel.Adaptor接口的ConvertClaudeRequest方法
-// 目前不支持Claude请求，直接返回错误
+// 目前不支持Claude请求，直接返回错�?
 func (s *SuchuangAdaptor) ConvertClaudeRequest(c *gin.Context, info *relaycommon.RelayInfo, request *dto.ClaudeRequest) (any, error) {
 	return nil, errors.New("ConvertClaudeRequest not implemented for suchuang channel")
 }
 
 // ConvertGeminiRequest 转换Gemini请求
 // 实现channel.Adaptor接口的ConvertGeminiRequest方法
-// 目前不支持Gemini请求，直接返回错误
+// 目前不支持Gemini请求，直接返回错�?
 func (s *SuchuangAdaptor) ConvertGeminiRequest(c *gin.Context, info *relaycommon.RelayInfo, request *dto.GeminiChatRequest) (any, error) {
 	return nil, errors.New("ConvertGeminiRequest not implemented for suchuang channel")
 }
 
 // ============================// TaskAdaptor Implementation// ============================
 
-// ValidateRequestAndSetAction 验证请求并设置操作
+// ValidateRequestAndSetAction 验证请求并设置操�?
 // 实现channel.TaskAdaptor接口的ValidateRequestAndSetAction方法
 func (t *TaskAdaptor) ValidateRequestAndSetAction(c *gin.Context, info *relaycommon.RelayInfo) *dto.TaskError {
-	// 验证请求并设置操作
+	// 验证请求并设置操�?
 	return relaycommon.ValidateMultipartDirect(c, info)
 }
 
@@ -1318,7 +1318,7 @@ func (t *TaskAdaptor) BuildRequestURL(info *relaycommon.RelayInfo) (string, erro
 	return url, nil
 }
 
-// BuildRequestHeader 构建请求头
+// BuildRequestHeader 构建请求�?
 // 实现channel.TaskAdaptor接口的BuildRequestHeader方法
 func (t *TaskAdaptor) BuildRequestHeader(c *gin.Context, req *http.Request, info *relaycommon.RelayInfo) error {
 	// 设置请求头，不需要Bearer拼接
@@ -1327,7 +1327,7 @@ func (t *TaskAdaptor) BuildRequestHeader(c *gin.Context, req *http.Request, info
 	return nil
 }
 
-// BuildRequestBody 构建请求体
+// BuildRequestBody 构建请求�?
 // 实现channel.TaskAdaptor接口的BuildRequestBody方法
 func (t *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayInfo) (io.Reader, error) {
 	// 获取任务请求
@@ -1336,7 +1336,7 @@ func (t *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 		return nil, err
 	}
 
-	// 构建视频请求结构体
+	// 构建视频请求结构�?
 	var videoRequest struct {
 		Model          string   `json:"model"`
 		Prompt         string   `json:"prompt"`
@@ -1345,7 +1345,7 @@ func (t *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 		InputReference []string `json:"input_reference"`
 	}
 
-	// 从TaskSubmitReq中提取字段
+	// 从TaskSubmitReq中提取字�?
 	videoRequest.Model = req.Model
 	videoRequest.Prompt = req.Prompt
 	videoRequest.Seconds = req.Seconds
@@ -1373,24 +1373,24 @@ func (t *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 		aspectRatio = "9:16"
 	}
 
-	// 获取input_reference中的URL，默认取第一个
+	// 获取input_reference中的URL，默认取第一�?
 	url := ""
 	if len(videoRequest.InputReference) > 0 {
 		url = strings.Trim(videoRequest.InputReference[0], " `")
 	}
 
-	// 构建速创API请求体
-	// 将seconds转换为数字类型
+	// 构建速创API请求�?
+	// 将seconds转换为数字类�?
 	var duration int
 	if secondsStr := videoRequest.Seconds; secondsStr != "" {
 		if d, err := strconv.Atoi(secondsStr); err == nil {
 			duration = d
 		} else {
-			// 默认15秒
+			// 默认15�?
 			duration = 15
 		}
 	} else {
-		// 默认15秒
+		// 默认15�?
 		duration = 15
 	}
 
@@ -1426,7 +1426,7 @@ func (t *TaskAdaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo, req
 // DoResponse 处理响应
 // 实现channel.TaskAdaptor接口的DoResponse方法
 func (t *TaskAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *relaycommon.RelayInfo) (taskID string, taskData []byte, taskErr *dto.TaskError) {
-	// 读取响应体
+	// 读取响应�?
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		taskErr = service.TaskErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
@@ -1447,13 +1447,13 @@ func (t *TaskAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *rela
 		return
 	}
 
-	// 检查响应代码
+	// 检查响应代�?
 	if suchuangResp.Code != 200 {
 		taskErr = service.TaskErrorWrapper(fmt.Errorf(suchuangResp.Msg), "api_request_failed", http.StatusInternalServerError)
 		return
 	}
 
-	// 返回任务ID和响应数据
+	// 返回任务ID和响应数�?
 	return suchuangResp.Data.ID, responseBody, nil
 }
 
@@ -1475,10 +1475,10 @@ func (t *TaskAdaptor) FetchTask(baseUrl, key string, body map[string]any) (*http
 		return nil, err
 	}
 
-	// 设置请求头
+	// 设置请求�?
 	req.Header.Set("Authorization", key)
 
-	// 发送请求
+	// 发送请�?
 	return service.GetHttpClient().Do(req)
 }
 
@@ -1513,7 +1513,7 @@ func (t *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 	var status model.TaskStatus
 	var progress int
 	switch suchuangResp.Data.Status {
-	case 0: // 排队中
+	case 0: // 排队�?
 		status = model.TaskStatusQueued
 		progress = 0
 	case 1: // 成功
@@ -1522,7 +1522,7 @@ func (t *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 	case 2: // 失败
 		status = model.TaskStatusFailure
 		progress = 0
-	case 3: // 生成中
+	case 3: // 生成�?
 		status = model.TaskStatusInProgress
 		progress = 50
 	default: // 其他状态默认处理中
@@ -1544,7 +1544,7 @@ func (t *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 		taskResult.RemoteUrl = suchuangResp.Data.RemoteURL
 	}
 
-	// 如果任务失败，设置失败原因
+	// 如果任务失败，设置失败原�?
 	if status == model.TaskStatusFailure {
 		taskResult.Reason = suchuangResp.Data.FailReason
 	}
@@ -1552,7 +1552,7 @@ func (t *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 	return taskResult, nil
 }
 
-// GetModelList 获取支持的模型列表
+// GetModelList 获取支持的模型列�?
 // 实现channel.TaskAdaptor接口的GetModelList方法
 func (t *TaskAdaptor) GetModelList() []string {
 	return ModelList
@@ -1564,8 +1564,8 @@ func (t *TaskAdaptor) GetChannelName() string {
 	return ChannelName
 }
 
-// UserExpectedVideoResponse 用户期望的视频响应格式
-// 与其他视频API保持一致
+// UserExpectedVideoResponse 用户期望的视频响应格�?
+// 与其他视频API保持一�?
 type UserExpectedVideoResponse struct {
 	ID        string `json:"id"`
 	Size      string `json:"size"`
@@ -1578,7 +1578,7 @@ type UserExpectedVideoResponse struct {
 	CreatedAt int64  `json:"created_at"`
 }
 
-// ConvertToOpenAIVideo 转换任务为OpenAI格式的视频响应
+// ConvertToOpenAIVideo 转换任务为OpenAI格式的视频响�?
 // 实现channel.OpenAIVideoConverter接口的ConvertToOpenAIVideo方法
 func (t *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
 	// 解析任务数据，获取原始请求的seconds和size
@@ -1587,12 +1587,12 @@ func (t *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
 		Size    string `json:"size"`
 	}
 	if err := json.Unmarshal(task.Data, &taskData); err != nil {
-		// 如果解析失败，使用默认值
+		// 如果解析失败，使用默认�?
 		taskData.Seconds = "10"
 		taskData.Size = "1024×1792"
 	}
 
-	// 构建用户期望的视频响应格式
+	// 构建用户期望的视频响应格�?
 	response := UserExpectedVideoResponse{
 		ID:        task.TaskID,
 		Size:      taskData.Size,
@@ -1624,7 +1624,7 @@ func (t *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
 // createImageTask 创建图片生成任务
 // 接收gin.Context、relaycommon.RelayInfo和io.Reader参数
 // 调用速创API创建图片生成任务
-// 返回任务ID和错误信息
+// 返回任务ID和错误信�?
 func (s *SuchuangAdaptor) createImageTask(c *gin.Context, info *relaycommon.RelayInfo, requestBody io.Reader) (int, error) {
 	ctx := c.Request.Context()
 
@@ -1642,13 +1642,13 @@ func (s *SuchuangAdaptor) createImageTask(c *gin.Context, info *relaycommon.Rela
 		return 0, err
 	}
 
-	// 设置请求头
+	// 设置请求�?
 	if err := s.SetupRequestHeader(c, &req.Header, info); err != nil {
 		logger.LogError(ctx, fmt.Sprintf("[SUCHUANG] SetupRequestHeader failed: %v", err))
 		return 0, err
 	}
 
-	// 发送请求
+	// 发送请�?
 	client := service.GetHttpClient()
 	resp, err := client.Do(req)
 	if err != nil {
@@ -1657,7 +1657,7 @@ func (s *SuchuangAdaptor) createImageTask(c *gin.Context, info *relaycommon.Rela
 	}
 	defer resp.Body.Close()
 
-	// 读取响应体
+	// 读取响应�?
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logger.LogError(ctx, fmt.Sprintf("[SUCHUANG] Read response body failed: %v", err))
@@ -1711,13 +1711,13 @@ func (s *SuchuangAdaptor) pollImageResult(c *gin.Context, info *relaycommon.Rela
 			return nil, err
 		}
 
-		// 设置请求头
+		// 设置请求�?
 		if err := s.SetupRequestHeader(c, &req.Header, info); err != nil {
 			logger.LogError(ctx, fmt.Sprintf("[SUCHUANG] Setup poll request header failed: %v", err))
 			return nil, err
 		}
 
-		// 发送请求
+		// 发送请�?
 		client := service.GetHttpClient()
 		resp, err := client.Do(req)
 		if err != nil {
@@ -1725,7 +1725,7 @@ func (s *SuchuangAdaptor) pollImageResult(c *gin.Context, info *relaycommon.Rela
 			return nil, err
 		}
 
-		// 读取响应体
+		// 读取响应�?
 		body, err := io.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
@@ -1762,7 +1762,7 @@ func (s *SuchuangAdaptor) pollImageResult(c *gin.Context, info *relaycommon.Rela
 			return nil, errors.New(pollResult.Msg)
 		}
 
-		// 检查任务状态
+		// 检查任务状�?
 		if pollResult.Data.Status == 2 {
 			// 任务完成，转换为OpenAI格式响应
 			openAIResp := struct {
@@ -1781,9 +1781,9 @@ func (s *SuchuangAdaptor) pollImageResult(c *gin.Context, info *relaycommon.Rela
 			return openAIResp, nil
 		}
 
-		// 检查任务是否失败（status=3）
+		// 检查任务是否失败（status=3�?
 		if pollResult.Data.Status == 3 {
-			// 任务失败，返回失败原因
+			// 任务失败，返回失败原�?
 			failReason := pollResult.Data.FailReason
 			if failReason == "" {
 				failReason = "Image generation failed"

@@ -9,10 +9,10 @@ import (
 	"strings"
 	"sync"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/types"
 
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -181,7 +181,7 @@ func (channel *Channel) GetNextEnabledKey() (string, int, *types.NewAPIError) {
 				return keys[idx], idx, nil
 			}
 		}
-		// Fallback – should not happen, but return first enabled key
+		// Fallback - should not happen, but return first enabled key
 		return keys[enabledIdx[0]], enabledIdx[0], nil
 	default:
 		// Unknown mode, default to first enabled key (or original key string)
@@ -381,7 +381,7 @@ func BatchDeleteChannels(ids []int) error {
 	if len(ids) == 0 {
 		return nil
 	}
-	// 使用事务 分批删除channel表和abilities表
+	// 使用事务 分批删除channel表和abilities�?
 	tx := DB.Begin()
 	if tx.Error != nil {
 		return tx.Error
@@ -614,7 +614,7 @@ func UpdateChannelStatus(channelId int, usingKey string, status int, reason stri
 			// Use per-channel lock to prevent concurrent map read/write with GetNextEnabledKey
 			pollingLock := GetChannelPollingLock(channelId)
 			pollingLock.Lock()
-			// 如果是多Key模式，更新缓存中的状态
+			// 如果是多Key模式，更新缓存中的状�?
 			handlerMultiKeyUpdate(channelCache, usingKey, status, reason)
 			pollingLock.Unlock()
 			//CacheUpdateChannel(channelCache)
@@ -694,7 +694,7 @@ func EditChannelByTag(tag string, newTag *string, modelMapping *string, models *
 	updateData := Channel{}
 	shouldReCreateAbilities := false
 	updatedTag := tag
-	// 如果 newTag 不为空且不等于 tag，则更新 tag
+	// 如果 newTag 不为空且不等�?tag，则更新 tag
 	if newTag != nil && *newTag != tag {
 		updateData.Tag = newTag
 		updatedTag = *newTag
@@ -781,13 +781,13 @@ func SearchTags(keyword string, group string, model string, idSort bool) ([]*str
 	var tags []*string
 	modelsCol := "`models`"
 
-	// 如果是 PostgreSQL，使用双引号
+	// 如果�?PostgreSQL，使用双引号
 	if common.UsingPostgreSQL {
 		modelsCol = `"models"`
 	}
 
 	baseURLCol := "`base_url`"
-	// 如果是 PostgreSQL，使用双引号
+	// 如果�?PostgreSQL，使用双引号
 	if common.UsingPostgreSQL {
 		baseURLCol = `"base_url"`
 	}
@@ -851,7 +851,7 @@ func (channel *Channel) GetSetting() dto.ChannelSettings {
 		err := common.Unmarshal([]byte(*channel.Setting), &setting)
 		if err != nil {
 			common.SysLog(fmt.Sprintf("failed to unmarshal setting: channel_id=%d, error=%v", channel.Id, err))
-			channel.Setting = nil // 清空设置以避免后续错误
+			channel.Setting = nil // 清空设置以避免后续错�?
 			_ = channel.Save()    // 保存修改
 		}
 	}
@@ -873,7 +873,7 @@ func (channel *Channel) GetOtherSettings() dto.ChannelOtherSettings {
 		err := common.UnmarshalJsonStr(channel.OtherSettings, &setting)
 		if err != nil {
 			common.SysLog(fmt.Sprintf("failed to unmarshal setting: channel_id=%d, error=%v", channel.Id, err))
-			channel.OtherSettings = "{}" // 清空设置以避免后续错误
+			channel.OtherSettings = "{}" // 清空设置以避免后续错�?
 			_ = channel.Save()           // 保存修改
 		}
 	}
@@ -918,7 +918,7 @@ func GetChannelsByIds(ids []int) ([]*Channel, error) {
 }
 
 func BatchSetChannelTag(ids []int, tag *string) error {
-	// 开启事务
+	// 开启事�?
 	tx := DB.Begin()
 	if tx.Error != nil {
 		return tx.Error

@@ -3,7 +3,7 @@ package model_setting
 import (
 	"net/http"
 
-	"xunkecloudAPI/setting/config"
+	"yunshuAPI/setting/config"
 )
 
 //var claudeHeadersSettings = map[string][]string{}
@@ -34,7 +34,7 @@ var defaultClaudeSettings = ClaudeSettings{
 var claudeSettings = defaultClaudeSettings
 
 func init() {
-	// 注册到全局配置管理器
+	// 注册到全局配置管理�?
 	config.GlobalConfig.Register("claude", &claudeSettings)
 }
 

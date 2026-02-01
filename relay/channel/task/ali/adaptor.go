@@ -8,13 +8,13 @@ import (
 	"strconv"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/relay/channel"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/service"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	"yunshuAPI/model"
+	"yunshuAPI/relay/channel"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/service"
 	"github.com/samber/lo"
 
 	"github.com/gin-gonic/gin"
@@ -46,11 +46,11 @@ type AliVideoInput struct {
 // AliVideoParameters 视频参数
 type AliVideoParameters struct {
 	Resolution   string `json:"resolution,omitempty"`    // 分辨率: 480P/720P/1080P（图生视频、首尾帧生视频）
-	Size         string `json:"size,omitempty"`          // 尺寸: 如 "832*480"（文生视频）
+	Size         string `json:"size,omitempty"`          // 尺寸: "832*480"（文生视频）
 	Duration     int    `json:"duration,omitempty"`      // 时长: 3-10秒
 	PromptExtend bool   `json:"prompt_extend,omitempty"` // 是否开启prompt智能改写
 	Watermark    bool   `json:"watermark,omitempty"`     // 是否添加水印
-	Audio        *bool  `json:"audio,omitempty"`         // 是否添加音频（wan2.5）
+	Audio        *bool  `json:"audio,omitempty"`         // 是否添加音频（wan2.5支持）
 	Seed         int    `json:"seed,omitempty"`          // 随机数种子
 }
 
@@ -95,7 +95,7 @@ type AliMetadata struct {
 
 	// Parameters 相关
 	Resolution   *string `json:"resolution,omitempty"`    // 分辨率: 480P/720P/1080P
-	Size         *string `json:"size,omitempty"`          // 尺寸: 如 "832*480"
+	Size         *string `json:"size,omitempty"`          // 尺寸: "832*480"
 	Duration     *int    `json:"duration,omitempty"`      // 时长
 	PromptExtend *bool   `json:"prompt_extend,omitempty"` // 是否开启prompt智能改写
 	Watermark    *bool   `json:"watermark,omitempty"`     // 是否添加水印
@@ -254,7 +254,7 @@ func (a *TaskAdaptor) convertToAliRequest(info *relaycommon.RelayInfo, req relay
 			Prompt: req.Prompt,
 		},
 		Parameters: &AliVideoParameters{
-			PromptExtend: true, // 默认开启智能改写
+			PromptExtend: true, // 默认开启智能改�?
 			Watermark:    false,
 		},
 	}
@@ -277,7 +277,7 @@ func (a *TaskAdaptor) convertToAliRequest(info *relaycommon.RelayInfo, req relay
 		}
 	}
 
-	// 处理分辨率映射
+	// 处理分辨率映�?
 	if req.Size != "" {
 		// text to video size must be contained *
 		if strings.Contains(req.Model, "t2v") && !strings.Contains(req.Size, "*") {
@@ -287,14 +287,14 @@ func (a *TaskAdaptor) convertToAliRequest(info *relaycommon.RelayInfo, req relay
 			aliReq.Parameters.Size = req.Size
 		} else {
 			resolution := strings.ToUpper(req.Size)
-			// 支持 480p, 720p, 1080p 或 480P, 720P, 1080P
+			// 支持 480p, 720p, 1080p �?480P, 720P, 1080P
 			if !strings.HasSuffix(resolution, "P") {
 				resolution = resolution + "P"
 			}
 			aliReq.Parameters.Resolution = resolution
 		}
 	} else {
-		// 根据模型设置默认分辨率
+		// 根据模型设置默认分辨�?
 		if strings.Contains(req.Model, "t2v") { // image to video
 			if strings.HasPrefix(req.Model, "wan2.5") {
 				aliReq.Parameters.Size = "1920*1080"
@@ -327,10 +327,10 @@ func (a *TaskAdaptor) convertToAliRequest(info *relaycommon.RelayInfo, req relay
 			aliReq.Parameters.Duration = seconds
 		}
 	} else {
-		aliReq.Parameters.Duration = 5 // 默认5秒
+		aliReq.Parameters.Duration = 5 // 默认5�?
 	}
 
-	// 从 metadata 中提取额外参数
+	// �?metadata 中提取额外参�?
 	if req.Metadata != nil {
 		if metadataBytes, err := common.Marshal(req.Metadata); err == nil {
 			err = common.Unmarshal(metadataBytes, aliReq)
@@ -382,7 +382,7 @@ func (a *TaskAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *rela
 		return
 	}
 
-	// 检查错误
+	// 检查错�?
 	if aliResp.Code != "" {
 		taskErr = service.TaskErrorWrapper(fmt.Errorf("%s: %s", aliResp.Code, aliResp.Message), "ali_api_error", resp.StatusCode)
 		return
@@ -393,7 +393,7 @@ func (a *TaskAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *rela
 		return
 	}
 
-	// 转换为 OpenAI 格式响应
+	// 转换�?OpenAI 格式响应
 	openAIResp := dto.NewOpenAIVideo()
 	openAIResp.ID = aliResp.Output.TaskID
 	openAIResp.Model = c.GetString("model")
@@ -409,7 +409,7 @@ func (a *TaskAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *rela
 	return aliResp.Output.TaskID, responseBody, nil
 }
 
-// FetchTask 查询任务状态
+// FetchTask 查询任务状�?
 func (a *TaskAdaptor) FetchTask(baseUrl, key string, body map[string]any) (*http.Response, error) {
 	taskID, ok := body["task_id"].(string)
 	if !ok {
@@ -447,7 +447,7 @@ func (a *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 		Code: 0,
 	}
 
-	// 状态映射
+	// 状态映�?
 	switch aliResp.Output.TaskStatus {
 	case "PENDING":
 		taskResult.Status = model.TaskStatusQueued

@@ -22,7 +22,7 @@ func Monitor() {
 			if _, err := os.Stat("./pprof"); os.IsNotExist(err) {
 				err := os.Mkdir("./pprof", os.ModePerm)
 				if err != nil {
-					SysLog("创建pprof文件夹失败 " + err.Error())
+					SysLog("创建pprof文件夹失败" + err.Error())
 					continue
 				}
 			}

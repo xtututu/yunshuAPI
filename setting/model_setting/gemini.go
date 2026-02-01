@@ -1,7 +1,7 @@
 package model_setting
 
 import (
-	"xunkecloudAPI/setting/config"
+	"yunshuAPI/setting/config"
 )
 
 // GeminiSettings 定义Gemini模型的配置
@@ -35,7 +35,7 @@ var defaultGeminiSettings = GeminiSettings{
 var geminiSettings = defaultGeminiSettings
 
 func init() {
-	// 注册到全局配置管理器
+	// 注册到全局配置管理�?
 	config.GlobalConfig.Register("gemini", &geminiSettings)
 }
 

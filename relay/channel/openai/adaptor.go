@@ -13,23 +13,23 @@ import (
 	"strconv"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/relay/channel"
-	"xunkecloudAPI/relay/channel/ai360"
-	"xunkecloudAPI/relay/channel/lingyiwanwu"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	"yunshuAPI/relay/channel"
+	"yunshuAPI/relay/channel/ai360"
+	"yunshuAPI/relay/channel/lingyiwanwu"
 
-	//"xunkecloudAPI/relay/channel/minimax"
-	"xunkecloudAPI/relay/channel/openrouter"
-	"xunkecloudAPI/relay/channel/xinference"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/relay/common_handler"
-	relayconstant "xunkecloudAPI/relay/constant"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/setting/model_setting"
-	"xunkecloudAPI/types"
+	//"yunshuAPI/relay/channel/minimax"
+	"yunshuAPI/relay/channel/openrouter"
+	"yunshuAPI/relay/channel/xinference"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/relay/common_handler"
+	relayconstant "yunshuAPI/relay/constant"
+	"yunshuAPI/service"
+	"yunshuAPI/setting/model_setting"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -155,7 +155,7 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 		}
 
 		model_ := info.UpstreamModelName
-		// 2025年5月10日后创建的渠道不移除.
+		// 2025年1月0日后创建的渠道不移除.
 		if info.ChannelCreateTime < constant.AzureNoRemoveDotTime {
 			model_ = strings.Replace(model_, ".", "", -1)
 		}
@@ -266,16 +266,16 @@ func (a *Adaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon.RelayIn
 		}
 
 		// https://docs.anthropic.com/en/api/openai-sdk#extended-thinking-support
-		// 没有做排除3.5Haiku等，要出问题再加吧，最佳兼容性（不是
+		// 没有做排除，如 Haiku等，要出问题再加吧，最佳兼容性（不是
 		if request.THINKING != nil && strings.HasPrefix(info.UpstreamModelName, "anthropic") {
 			var thinking dto.Thinking // Claude标准Thinking格式
 			if err := json.Unmarshal(request.THINKING, &thinking); err != nil {
 				return nil, fmt.Errorf("error Unmarshal thinking: %w", err)
 			}
 
-			// 只有当 thinking.Type 是 "enabled" 时才处理
+			// 只有�?thinking.Type �?"enabled" 时才处理
 			if thinking.Type == "enabled" {
-				// 检查 BudgetTokens 是否为 nil
+				// 检�?BudgetTokens 是否�?nil
 				if thinking.BudgetTokens == nil {
 					return nil, fmt.Errorf("BudgetTokens is nil when thinking is enabled")
 				}
@@ -376,13 +376,13 @@ func (a *Adaptor) ConvertAudioRequest(c *gin.Context, info *relaycommon.RelayInf
 			}
 		}
 
-		// 从 formData 中获取文件
+		// �?formData 中获取文�?
 		fileHeaders := formData.File["file"]
 		if len(fileHeaders) == 0 {
 			return nil, errors.New("file is required")
 		}
 
-		// 使用 formData 中的第一个文件
+		// 使用 formData 中的第一个文�?
 		fileHeader := fileHeaders[0]
 		logger.LogDebug(c.Request.Context(), fmt.Sprintf("--form 'file=@\"%s\"' (size: %d bytes, content-type: %s)",
 			fileHeader.Filename, fileHeader.Size, fileHeader.Header.Get("Content-Type")))
@@ -401,7 +401,7 @@ func (a *Adaptor) ConvertAudioRequest(c *gin.Context, info *relaycommon.RelayInf
 			return nil, errors.New("copy file failed")
 		}
 
-		// 关闭 multipart 编写器以设置分界线
+		// 关闭 multipart 编写器以设置分界�?
 		writer.Close()
 		c.Request.Header.Set("Content-Type", writer.FormDataContentType())
 		logger.LogDebug(c.Request.Context(), fmt.Sprintf("--header 'Content-Type: %s'", writer.FormDataContentType()))
@@ -412,7 +412,7 @@ func (a *Adaptor) ConvertAudioRequest(c *gin.Context, info *relaycommon.RelayInf
 func (a *Adaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInfo, request dto.ImageRequest) (any, error) {
 	switch info.RelayMode {
 	case relayconstant.RelayModeImagesEdits:
-		// 检查 Content-Type 是否为 multipart/form-data
+		// 检�?Content-Type 是否�?multipart/form-data
 		contentType := c.GetHeader("Content-Type")
 		if strings.Contains(contentType, "multipart/form-data") {
 			// 处理 multipart/form-data 请求
@@ -420,7 +420,7 @@ func (a *Adaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInf
 			writer := multipart.NewWriter(&requestBody)
 
 			writer.WriteField("model", request.Model)
-			// 使用已解析的 multipart 表单，避免重复解析
+			// 使用已解析的 multipart 表单，避免重复解�?
 			mf := c.Request.MultipartForm
 			if mf == nil {
 				if _, err := c.MultipartForm(); err != nil {
@@ -586,21 +586,21 @@ func (a *Adaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInf
 				return nil, errors.New("no multipart form data found")
 			}
 
-			// 关闭 multipart 编写器以设置分界线
+			// 关闭 multipart 编写器以设置分界�?
 			writer.Close()
 			c.Request.Header.Set("Content-Type", writer.FormDataContentType())
 			return &requestBody, nil
 		} else {
 			// 处理 application/json 请求
-			// 将 JSON 请求转换为 multipart/form-data 格式
+			// �?JSON 请求转换�?multipart/form-data 格式
 			var requestBody bytes.Buffer
 			writer := multipart.NewWriter(&requestBody)
 
-			// 写入所有字段
+			// 写入所有字�?
 			writer.WriteField("model", request.Model)
 			writer.WriteField("prompt", request.Prompt)
 
-			// 写入可选字段
+			// 写入可选字�?
 			if request.N != 0 {
 				writer.WriteField("n", strconv.FormatUint(uint64(request.N), 10))
 			}
@@ -634,7 +634,7 @@ func (a *Adaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInf
 			if request.Image != nil {
 				var imageData map[string]interface{}
 				if err := json.Unmarshal(request.Image, &imageData); err == nil {
-					// 处理 URL 类型的 image
+					// 处理 URL 类型�?image
 					if url, ok := imageData["url"].(string); ok && url != "" {
 						writer.WriteField("image", url)
 					}
@@ -645,7 +645,7 @@ func (a *Adaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInf
 			if request.InputReference != nil {
 				var inputRefData map[string]interface{}
 				if err := json.Unmarshal(request.InputReference, &inputRefData); err == nil {
-					// 处理 URL 类型的 input_reference
+					// 处理 URL 类型�?input_reference
 					if url, ok := inputRefData["url"].(string); ok && url != "" {
 						writer.WriteField("input_reference", url)
 					}
@@ -658,7 +658,7 @@ func (a *Adaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInf
 				}
 			}
 
-			// 检查是否至少有一个附件（image 或 input_reference）
+			// 检查是否至少有一个附件（image �?input_reference�?
 			if request.Image == nil && request.InputReference == nil {
 				return nil, errors.New("at least one attachment (image or input_reference) is required")
 			}
@@ -672,7 +672,7 @@ func (a *Adaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInf
 				}
 			}
 
-			// 关闭 multipart 编写器以设置分界线
+			// 关闭 multipart 编写器以设置分界�?
 			writer.Close()
 			c.Request.Header.Set("Content-Type", writer.FormDataContentType())
 			return &requestBody, nil

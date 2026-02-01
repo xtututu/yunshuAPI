@@ -9,13 +9,13 @@ import (
 	"strings"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/model"
-	relayconstant "xunkecloudAPI/relay/constant"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/model"
+	relayconstant "yunshuAPI/relay/constant"
+	"yunshuAPI/service"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -67,43 +67,43 @@ func Distribute() func(c *gin.Context) {
 			// 	}
 			// 	matchName := ratio_setting.FormatMatchingModelName(modelRequest.Model) // match gpts & thinking-*
 			// 	if _, ok := tokenModelLimit[matchName]; !ok {
-			// 		abortWithOpenAiMessage(c, http.StatusForbidden, "该令牌无权访问模型 "+modelRequest.Model)
+			// 		abortWithOpenAiMessage(c, http.StatusForbidden, "该令牌无权访问模型"+modelRequest.Model)
 			// 		return
 			// 	}
 			// }
 
 			if shouldSelectChannel {
-		if modelRequest.Model == "" {
-			abortWithOpenAiMessage(c, http.StatusBadRequest, "未指定模型名称，模型名称不能为空")
-			return
-		}
-
-		var selectGroup string
-		usingGroup := common.GetContextKeyString(c, constant.ContextKeyUsingGroup)
-		// check path is /pg/chat/completions
-		if strings.HasPrefix(c.Request.URL.Path, "/pg/chat/completions") {
-			playgroundRequest := &dto.PlayGroundRequest{}
-			err = common.UnmarshalBodyReusable(c, playgroundRequest)
-			if err != nil {
-				abortWithOpenAiMessage(c, http.StatusBadRequest, "无效的playground请求, "+err.Error())
-				return
-			}
-			if playgroundRequest.Group != "" {
-				if !service.GroupInUserUsableGroups(usingGroup, playgroundRequest.Group) && playgroundRequest.Group != usingGroup {
-					abortWithOpenAiMessage(c, http.StatusForbidden, "无权访问该分组")
+				if modelRequest.Model == "" {
+					abortWithOpenAiMessage(c, http.StatusBadRequest, "未指定模型名称，模型名称不能为空")
 					return
 				}
-				usingGroup = playgroundRequest.Group
-				common.SetContextKey(c, constant.ContextKeyUsingGroup, usingGroup)
-			}
-		}
-		channel, selectGroup, err = service.CacheGetRandomSatisfiedChannel(c, usingGroup, modelRequest.Model, 0)
+
+				var selectGroup string
+				usingGroup := common.GetContextKeyString(c, constant.ContextKeyUsingGroup)
+				// check path is /pg/chat/completions
+				if strings.HasPrefix(c.Request.URL.Path, "/pg/chat/completions") {
+					playgroundRequest := &dto.PlayGroundRequest{}
+					err = common.UnmarshalBodyReusable(c, playgroundRequest)
+					if err != nil {
+						abortWithOpenAiMessage(c, http.StatusBadRequest, "无效的playground请求, "+err.Error())
+						return
+					}
+					if playgroundRequest.Group != "" {
+						if !service.GroupInUserUsableGroups(usingGroup, playgroundRequest.Group) && playgroundRequest.Group != usingGroup {
+							abortWithOpenAiMessage(c, http.StatusForbidden, "无权访问该分组")
+							return
+						}
+						usingGroup = playgroundRequest.Group
+						common.SetContextKey(c, constant.ContextKeyUsingGroup, usingGroup)
+					}
+				}
+				channel, selectGroup, err = service.CacheGetRandomSatisfiedChannel(c, usingGroup, modelRequest.Model, 0)
 				if err != nil {
 					showGroup := usingGroup
 					if usingGroup == "auto" {
 						showGroup = fmt.Sprintf("auto(%s)", selectGroup)
 					}
-					message := fmt.Sprintf("获取分组 %s 下模型 %s 的可用渠道失败（distributor）: %s", showGroup, modelRequest.Model, err.Error())
+					message := fmt.Sprintf("获取分组 %s 下模型 %s 的可用渠道失败（distributor） %s", showGroup, modelRequest.Model, err.Error())
 					// 如果错误，但是渠道不为空，说明是数据库一致性问题
 					//if channel != nil {
 					//	common.SysError(fmt.Sprintf("渠道不存在：%d", channel.Id))
@@ -125,7 +125,7 @@ func Distribute() func(c *gin.Context) {
 }
 
 // getModelFromRequest 从请求中读取模型信息
-// 根据 Content-Type 自动处理：
+// 根据 Content-Type 自动处理
 // - application/json
 // - application/x-www-form-urlencoded
 // - multipart/form-data
@@ -133,7 +133,7 @@ func getModelFromRequest(c *gin.Context) (*ModelRequest, error) {
 	var modelRequest ModelRequest
 	err := common.UnmarshalBodyReusable(c, &modelRequest)
 	if err != nil {
-		return nil, errors.New("无效的请求, " + err.Error())
+		return nil, errors.New("无效的请求 " + err.Error())
 	}
 	return &modelRequest, nil
 }
@@ -161,7 +161,7 @@ func getModelRequest(c *gin.Context) (*ModelRequest, bool, error) {
 			}
 			if midjourneyModel == "" {
 				if !success {
-					return nil, false, fmt.Errorf("无效的请求, 无法解析模型")
+					return nil, false, fmt.Errorf("无效的请�? 无法解析模型")
 				} else {
 					// task fetch, task fetch by condition, notify
 					shouldSelectChannel = false
@@ -322,7 +322,7 @@ func SetupContextForSelectedChannel(c *gin.Context, channel *model.Channel, mode
 		common.SetContextKey(c, constant.ContextKeyChannelIsMultiKey, true)
 		common.SetContextKey(c, constant.ContextKeyChannelMultiKeyIndex, index)
 	} else {
-		// 必须设置为 false，否则在重试到单个 key 的时候会导致日志显示错误
+		// 必须设置�?false，否则在重试到单�?key 的时候会导致日志显示错误
 		common.SetContextKey(c, constant.ContextKeyChannelIsMultiKey, false)
 	}
 	// c.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", key))
@@ -353,18 +353,18 @@ func SetupContextForSelectedChannel(c *gin.Context, channel *model.Channel, mode
 	return nil
 }
 
-// extractModelNameFromGeminiPath 从 Gemini API URL 路径中提取模型名
+// extractModelNameFromGeminiPath �?Gemini API URL 路径中提取模型名
 // 输入格式: /v1beta/models/gemini-2.0-flash:generateContent
 // 输出: gemini-2.0-flash
 func extractModelNameFromGeminiPath(path string) string {
-	// 查找 "/models/" 的位置
+	// 查找 "/models/" 的位�?
 	modelsPrefix := "/models/"
 	modelsIndex := strings.Index(path, modelsPrefix)
 	if modelsIndex == -1 {
 		return ""
 	}
 
-	// 从 "/models/" 之后开始提取
+	// �?"/models/" 之后开始提�?
 	startIndex := modelsIndex + len(modelsPrefix)
 	if startIndex >= len(path) {
 		return ""
@@ -377,6 +377,6 @@ func extractModelNameFromGeminiPath(path string) string {
 		return path[startIndex:]
 	}
 
-	// 返回模型名部分
+	// 返回模型名部�?
 	return path[startIndex : startIndex+colonIndex]
 }

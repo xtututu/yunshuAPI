@@ -6,7 +6,7 @@ This file is the old version of the payment settings file. If you need to add ne
 package operation_setting
 
 import (
-	"xunkecloudAPI/common"
+	"yunshuAPI/common"
 )
 
 var PayAddress = ""
@@ -29,7 +29,7 @@ var PayMethods = []map[string]string{
 		"type":  "wxpay",
 	},
 	{
-		"name":      "自定义1",
+		"name":      "自定义",
 		"color":     "black",
 		"type":      "custom1",
 		"min_topup": "50",

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strings"
 
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/setting"
+	"yunshuAPI/dto"
+	"yunshuAPI/setting"
 )
 
 func CheckSensitiveMessages(messages []dto.Message) ([]string, error) {

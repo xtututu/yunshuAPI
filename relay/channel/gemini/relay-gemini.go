@@ -10,16 +10,16 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/relay/channel/openai"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/relay/helper"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/setting/model_setting"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	"yunshuAPI/relay/channel/openai"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/relay/helper"
+	"yunshuAPI/service"
+	"yunshuAPI/setting/model_setting"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -344,12 +344,12 @@ func CovertGemini2OpenAI(c *gin.Context, textRequest dto.GeneralOpenAIRequest, i
 			var contentMap map[string]interface{}
 			contentStr := message.StringContent()
 
-			// 1. 尝试解析为 JSON 对象
+			// 1. 尝试解析�?JSON 对象
 			if err := json.Unmarshal([]byte(contentStr), &contentMap); err != nil {
 				// 2. 如果失败，尝试解析为 JSON 数组
 				var contentSlice []interface{}
 				if err := json.Unmarshal([]byte(contentStr), &contentSlice); err == nil {
-					// 如果是数组，包装成对象
+					// 如果是数组，包装成对�?
 					contentMap = map[string]interface{}{"result": contentSlice}
 				} else {
 					// 3. 如果再次失败，作为纯文本处理
@@ -411,13 +411,13 @@ func CovertGemini2OpenAI(c *gin.Context, textRequest dto.GeneralOpenAIRequest, i
 				}
 				// 判断是否是url
 				if strings.HasPrefix(part.GetImageMedia().Url, "http") {
-					// 是url，获取文件的类型和base64编码的数据
+					// 是url，获取文件的类型和base64编码的数�?
 					fileData, err := service.GetFileBase64FromUrl(c, part.GetImageMedia().Url, "formatting image for Gemini")
 					if err != nil {
 						return nil, fmt.Errorf("get file base64 from url '%s' failed: %w", part.GetImageMedia().Url, err)
 					}
 
-					// 校验 MimeType 是否在 Gemini 支持的白名单中
+					// 校验 MimeType 是否�?Gemini 支持的白名单�?
 					if _, ok := geminiSupportedMimeTypes[strings.ToLower(fileData.MimeType)]; !ok {
 						url := part.GetImageMedia().Url
 						return nil, fmt.Errorf("mime type is not supported by Gemini: '%s', url: '%s', supported types are: %v", fileData.MimeType, url, getSupportedMimeTypesList())
@@ -425,7 +425,7 @@ func CovertGemini2OpenAI(c *gin.Context, textRequest dto.GeneralOpenAIRequest, i
 
 					parts = append(parts, dto.GeminiPart{
 						InlineData: &dto.GeminiInlineData{
-							MimeType: fileData.MimeType, // 使用原始的 MimeType，因为大小写可能对API有意义
+							MimeType: fileData.MimeType, // 使用原始�?MimeType，因为大小写可能对API有意�?
 							Data:     fileData.Base64Data,
 						},
 					})
@@ -703,7 +703,7 @@ func unescapeString(s string) (string, error) {
 				result = append(result, r)
 			}
 		}
-		i += size // 移动到下一个字符
+		i += size // 移动到下一个字�?
 	}
 
 	return string(result), nil
@@ -777,7 +777,7 @@ func responseGeminiChat2OpenAI(c *gin.Context, response *dto.GeminiChatResponse)
 						imgText := "![image](data:" + part.InlineData.MimeType + ";base64," + part.InlineData.Data + ")"
 						texts = append(texts, imgText)
 					} else {
-						// 其他媒体类型，直接显示链接
+						// 其他媒体类型，直接显示链�?
 						texts = append(texts, fmt.Sprintf("[media](data:%s;base64,%s)", part.InlineData.MimeType, part.InlineData.Data))
 					}
 				} else if part.FunctionCall != nil {
@@ -793,7 +793,7 @@ func responseGeminiChat2OpenAI(c *gin.Context, response *dto.GeminiChatResponse)
 					} else if part.CodeExecutionResult != nil {
 						texts = append(texts, "```output\n"+part.CodeExecutionResult.Output+"\n```")
 					} else {
-						// 过滤掉空行
+						// 过滤掉空�?
 						if part.Text != "\n" {
 							texts = append(texts, part.Text)
 						}
@@ -1009,7 +1009,7 @@ func GeminiChatStreamHandler(c *gin.Context, info *relaycommon.RelayInfo, resp *
 	})
 
 	if info.SendResponseCount == 0 {
-		// 空补全，报错不计费
+		// 空补全，报错不计�?
 		// empty response, throw an error
 		return nil, types.NewOpenAIError(errors.New("no response received from Gemini API"), types.ErrorCodeEmptyResponse, http.StatusInternalServerError)
 	}

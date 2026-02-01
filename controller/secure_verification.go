@@ -5,24 +5,24 @@ import (
 	"net/http"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/model"
-	passkeysvc "xunkecloudAPI/service/passkey"
-	"xunkecloudAPI/setting/system_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/model"
+	passkeysvc "yunshuAPI/service/passkey"
+	"yunshuAPI/setting/system_setting"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
 const (
-	// SecureVerificationSessionKey 安全验证的 session key
+	// SecureVerificationSessionKey 安全验证的session key
 	SecureVerificationSessionKey = "secure_verified_at"
 	// SecureVerificationTimeout 验证有效期（秒）
 	SecureVerificationTimeout = 300 // 5分钟
 )
 
 type UniversalVerifyRequest struct {
-	Method string `json:"method"` // "2fa" 或 "passkey"
+	Method string `json:"method"` // "2FA" 或 "Passkey"
 	Code   string `json:"code,omitempty"`
 }
 
@@ -32,7 +32,7 @@ type VerificationStatusResponse struct {
 }
 
 // UniversalVerify 通用验证接口
-// 支持 2FA 和 Passkey 验证，验证成功后在 session 中记录时间戳
+// 支持 2FA 或 Passkey 验证，验证成功后在 session 中记录时间戳
 func UniversalVerify(c *gin.Context) {
 	userId := c.GetInt("id")
 	if userId == 0 {
@@ -69,7 +69,7 @@ func UniversalVerify(c *gin.Context) {
 	hasPasskey := passkeyErr == nil && passkey != nil
 
 	if !has2FA && !hasPasskey {
-		common.ApiError(c, fmt.Errorf("用户未启用2FA或Passkey"))
+		common.ApiError(c, fmt.Errorf("用户未启�?FA或Passkey"))
 		return
 	}
 
@@ -95,10 +95,10 @@ func UniversalVerify(c *gin.Context) {
 			common.ApiError(c, fmt.Errorf("用户未启用Passkey"))
 			return
 		}
-		// Passkey 验证需要先调用 PasskeyVerifyBegin 和 PasskeyVerifyFinish
+		// Passkey 验证需要先调用 PasskeyVerifyBegin �?PasskeyVerifyFinish
 		// 这里只是验证 Passkey 验证流程是否已经完成
-		// 实际上，前端应该先调用这两个接口，然后再调用本接口
-		verified = true // Passkey 验证逻辑已在 PasskeyVerifyFinish 中完成
+		// 实际上，前端应该先调用这两个接口，然后再调用本接�?
+		verified = true // Passkey 验证逻辑已在 PasskeyVerifyFinish 中完�?
 		verifyMethod = "Passkey"
 
 	default:
@@ -116,7 +116,7 @@ func UniversalVerify(c *gin.Context) {
 	now := time.Now().Unix()
 	session.Set(SecureVerificationSessionKey, now)
 	if err := session.Save(); err != nil {
-		common.ApiError(c, fmt.Errorf("保存验证状态失败: %v", err))
+		common.ApiError(c, fmt.Errorf("保存验证状态失�? %v", err))
 		return
 	}
 
@@ -133,7 +133,7 @@ func UniversalVerify(c *gin.Context) {
 	})
 }
 
-// GetVerificationStatus 获取验证状态
+// GetVerificationStatus 获取验证状�?
 func GetVerificationStatus(c *gin.Context) {
 	userId := c.GetInt("id")
 	if userId == 0 {
@@ -172,7 +172,7 @@ func GetVerificationStatus(c *gin.Context) {
 
 	elapsed := time.Now().Unix() - verifiedAt
 	if elapsed >= SecureVerificationTimeout {
-		// 验证已过期
+		// 验证已过�?
 		session.Delete(SecureVerificationSessionKey)
 		_ = session.Save()
 		c.JSON(http.StatusOK, gin.H{
@@ -196,7 +196,7 @@ func GetVerificationStatus(c *gin.Context) {
 }
 
 // CheckSecureVerification 检查是否已通过安全验证
-// 返回 true 表示验证有效，false 表示需要重新验证
+// 返回 true 表示验证有效，false 表示需要重新验�?
 func CheckSecureVerification(c *gin.Context) bool {
 	session := sessions.Default(c)
 	verifiedAtRaw := session.Get(SecureVerificationSessionKey)
@@ -221,8 +221,8 @@ func CheckSecureVerification(c *gin.Context) bool {
 	return true
 }
 
-// PasskeyVerifyAndSetSession Passkey 验证完成后设置 session
-// 这是一个辅助函数，供 PasskeyVerifyFinish 调用
+// PasskeyVerifyAndSetSession Passkey 验证完成后设�?session
+// 这是一个辅助函数，�?PasskeyVerifyFinish 调用
 func PasskeyVerifyAndSetSession(c *gin.Context) {
 	session := sessions.Default(c)
 	now := time.Now().Unix()
@@ -230,8 +230,8 @@ func PasskeyVerifyAndSetSession(c *gin.Context) {
 	_ = session.Save()
 }
 
-// PasskeyVerifyForSecure 用于安全验证的 Passkey 验证流程
-// 整合了 begin 和 finish 流程
+// PasskeyVerifyForSecure 用于安全验证�?Passkey 验证流程
+// 整合�?begin �?finish 流程
 func PasskeyVerifyForSecure(c *gin.Context) {
 	if !system_setting.GetPasskeySettings().Enabled {
 		c.JSON(http.StatusOK, gin.H{
@@ -265,7 +265,7 @@ func PasskeyVerifyForSecure(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "该用户尚未绑定 Passkey",
+			"message": "该用户尚未绑�?Passkey",
 		})
 		return
 	}
@@ -289,7 +289,7 @@ func PasskeyVerifyForSecure(c *gin.Context) {
 		return
 	}
 
-	// 更新凭证的最后使用时间
+	// 更新凭证的最后使用时�?
 	now := time.Now()
 	credential.LastUsedAt = &now
 	if err := model.UpsertPasskeyCredential(credential); err != nil {
@@ -297,7 +297,7 @@ func PasskeyVerifyForSecure(c *gin.Context) {
 		return
 	}
 
-	// 验证成功，设置 session
+	// 验证成功，设�?session
 	PasskeyVerifyAndSetSession(c)
 
 	// 记录日志

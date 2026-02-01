@@ -1,6 +1,6 @@
 package operation_setting
 
-import "xunkecloudAPI/setting/config"
+import "yunshuAPI/setting/config"
 
 // 额度展示类型
 const (
@@ -18,7 +18,7 @@ type GeneralSetting struct {
 	QuotaDisplayType string `json:"quota_display_type"`
 	// 自定义货币符号，用于 CUSTOM 展示类型
 	CustomCurrencySymbol string `json:"custom_currency_symbol"`
-	// 自定义货币与美元汇率（1 USD = X Custom）
+	// 自定义货币与美元汇率：USD = X Custom
 	CustomCurrencyExchangeRate float64 `json:"custom_currency_exchange_rate"`
 }
 

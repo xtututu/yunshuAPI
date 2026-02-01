@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/relay/channel/openrouter"
-	relaycommon "xunkecloudAPI/relay/common"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/relay/channel/openrouter"
+	relaycommon "yunshuAPI/relay/common"
 )
 
 func ClaudeToOpenAIRequest(claudeRequest dto.ClaudeRequest, info *relaycommon.RelayInfo) (*dto.GeneralOpenAIRequest, error) {
@@ -633,7 +633,7 @@ func extractTextFromGeminiParts(parts []dto.GeminiPart) string {
 	return strings.Join(texts, "\n")
 }
 
-// ResponseOpenAI2Gemini 将 OpenAI 响应转换为 Gemini 格式
+// ResponseOpenAI2Gemini �?OpenAI 响应转换�?Gemini 格式
 func ResponseOpenAI2Gemini(openAIResponse *dto.OpenAITextResponse, info *relaycommon.RelayInfo) *dto.GeminiChatResponse {
 	geminiResponse := &dto.GeminiChatResponse{
 		Candidates: make([]dto.GeminiChatCandidate, 0, len(openAIResponse.Choices)),
@@ -712,9 +712,9 @@ func ResponseOpenAI2Gemini(openAIResponse *dto.OpenAITextResponse, info *relayco
 	return geminiResponse
 }
 
-// StreamResponseOpenAI2Gemini 将 OpenAI 流式响应转换为 Gemini 格式
+// StreamResponseOpenAI2Gemini �?OpenAI 流式响应转换�?Gemini 格式
 func StreamResponseOpenAI2Gemini(openAIResponse *dto.ChatCompletionsStreamResponse, info *relaycommon.RelayInfo) *dto.GeminiChatResponse {
-	// 检查是否有实际内容或结束标志
+	// 检查是否有实际内容或结束标�?
 	hasContent := false
 	hasFinishReason := false
 	for _, choice := range openAIResponse.Choices {
@@ -726,7 +726,7 @@ func StreamResponseOpenAI2Gemini(openAIResponse *dto.ChatCompletionsStreamRespon
 		}
 	}
 
-	// 如果没有实际内容且没有结束标志，跳过。主要针对 openai 流响应开头的空数据
+	// 如果没有实际内容且没有结束标志，跳过。主要针�?openai 流响应开头的空数�?
 	if !hasContent && !hasFinishReason {
 		return nil
 	}

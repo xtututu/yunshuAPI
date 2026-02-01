@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
 
 	"github.com/gin-gonic/gin"
 

@@ -12,7 +12,7 @@ import (
 )
 
 func SundaySearch(text string, pattern string) bool {
-	// 计算偏移表
+	// 计算偏移量
 	offset := make(map[rune]int)
 	for i, c := range pattern {
 		offset[c] = len(pattern) - i

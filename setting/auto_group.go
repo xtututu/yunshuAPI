@@ -1,7 +1,7 @@
 package setting
 
 import (
-	"xunkecloudAPI/common"
+	"yunshuAPI/common"
 )
 
 var autoGroups = []string{

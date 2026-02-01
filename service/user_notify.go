@@ -8,10 +8,10 @@ import (
 	"net/url"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/setting/system_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/model"
+	"yunshuAPI/setting/system_setting"
 )
 
 func NotifyRootUser(t string, subject string, content string) {
@@ -170,7 +170,7 @@ func sendGotifyNotify(gotifyUrl string, gotifyToken string, priority int, data d
 	// 确保 URL 以 /message 结尾
 	finalURL := strings.TrimSuffix(gotifyUrl, "/") + "/message?token=" + url.QueryEscape(gotifyToken)
 
-	// Gotify优先级范围0-10，如果超出范围则使用默认值5
+	// Gotify优先级范围0-10，如果超出范围则使用默认值
 	if priority < 0 || priority > 10 {
 		priority = 5
 	}
@@ -198,7 +198,7 @@ func sendGotifyNotify(gotifyUrl string, gotifyToken string, priority int, data d
 	var resp *http.Response
 
 	if system_setting.EnableWorker() {
-		// 使用worker发送请求
+		// 使用worker发送请�?
 		workerReq := &WorkerRequest{
 			URL:    finalURL,
 			Key:    system_setting.WorkerValidKey,
@@ -216,28 +216,28 @@ func sendGotifyNotify(gotifyUrl string, gotifyToken string, priority int, data d
 		}
 		defer resp.Body.Close()
 
-		// 检查响应状态
+		// 检查响应状�?
 		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 			return fmt.Errorf("gotify request failed with status code: %d", resp.StatusCode)
 		}
 	} else {
-		// SSRF防护：验证Gotify URL（非Worker模式）
+		// SSRF防护：验证Gotify URL（非Worker模式�?
 		fetchSetting := system_setting.GetFetchSetting()
 		if err := common.ValidateURLWithFetchSetting(finalURL, fetchSetting.EnableSSRFProtection, fetchSetting.AllowPrivateIp, fetchSetting.DomainFilterMode, fetchSetting.IpFilterMode, fetchSetting.DomainList, fetchSetting.IpList, fetchSetting.AllowedPorts, fetchSetting.ApplyIPFilterForDomain); err != nil {
 			return fmt.Errorf("request reject: %v", err)
 		}
 
-		// 直接发送请求
+		// 直接发送请�?
 		req, err = http.NewRequest(http.MethodPost, finalURL, bytes.NewBuffer(payloadBytes))
 		if err != nil {
 			return fmt.Errorf("failed to create gotify request: %v", err)
 		}
 
-		// 设置请求头
+		// 设置请求�?
 		req.Header.Set("Content-Type", "application/json; charset=utf-8")
 		req.Header.Set("User-Agent", "NewAPI-Gotify-Notify/1.0")
 
-		// 发送请求
+		// 发送请�?
 		client := GetHttpClient()
 		resp, err = client.Do(req)
 		if err != nil {
@@ -245,7 +245,7 @@ func sendGotifyNotify(gotifyUrl string, gotifyToken string, priority int, data d
 		}
 		defer resp.Body.Close()
 
-		// 检查响应状态
+		// 检查响应状�?
 		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 			return fmt.Errorf("gotify request failed with status code: %d", resp.StatusCode)
 		}

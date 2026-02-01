@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/setting/ratio_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/model"
+	"yunshuAPI/service"
+	"yunshuAPI/setting/ratio_setting"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

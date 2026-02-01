@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"xunkecloudAPI/common"
+	"yunshuAPI/common"
 	"gorm.io/gorm"
 )
 
@@ -68,7 +68,7 @@ func SaveQuotaDataCache() {
 	CacheQuotaDataLock.Lock()
 	defer CacheQuotaDataLock.Unlock()
 	size := len(CacheQuotaData)
-	// 如果缓存中有数据，就保存到数据库中
+	// 如果缓存中有数据，就保存到数据库
 	// 1. 先查询数据库中是否有数据
 	// 2. 如果有数据，就更新数据
 	// 3. 如果没有数据，就插入数据

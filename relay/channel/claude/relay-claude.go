@@ -7,15 +7,15 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/relay/channel/openrouter"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/relay/helper"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/setting/model_setting"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	"yunshuAPI/relay/channel/openrouter"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/relay/helper"
+	"yunshuAPI/service"
+	"yunshuAPI/setting/model_setting"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -108,7 +108,7 @@ func RequestOpenAI2ClaudeMessage(c *gin.Context, textRequest dto.GeneralOpenAIRe
 		// 处理 user_location
 		if textRequest.WebSearchOptions.UserLocation != nil {
 			anthropicUserLocation := &dto.ClaudeWebSearchUserLocation{
-				Type: "approximate", // 固定为 "approximate"
+				Type: "approximate", // 固定为"approximate"
 			}
 
 			// 解析 UserLocation JSON
@@ -134,7 +134,7 @@ func RequestOpenAI2ClaudeMessage(c *gin.Context, textRequest dto.GeneralOpenAIRe
 			webSearchTool.UserLocation = anthropicUserLocation
 		}
 
-		// 处理 search_context_size 转换为 max_uses
+		// 处理 search_context_size 转换为max_uses
 		if textRequest.WebSearchOptions.SearchContextSize != "" {
 			switch textRequest.WebSearchOptions.SearchContextSize {
 			case "low":
@@ -214,7 +214,7 @@ func RequestOpenAI2ClaudeMessage(c *gin.Context, textRequest dto.GeneralOpenAIRe
 		}
 	}
 
-	// 指定了 reasoning 参数,覆盖 budgetTokens
+	// 指定的 reasoning 参数,覆盖 budgetTokens
 	if textRequest.Reasoning != nil {
 		var reasoning openrouter.RequestReasoning
 		if err := common.Unmarshal(textRequest.Reasoning, &reasoning); err != nil {
@@ -847,14 +847,14 @@ func mapToolChoice(toolChoice any, parallelToolCalls *bool) *dto.ClaudeToolChoic
 	// 处理 parallel_tool_calls
 	if parallelToolCalls != nil {
 		if claudeToolChoice == nil {
-			// 如果没有 tool_choice，但有 parallel_tool_calls，创建默认的 auto 类型
+			// 如果没有 tool_choice，但�?parallel_tool_calls，创建默认的 auto 类型
 			claudeToolChoice = &dto.ClaudeToolChoice{
 				Type: "auto",
 			}
 		}
 
 		// 设置 disable_parallel_tool_use
-		// 如果 parallel_tool_calls 为 true，则 disable_parallel_tool_use 为 false
+		// 如果 parallel_tool_calls �?true，则 disable_parallel_tool_use �?false
 		claudeToolChoice.DisableParallelToolUse = !*parallelToolCalls
 	}
 

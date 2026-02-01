@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -944,7 +944,7 @@ type MediaInput struct {
 	Text     string `json:"text,omitempty"`
 	FileUrl  string `json:"file_url,omitempty"`
 	ImageUrl string `json:"image_url,omitempty"`
-	Detail   string `json:"detail,omitempty"` // 仅 input_image 有效
+	Detail   string `json:"detail,omitempty"` // 仅对 input_image 有效
 }
 
 // ParseInput parses the Responses API `input` field into a normalized slice of MediaInput.

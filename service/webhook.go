@@ -10,9 +10,9 @@ import (
 	"net/http"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/setting/system_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/setting/system_setting"
 )
 
 // WebhookPayload webhook 通知的负载数据
@@ -31,9 +31,9 @@ func generateSignature(secret string, payload []byte) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// SendWebhookNotify 发送 webhook 通知
+// SendWebhookNotify 发�?webhook 通知
 func SendWebhookNotify(webhookURL string, secret string, data dto.Notify) error {
-	// 处理占位符
+	// 处理占位�?
 	content := data.Content
 	for _, value := range data.Values {
 		content = fmt.Sprintf(content, value)
@@ -48,7 +48,7 @@ func SendWebhookNotify(webhookURL string, secret string, data dto.Notify) error 
 		Timestamp: time.Now().Unix(),
 	}
 
-	// 序列化负载
+	// 序列化负�?
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		return fmt.Errorf("failed to marshal webhook payload: %v", err)
@@ -83,12 +83,12 @@ func SendWebhookNotify(webhookURL string, secret string, data dto.Notify) error 
 		}
 		defer resp.Body.Close()
 
-		// 检查响应状态
+		// 检查响应状�?
 		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 			return fmt.Errorf("webhook request failed with status code: %d", resp.StatusCode)
 		}
 	} else {
-		// SSRF防护：验证Webhook URL（非Worker模式）
+		// SSRF防护：验证Webhook URL（非Worker模式�?
 		fetchSetting := system_setting.GetFetchSetting()
 		if err := common.ValidateURLWithFetchSetting(webhookURL, fetchSetting.EnableSSRFProtection, fetchSetting.AllowPrivateIp, fetchSetting.DomainFilterMode, fetchSetting.IpFilterMode, fetchSetting.DomainList, fetchSetting.IpList, fetchSetting.AllowedPorts, fetchSetting.ApplyIPFilterForDomain); err != nil {
 			return fmt.Errorf("request reject: %v", err)
@@ -99,16 +99,16 @@ func SendWebhookNotify(webhookURL string, secret string, data dto.Notify) error 
 			return fmt.Errorf("failed to create webhook request: %v", err)
 		}
 
-		// 设置请求头
+		// 设置请求�?
 		req.Header.Set("Content-Type", "application/json")
 
-		// 如果有 secret，生成签名
+		// 如果�?secret，生成签�?
 		if secret != "" {
 			signature := generateSignature(secret, payloadBytes)
 			req.Header.Set("X-Webhook-Signature", signature)
 		}
 
-		// 发送请求
+		// 发送请�?
 		client := GetHttpClient()
 		resp, err = client.Do(req)
 		if err != nil {
@@ -116,7 +116,7 @@ func SendWebhookNotify(webhookURL string, secret string, data dto.Notify) error 
 		}
 		defer resp.Body.Close()
 
-		// 检查响应状态
+		// 检查响应状�?
 		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 			return fmt.Errorf("webhook request failed with status code: %d", resp.StatusCode)
 		}

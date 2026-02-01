@@ -204,6 +204,11 @@ export const CHANNEL_OPTIONS = [
     color: 'blue',
     label: 'Kie AI',
   },
+  {
+    value: 62,
+    color: 'green',
+    label: '云舒',
+  },
 ];
 
 export const MODEL_TABLE_PAGE_SIZE = 10;

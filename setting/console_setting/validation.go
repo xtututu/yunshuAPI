@@ -25,7 +25,7 @@ var (
 func parseJSONArray(jsonStr string, typeName string) ([]map[string]interface{}, error) {
 	var list []map[string]interface{}
 	if err := json.Unmarshal([]byte(jsonStr), &list); err != nil {
-		return nil, fmt.Errorf("%s格式错误：%s", typeName, err.Error())
+		return nil, fmt.Errorf("%s格式错误: %s", typeName, err.Error())
 	}
 	return list, nil
 }
@@ -35,7 +35,7 @@ func validateURL(urlStr string, index int, itemType string) error {
 		return fmt.Errorf("第%d个%s的URL格式不正确", index, itemType)
 	}
 	if _, err := url.Parse(urlStr); err != nil {
-		return fmt.Errorf("第%d个%s的URL无法解析：%s", index, itemType, err.Error())
+		return fmt.Errorf("第%d个%s的URL无法解析: %s", index, itemType, err.Error())
 	}
 	return nil
 }

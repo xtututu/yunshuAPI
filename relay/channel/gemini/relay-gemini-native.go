@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/relay/helper"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/relay/helper"
+	"yunshuAPI/service"
+	"yunshuAPI/types"
 
 	"github.com/pkg/errors"
 
@@ -31,7 +31,7 @@ func GeminiTextGenerationHandler(c *gin.Context, info *relaycommon.RelayInfo, re
 		println(string(responseBody))
 	}
 
-	// 解析为 Gemini 原生响应格式
+	// 解析 Gemini 原生响应格式
 	var geminiResponse dto.GeminiChatResponse
 	err = common.Unmarshal(responseBody, &geminiResponse)
 	if err != nil {
@@ -158,7 +158,7 @@ func GeminiTextGenerationStreamHandler(c *gin.Context, info *relaycommon.RelayIn
 		}
 	}
 
-	// 如果usage.CompletionTokens为0，则使用本地统计的completion tokens
+	// 如果usage.CompletionTokens�?，则使用本地统计的completion tokens
 	if usage.CompletionTokens == 0 {
 		str := responseText.String()
 		if len(str) > 0 {
@@ -169,7 +169,7 @@ func GeminiTextGenerationStreamHandler(c *gin.Context, info *relaycommon.RelayIn
 		}
 	}
 
-	// 移除流式响应结尾的[Done]，因为Gemini API没有发送Done的行为
+	// 移除流式响应结尾的[Done]，因为Gemini API没有发送Done的行
 	//helper.Done(c)
 
 	return usage, nil

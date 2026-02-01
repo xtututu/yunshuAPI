@@ -5,9 +5,9 @@ import (
 	"errors"
 	"sync"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/setting/config"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/setting/config"
+	"yunshuAPI/types"
 )
 
 var groupRatio = map[string]float64{

@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/setting"
-	"xunkecloudAPI/setting/console_setting"
-	"xunkecloudAPI/setting/ratio_setting"
-	"xunkecloudAPI/setting/system_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/model"
+	"yunshuAPI/setting"
+	"yunshuAPI/setting/console_setting"
+	"yunshuAPI/setting/ratio_setting"
+	"yunshuAPI/setting/system_setting"
 
 	"github.com/gin-gonic/gin"
 )
@@ -67,7 +67,7 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && common.GitHubClientId == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用 GitHub OAuth，请先填入 GitHub Client Id 以及 GitHub Client Secret！",
+				"message": "无法启用 GitHub OAuth，请先填写 GitHub Client Id 以及 GitHub Client Secret",
 			})
 			return
 		}
@@ -75,7 +75,7 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && system_setting.GetOIDCSettings().ClientId == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用 OIDC 登录，请先填入 OIDC Client Id 以及 OIDC Client Secret！",
+				"message": "无法启用 OIDC 登录，请先填写 OIDC Client Id 以及 OIDC Client Secret",
 			})
 			return
 		}
@@ -83,7 +83,7 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && common.LinuxDOClientId == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用 LinuxDO OAuth，请先填入 LinuxDO Client Id 以及 LinuxDO Client Secret！",
+				"message": "无法启用 LinuxDO OAuth，请先填写 LinuxDO Client Id 以及 LinuxDO Client Secret",
 			})
 			return
 		}
@@ -91,7 +91,7 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && len(common.EmailDomainWhitelist) == 0 {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用邮箱域名限制，请先填入限制的邮箱域名！",
+				"message": "无法启用邮箱域名限制，请先填入限制的邮箱域名",
 			})
 			return
 		}
@@ -107,7 +107,7 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && common.TurnstileSiteKey == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用 Turnstile 校验，请先填入 Turnstile 校验相关配置信息！",
+				"message": "无法启用 Turnstile 校验，请先填写 Turnstile 校验相关配置信息",
 			})
 
 			return
@@ -116,7 +116,7 @@ func UpdateOption(c *gin.Context) {
 		if option.Value == "true" && common.TelegramBotToken == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "无法启用 Telegram OAuth，请先填入 Telegram Bot Token！",
+				"message": "无法启用 Telegram OAuth，请先填写 Telegram Bot Token",
 			})
 			return
 		}

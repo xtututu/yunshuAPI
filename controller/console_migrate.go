@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/model"
+	"yunshuAPI/common"
+	"yunshuAPI/model"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,7 +38,7 @@ func MigrateConsoleSetting(c *gin.Context) {
 		}
 		model.UpdateOption("ApiInfo", "")
 	}
-	// Announcements 直接搬
+	// Announcements 直接�?
 	if v := valMap["Announcements"]; v != "" {
 		model.UpdateOption("console_setting.announcements", v)
 		model.UpdateOption("Announcements", "")
@@ -69,11 +69,11 @@ func MigrateConsoleSetting(c *gin.Context) {
 		}
 		model.UpdateOption("FAQ", "")
 	}
-	// Uptime Kuma 迁移到新的 groups 结构（console_setting.uptime_kuma_groups）
+	// Uptime Kuma 迁移到新�?groups 结构（console_setting.uptime_kuma_groups�?
 	url := valMap["UptimeKumaUrl"]
 	slug := valMap["UptimeKumaSlug"]
 	if url != "" && slug != "" {
-		// 仅当同时存在 URL 与 Slug 时才进行迁移
+		// 仅当同时存在 URL �?Slug 时才进行迁移
 		groups := []map[string]interface{}{
 			{
 				"id":           1,

@@ -146,7 +146,7 @@ func RedisHSetObj(key string, obj interface{}, expiration time.Duration) error {
 	txn := RDB.TxPipeline()
 	txn.HSet(ctx, key, data)
 
-	// 只有在 expiration 大于 0 时才设置过期时间
+	// 只有当 expiration 大于 0 时才设置过期时间
 	if expiration > 0 {
 		txn.Expire(ctx, key, expiration)
 	}
@@ -250,7 +250,7 @@ func RedisIncr(key string, delta int64) error {
 		return fmt.Errorf("failed to get TTL: %w", err)
 	}
 
-	// 只有在 key 存在且有 TTL 时才需要特殊处理
+	// 只有当 key 存在且有 TTL 时才需要特殊处理
 	if ttl > 0 {
 		ctx := context.Background()
 		// 开始一个Redis事务

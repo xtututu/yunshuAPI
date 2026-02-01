@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"xunkecloudAPI/common"
+	"yunshuAPI/common"
 
 	"github.com/samber/lo"
 	"gorm.io/gorm"

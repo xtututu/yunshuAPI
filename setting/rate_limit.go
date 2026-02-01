@@ -6,7 +6,7 @@ import (
 	"math"
 	"sync"
 
-	"xunkecloudAPI/common"
+	"yunshuAPI/common"
 )
 
 var ModelRequestRateLimitEnabled = false

@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/model"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/model"
 
 	"github.com/gin-gonic/gin"
 )
@@ -88,7 +88,7 @@ func CreateModelMeta(c *gin.Context) {
 		common.ApiErrorMsg(c, "模型名称不能为空")
 		return
 	}
-	// 名称冲突检查
+	// 名称冲突检�?
 	if dup, err := model.IsModelNameDuplicated(0, m.ModelName); err != nil {
 		common.ApiError(c, err)
 		return
@@ -120,13 +120,13 @@ func UpdateModelMeta(c *gin.Context) {
 	}
 
 	if statusOnly {
-		// 只更新状态，防止误清空其他字段
+		// 只更新状态，防止误清空其他字�?
 		if err := model.DB.Model(&model.Model{}).Where("id = ?", m.Id).Update("status", m.Status).Error; err != nil {
 			common.ApiError(c, err)
 			return
 		}
 	} else {
-		// 名称冲突检查
+		// 名称冲突检�?
 		if dup, err := model.IsModelNameDuplicated(m.Id, m.ModelName); err != nil {
 			common.ApiError(c, err)
 			return
@@ -166,7 +166,7 @@ func enrichModels(models []*model.Model) {
 		return
 	}
 
-	// 1) 拆分精确与规则匹配
+	// 1) 拆分精确与规则匹�?
 	exactNames := make([]string, 0)
 	exactIdx := make(map[string][]int) // modelName -> indices in models
 	ruleIndices := make([]int, 0)
@@ -182,10 +182,10 @@ func enrichModels(models []*model.Model) {
 		}
 	}
 
-	// 2) 批量查询精确模型的绑定渠道
+	// 2) 批量查询精确模型的绑定渠�?
 	channelsByModel, _ := model.GetBoundChannelsByModelsMap(exactNames)
 
-	// 3) 精确模型：端点从缓存、渠道批量映射、分组/计费类型从缓存
+	// 3) 精确模型：端点从缓存、渠道批量映射、分�?计费类型从缓�?
 	for name, indices := range exactIdx {
 		chs := channelsByModel[name]
 		for _, idx := range indices {
@@ -206,10 +206,10 @@ func enrichModels(models []*model.Model) {
 		return
 	}
 
-	// 4) 一次性读取定价缓存，内存匹配所有规则模型
+	// 4) 一次性读取定价缓存，内存匹配所有规则模�?
 	pricings := model.GetPricing()
 
-	// 为全部规则模型收集匹配名集合、端点并集、分组并集、配额集合
+	// 为全部规则模型收集匹配名集合、端点并集、分组并集、配额集�?
 	matchedNamesByIdx := make(map[int][]string)
 	endpointSetByIdx := make(map[int]map[constant.EndpointType]struct{})
 	groupSetByIdx := make(map[int]map[string]struct{})
@@ -259,7 +259,7 @@ func enrichModels(models []*model.Model) {
 		}
 	}
 
-	// 5) 汇总所有匹配到的模型名称，批量查询一次渠道
+	// 5) 汇总所有匹配到的模型名称，批量查询一次渠�?
 	allMatchedSet := make(map[string]struct{})
 	for _, names := range matchedNamesByIdx {
 		for _, n := range names {
@@ -272,11 +272,11 @@ func enrichModels(models []*model.Model) {
 	}
 	matchedChannelsByModel, _ := model.GetBoundChannelsByModelsMap(allMatched)
 
-	// 6) 回填每个规则模型的并集信息
+	// 6) 回填每个规则模型的并集信�?
 	for _, idx := range ruleIndices {
 		mm := models[idx]
 
-		// 端点并集 -> 序列化
+		// 端点并集 -> 序列�?
 		if es, ok := endpointSetByIdx[idx]; ok && mm.Endpoints == "" {
 			eps := make([]constant.EndpointType, 0, len(es))
 			for et := range es {
@@ -296,7 +296,7 @@ func enrichModels(models []*model.Model) {
 			mm.EnableGroups = groups
 		}
 
-		// 配额类型集合（保持去重并排序）
+		// 配额类型集合（保持去重并排序�?
 		if qs, ok := quotaSetByIdx[idx]; ok {
 			arr := make([]int, 0, len(qs))
 			for k := range qs {

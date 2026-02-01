@@ -8,11 +8,11 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	relayconstant "xunkecloudAPI/relay/constant"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	relayconstant "yunshuAPI/relay/constant"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

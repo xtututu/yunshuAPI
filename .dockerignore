@@ -34,7 +34,7 @@ new-api.db
 new-api
 new-api.exe
 main
-xunkecloudAPI
+yunshuAPI
 *.exe
 
 # 临时文件和测试

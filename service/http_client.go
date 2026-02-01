@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/setting/system_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/setting/system_setting"
 
 	"golang.org/x/net/proxy"
 )
@@ -108,7 +108,7 @@ func NewProxyHttpClient(proxyURL string) (*http.Client, error) {
 		}
 
 		// 创建 SOCKS5 代理拨号器
-		// proxy.SOCKS5 使用 tcp 参数，所有 TCP 连接包括 DNS 查询都将通过代理进行。行为与 socks5h 相同
+		// proxy.SOCKS5 使用 tcp 参数，所以 TCP 连接包括 DNS 查询都将通过代理进行。行为与 socks5h 相同
 		dialer, err := proxy.SOCKS5("tcp", parsedURL.Host, auth, proxy.Direct)
 		if err != nil {
 			return nil, err

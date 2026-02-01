@@ -10,12 +10,12 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/relay/channel"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/service"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/model"
+	"yunshuAPI/relay/channel"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -188,7 +188,7 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 			// 移除input_reference字段，因为已经转换为附件
 			delete(jsonReq, "input_reference")
 
-			// 添加其他JSON字段到multipart请求中
+			// 添加其他JSON字段到multipart请求体
 			for key, value := range jsonReq {
 				// 转换值为字符串
 				var strValue string
@@ -259,7 +259,7 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 				}
 			}
 
-			// 复制所有文件
+			// 复制所有文�?
 			for key, files := range parts.File {
 				for _, file := range files {
 					// 打开文件
@@ -292,7 +292,7 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 
 			writer.Close()
 
-			// 创建一个新的 bytes.Buffer 来支持多次读取
+			// 创建一个新�?bytes.Buffer 来支持多次读�?
 			bodyCopy := bytes.NewBuffer(newBody.Bytes())
 			return bodyCopy, nil
 		} else if strings.HasPrefix(contentType, "application/json") {
@@ -302,7 +302,7 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 				return nil, errors.Wrap(err, "parse_json_request_failed")
 			}
 
-			// 更新模型名
+			// 更新模型�?
 			jsonReq["model"] = info.UpstreamModelName
 
 			// 重新序列化JSON
@@ -311,14 +311,14 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 				return nil, errors.Wrap(err, "marshal_json_request_failed")
 			}
 
-			// 创建一个新的 bytes.Buffer 来支持多次读取
+			// 创建一个新�?bytes.Buffer 来支持多次读�?
 			bodyCopy := bytes.NewBuffer(updatedBody)
 			return bodyCopy, nil
 		}
 	}
 
-	// 如果不需要更新模型名，直接返回缓存的请求体
-	// 创建一个新的 bytes.Buffer 来支持多次读取
+	// 如果不需要更新模型名，直接返回缓存的请求�?
+	// 创建一个新�?bytes.Buffer 来支持多次读�?
 	bodyCopy := bytes.NewBuffer(cachedBody)
 	return bodyCopy, nil
 }
@@ -444,7 +444,7 @@ func (a *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
 		return nil, errors.Wrap(err, "unmarshal sora task data failed")
 	}
 
-	// 使用用户期望的响应格式
+	// 使用用户期望的响应格�?
 	response := UserExpectedVideoResponse{
 		ID:        task.TaskID,
 		Size:      soraResp.Size,

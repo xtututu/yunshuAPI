@@ -7,9 +7,9 @@ import (
 	"net/url"
 	"time"
 
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/model"
+	"yunshuAPI/constant"
+	"yunshuAPI/logger"
+	"yunshuAPI/model"
 
 	"github.com/gin-gonic/gin"
 )

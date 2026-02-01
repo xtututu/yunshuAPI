@@ -25,10 +25,10 @@ type VideoResponse struct {
 type VideoTaskResponse struct {
 	TaskId   string             `json:"task_id" example:"abcd1234efgh"` // 任务ID
 	Status   string             `json:"status" example:"succeeded"`     // 任务状态
-	Url      string             `json:"url,omitempty"`                  // 视频资源URL（成功时）
+	Url      string             `json:"url,omitempty"`                  // 视频资源URL（成功时返回）
 	Format   string             `json:"format,omitempty" example:"mp4"` // 视频格式
 	Metadata *VideoTaskMetadata `json:"metadata,omitempty"`             // 结果元数据
-	Error    *VideoTaskError    `json:"error,omitempty"`                // 错误信息（失败时）
+	Error    *VideoTaskError    `json:"error,omitempty"`                // 错误信息（失败时返回）
 }
 
 // VideoTaskMetadata 视频任务元数据

@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/setting/operation_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/model"
+	"yunshuAPI/setting/operation_setting"
 	"github.com/gin-gonic/gin"
 )
 
@@ -49,7 +49,7 @@ func GetSubscription(c *gin.Context) {
 	case operation_setting.QuotaDisplayTypeCNY:
 		amount = amount / common.QuotaPerUnit * operation_setting.USDExchangeRate
 	case operation_setting.QuotaDisplayTypeTokens:
-		// amount 保持 tokens 数值
+		// amount 保持 tokens 数量
 	default:
 		amount = amount / common.QuotaPerUnit
 	}

@@ -1,11 +1,11 @@
 package router
 
 import (
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/controller"
-	"xunkecloudAPI/middleware"
-	"xunkecloudAPI/relay"
-	"xunkecloudAPI/types"
+	"yunshuAPI/constant"
+	"yunshuAPI/controller"
+	"yunshuAPI/middleware"
+	"yunshuAPI/relay"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -64,7 +64,7 @@ func SetRelayRouter(router *gin.Engine) {
 	relayV1Router.Use(middleware.TokenAuth())
 	relayV1Router.Use(middleware.ModelRequestRateLimit())
 	{
-		// WebSocket 路由（统一到 Relay）
+		// WebSocket 路由（统一为Relay）
 		wsRouter := relayV1Router.Group("")
 		wsRouter.Use(middleware.Distribute())
 		wsRouter.GET("/realtime", func(c *gin.Context) {

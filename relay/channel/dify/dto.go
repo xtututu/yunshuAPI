@@ -1,6 +1,6 @@
 package dify
 
-import "xunkecloudAPI/dto"
+import "yunshuAPI/dto"
 
 type DifyChatRequest struct {
 	Inputs           map[string]interface{} `json:"inputs"`

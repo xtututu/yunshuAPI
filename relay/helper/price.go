@@ -3,12 +3,12 @@ package helper
 import (
 	"fmt"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/logger"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/setting/operation_setting"
-	"xunkecloudAPI/setting/ratio_setting"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/logger"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/setting/operation_setting"
+	"yunshuAPI/setting/ratio_setting"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -136,7 +136,7 @@ func ModelPriceHelper(c *gin.Context, info *relaycommon.RelayInfo, promptTokens 
 	return priceData, nil
 }
 
-// ModelPriceHelperPerCall 按次计费的 PriceHelper (MJ、Task)
+// ModelPriceHelperPerCall 按次计费�?PriceHelper (MJ、Task)
 func ModelPriceHelperPerCall(c *gin.Context, info *relaycommon.RelayInfo) types.PerCallPriceData {
 	groupRatioInfo := HandleGroupRatio(c, info)
 

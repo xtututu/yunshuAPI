@@ -8,13 +8,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"xunkecloudAPI/common"
-	common2 "xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/relay/channel"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/service"
+	"yunshuAPI/common"
+	common2 "yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/model"
+	"yunshuAPI/relay/channel"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -97,7 +97,7 @@ type TaskAdaptor struct {
 
 func (a *TaskAdaptor) Init(info *relaycommon.RelayInfo) {
 	a.ChannelType = info.ChannelType
-	// 直接设置baseURL，不依赖其他值
+	// 直接设置baseURL，不依赖其他配置
 	a.baseURL = "https://grsai.dakka.com.cn"
 	if common2.DebugEnabled {
 		println("Sora-g Adaptor Init - hardcoded baseURL:", a.baseURL)
@@ -166,7 +166,7 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 		ShutProgress:  true,    // 固定设置为true
 	}
 
-	// 映射模型名
+	// 映射模型名称
 	if info.IsModelMapped && info.UpstreamModelName != "" {
 		requestPayload.Model = info.UpstreamModelName
 	}

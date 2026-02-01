@@ -10,8 +10,8 @@ import (
 	"net/url"
 	"strings"
 
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/service"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/service"
 
 	"github.com/bytedance/gopkg/cache/asynccache"
 	"github.com/golang-jwt/jwt/v5"

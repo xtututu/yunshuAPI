@@ -1,6 +1,6 @@
 package siliconflow
 
-import "xunkecloudAPI/dto"
+import "yunshuAPI/dto"
 
 type SFTokens struct {
 	InputTokens  int `json:"input_tokens"`

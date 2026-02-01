@@ -7,12 +7,12 @@ import (
 	"io"
 	"net/http"
 
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/relay/channel"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/service"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/model"
+	"yunshuAPI/relay/channel"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"

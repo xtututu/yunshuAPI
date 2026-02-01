@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"xunkecloudAPI/setting/console_setting"
+	"yunshuAPI/setting/console_setting"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/sync/errgroup"

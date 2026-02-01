@@ -1,6 +1,6 @@
 package operation_setting
 
-import "xunkecloudAPI/setting/config"
+import "yunshuAPI/setting/config"
 
 type QuotaSetting struct {
 	EnableFreeModelPreConsume bool `json:"enable_free_model_pre_consume"` // 是否对免费模型启用预消耗

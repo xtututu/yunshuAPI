@@ -37,7 +37,7 @@ var defaultVendorRules = map[string]string{
 	"vidu":     "Vidu",
 }
 
-// 供应商默认图标映射
+// 供应商默认图标映�?
 var defaultVendorIcons = map[string]string{
 	"OpenAI":     "OpenAI",
 	"Anthropic":  "Claude.Color",
@@ -67,7 +67,7 @@ var defaultVendorIcons = map[string]string{
 	"Azure":      "AzureAI",
 }
 
-// initDefaultVendorMapping 简化的默认供应商映射
+// initDefaultVendorMapping 简化的默认供应商映�?
 func initDefaultVendorMapping(metaMap map[string]*Model, vendorMap map[int]*Vendor, enableAbilities []AbilityWithChannel) {
 	for _, ability := range enableAbilities {
 		modelName := ability.Model
@@ -75,7 +75,7 @@ func initDefaultVendorMapping(metaMap map[string]*Model, vendorMap map[int]*Vend
 			continue
 		}
 
-		// 匹配供应商
+		// 匹配供应�?
 		vendorID := 0
 		modelLower := strings.ToLower(modelName)
 		for pattern, vendorName := range defaultVendorRules {
@@ -85,7 +85,7 @@ func initDefaultVendorMapping(metaMap map[string]*Model, vendorMap map[int]*Vend
 			}
 		}
 
-		// 创建模型元数据
+		// 创建模型元数�?
 		metaMap[modelName] = &Model{
 			ModelName: modelName,
 			VendorID:  vendorID,
@@ -97,7 +97,7 @@ func initDefaultVendorMapping(metaMap map[string]*Model, vendorMap map[int]*Vend
 
 // 查找或创建供应商
 func getOrCreateVendor(vendorName string, vendorMap map[int]*Vendor) int {
-	// 查找现有供应商
+	// 查找现有供应�?
 	for id, vendor := range vendorMap {
 		if vendor.Name == vendorName {
 			return id
@@ -119,7 +119,7 @@ func getOrCreateVendor(vendorName string, vendorMap map[int]*Vendor) int {
 	return newVendor.Id
 }
 
-// 获取供应商默认图标
+// 获取供应商默认图�?
 func getDefaultVendorIcon(vendorName string) string {
 	if icon, exists := defaultVendorIcons[vendorName]; exists {
 		return icon

@@ -249,7 +249,7 @@ func compareEqual(jsonValue, targetValue gjson.Result) (bool, error) {
 		return jsonValue.Bool() == targetValue.Bool(), nil
 	}
 
-	// 如果类型不同，报错
+	// 如果类型不同，报�?
 	if jsonValue.Type != targetValue.Type {
 		return false, fmt.Errorf("compare for different types, got %v and %v", jsonValue.Type, targetValue.Type)
 	}
@@ -267,7 +267,7 @@ func compareEqual(jsonValue, targetValue gjson.Result) (bool, error) {
 }
 
 func compareNumeric(jsonValue, targetValue gjson.Result, operator string) (bool, error) {
-	// 只有数字类型才支持数值比较
+	// 只有数字类型才支持数值比�?
 	if jsonValue.Type != gjson.Number || targetValue.Type != gjson.Number {
 		return false, fmt.Errorf("numeric comparison requires both values to be numbers, got %v and %v", jsonValue.Type, targetValue.Type)
 	}
@@ -289,7 +289,7 @@ func compareNumeric(jsonValue, targetValue gjson.Result, operator string) (bool,
 	}
 }
 
-// applyOperationsLegacy 原参数覆盖方法
+// applyOperationsLegacy 原参数覆盖方�?
 func applyOperationsLegacy(jsonData []byte, paramOverride map[string]interface{}) ([]byte, error) {
 	reqMap := make(map[string]interface{})
 	err := json.Unmarshal(jsonData, &reqMap)
@@ -307,7 +307,7 @@ func applyOperationsLegacy(jsonData []byte, paramOverride map[string]interface{}
 func applyOperations(jsonStr string, operations []ParamOperation) (string, error) {
 	result := jsonStr
 	for _, op := range operations {
-		// 检查条件是否满足
+		// 检查条件是否满�?
 		ok, err := checkConditions(result, op.Conditions, op.Logic)
 		if err != nil {
 			return "", err
@@ -372,7 +372,7 @@ func modifyValue(jsonStr, path string, value interface{}, keepOrigin, isPrepend 
 func modifyArray(jsonStr, path string, value interface{}, isPrepend bool) (string, error) {
 	current := gjson.Get(jsonStr, path)
 	var newArray []interface{}
-	// 添加新值
+	// 添加新�?
 	addValue := func() {
 		if arr, ok := value.([]interface{}); ok {
 			newArray = append(newArray, arr...)
@@ -380,7 +380,7 @@ func modifyArray(jsonStr, path string, value interface{}, isPrepend bool) (strin
 			newArray = append(newArray, value)
 		}
 	}
-	// 添加原值
+	// 添加原�?
 	addOriginal := func() {
 		current.ForEach(func(_, val gjson.Result) bool {
 			newArray = append(newArray, val.Value())
@@ -413,11 +413,11 @@ func mergeObjects(jsonStr, path string, value interface{}, keepOrigin bool) (str
 	current := gjson.Get(jsonStr, path)
 	var currentMap, newMap map[string]interface{}
 
-	// 解析当前值
+	// 解析当前�?
 	if err := json.Unmarshal([]byte(current.Raw), &currentMap); err != nil {
 		return "", err
 	}
-	// 解析新值
+	// 解析新�?
 	switch v := value.(type) {
 	case map[string]interface{}:
 		newMap = v

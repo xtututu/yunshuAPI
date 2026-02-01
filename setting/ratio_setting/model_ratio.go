@@ -5,8 +5,8 @@ import (
 	"strings"
 	"sync"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/setting/operation_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/setting/operation_setting"
 )
 
 // from songquanpeng/one-api
@@ -22,7 +22,7 @@ const (
 // https://openai.com/pricing
 // TODO: when a new api is enabled, check the pricing here
 // 1 === $0.002 / 1K tokens
-// 1 === ￥0.014 / 1k tokens
+// 1 === $0.014 / 1k tokens
 
 var defaultModelRatio = map[string]float64{
 	//"midjourney":                50,
@@ -175,21 +175,21 @@ var defaultModelRatio = map[string]float64{
 	"gemini-2.5-flash-preview-05-20":            0.075,
 	"gemini-2.5-flash-preview-05-20-thinking":   0.075,
 	"gemini-2.5-flash-preview-05-20-nothinking": 0.075,
-	"gemini-2.5-flash-thinking-*":               0.075, // 用于为后续所有2.5 flash thinking budget 模型设置默认倍率
-	"gemini-2.5-pro-thinking-*":                 0.625, // 用于为后续所有2.5 pro thinking budget 模型设置默认倍率
+	"gemini-2.5-flash-thinking-*":               0.075, // 用于为后续所有 2.5 flash thinking budget 模型设置默认倍率
+	"gemini-2.5-pro-thinking-*":                 0.625, // 用于为后续所有 2.5 pro thinking budget 模型设置默认倍率
 	"gemini-2.5-flash-lite-preview-thinking-*":  0.05,
 	"gemini-2.5-flash-lite-preview-06-17":       0.05,
 	"gemini-2.5-flash":                          0.15,
 	"gemini-robotics-er-1.5-preview":            0.15,
 	"gemini-embedding-001":                      0.075,
 	"text-embedding-004":                        0.001,
-	"chatglm_turbo":                             0.3572,     // ￥0.005 / 1k tokens
-	"chatglm_pro":                               0.7143,     // ￥0.01 / 1k tokens
-	"chatglm_std":                               0.3572,     // ￥0.005 / 1k tokens
-	"chatglm_lite":                              0.1429,     // ￥0.002 / 1k tokens
-	"glm-4":                                     7.143,      // ￥0.1 / 1k tokens
-	"glm-4v":                                    0.05 * RMB, // ￥0.05 / 1k tokens
-	"glm-4-alltools":                            0.1 * RMB,  // ￥0.1 / 1k tokens
+	"chatglm_turbo":                             0.3572,     // ¥0.005 / 1k tokens
+	"chatglm_pro":                               0.7143,     // ¥0.01 / 1k tokens
+	"chatglm_std":                               0.3572,     // ¥0.005 / 1k tokens
+	"chatglm_lite":                              0.1429,     // ¥0.002 / 1k tokens
+	"glm-4":                                     7.143,      // ¥0.1 / 1k tokens
+	"glm-4v":                                    0.05 * RMB, // ¥0.05 / 1k tokens
+	"glm-4-alltools":                            0.1 * RMB,  // ¥0.1 / 1k tokens
 	"glm-3-turbo":                               0.3572,
 	"glm-4-plus":                                0.05 * RMB,
 	"glm-4-0520":                                0.1 * RMB,
@@ -198,13 +198,13 @@ var defaultModelRatio = map[string]float64{
 	"glm-4-long":                                0.001 * RMB,
 	"glm-4-flash":                               0,
 	"glm-4v-plus":                               0.01 * RMB,
-	"qwen-turbo":                                0.8572, // ￥0.012 / 1k tokens
-	"qwen-plus":                                 10,     // ￥0.14 / 1k tokens
-	"text-embedding-v1":                         0.05,   // ￥0.0007 / 1k tokens
-	"SparkDesk-v1.1":                            1.2858, // ￥0.018 / 1k tokens
-	"SparkDesk-v2.1":                            1.2858, // ￥0.018 / 1k tokens
-	"SparkDesk-v3.1":                            1.2858, // ￥0.018 / 1k tokens
-	"SparkDesk-v3.5":                            1.2858, // ￥0.018 / 1k tokens
+	"qwen-turbo":                                0.8572, // ¥0.012 / 1k tokens
+	"qwen-plus":                                 10,     // ¥0.14 / 1k tokens
+	"text-embedding-v1":                         0.05,   // ¥0.0007 / 1k tokens
+	"SparkDesk-v1.1":                            1.2858, // ¥0.018 / 1k tokens
+	"SparkDesk-v2.1":                            1.2858, // ¥0.018 / 1k tokens
+	"SparkDesk-v3.1":                            1.2858, // ¥0.018 / 1k tokens
+	"SparkDesk-v3.5":                            1.2858, // ¥0.018 / 1k tokens
 	"SparkDesk-v4.0":                            1.2858,
 	"360GPT_S2_V9":                              0.8572, // ¥0.012 / 1k tokens
 	"360gpt-turbo":                              0.0858, // ¥0.0012 / 1k tokens
@@ -547,7 +547,7 @@ func getHardcodedCompletionModelRatio(name string) (float64, bool) {
 		if strings.HasPrefix(name, "gpt-4-turbo") || strings.HasSuffix(name, "gpt-4-1106") || strings.HasSuffix(name, "gpt-4-1105") {
 			return 3, true
 		}
-		// 没有特殊标记的 gpt-4 模型默认倍率为 2
+		// 没有特殊标记�?gpt-4 模型默认倍率�?2
 		return 2, false
 	}
 	if strings.HasPrefix(name, "o1") || strings.HasPrefix(name, "o3") {
@@ -584,7 +584,7 @@ func getHardcodedCompletionModelRatio(name string) (float64, bool) {
 			return 4, true
 		} else if strings.HasPrefix(name, "gemini-2.0") {
 			return 4, true
-		} else if strings.HasPrefix(name, "gemini-2.5-pro") { // 移除preview来增加兼容性，这里假设正式版的倍率和preview一致
+		} else if strings.HasPrefix(name, "gemini-2.5-pro") { // 移除preview来增加兼容性，这里假设正式版的倍率和preview一�?
 			return 8, false
 		} else if strings.HasPrefix(name, "gemini-2.5-flash") { // 处理不同的flash模型倍率
 			if strings.HasPrefix(name, "gemini-2.5-flash-preview") {
@@ -616,7 +616,7 @@ func getHardcodedCompletionModelRatio(name string) (float64, bool) {
 			return 4, false
 		}
 	}
-	// hint 只给官方上4倍率，由于开源模型供应商自行定价，不对其进行补全倍率进行强制对齐
+	// hint 只给官方�?倍率，由于开源模型供应商自行定价，不对其进行补全倍率进行强制对齐
 	if strings.HasPrefix(name, "ERNIE-Speed-") {
 		return 2, true
 	} else if strings.HasPrefix(name, "ERNIE-Lite-") {
@@ -805,7 +805,7 @@ func GetCompletionRatioCopy() map[string]float64 {
 	return copyMap
 }
 
-// 转换模型名，减少渠道必须配置各种带参数模型
+// 转换模型名，减少渠道必须配置各种带参数模�?
 func FormatMatchingModelName(name string) string {
 
 	if strings.HasPrefix(name, "gemini-2.5-flash-lite") {

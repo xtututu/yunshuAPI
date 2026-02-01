@@ -16,9 +16,9 @@ import (
 // @Param Authorization header string true "用户认证令牌 (Aeess-Token: sk-xxxx)"
 // @Param request body dto.VideoRequest true "视频生成请求参数"
 // @Failure 400 {object} dto.OpenAIError "请求参数错误"
-// @Failure 401 {object} dto.OpenAIError "未授权"
-// @Failure 403 {object} dto.OpenAIError "无权限"
-// @Failure 500 {object} dto.OpenAIError "服务器内部错误"
+// @Failure 401 {object} dto.OpenAIError "未授�?
+// @Failure 403 {object} dto.OpenAIError "无权�?
+// @Failure 500 {object} dto.OpenAIError "服务器内部错�?
 // @Router /v1/video/generations [post]
 func VideoGenerations(c *gin.Context) {
 }
@@ -33,16 +33,16 @@ func VideoGenerations(c *gin.Context) {
 // @Param task_id path string true "Task ID"
 // @Success 200 {object} dto.VideoTaskResponse "任务状态和结果"
 // @Failure 400 {object} dto.OpenAIError "请求参数错误"
-// @Failure 401 {object} dto.OpenAIError "未授权"
-// @Failure 403 {object} dto.OpenAIError "无权限"
-// @Failure 500 {object} dto.OpenAIError "服务器内部错误"
+// @Failure 401 {object} dto.OpenAIError "未授�?
+// @Failure 403 {object} dto.OpenAIError "无权�?
+// @Failure 500 {object} dto.OpenAIError "服务器内部错�?
 // @Router /v1/video/generations/{task_id} [get]
 func VideoGenerationsTaskId(c *gin.Context) {
 }
 
 // KlingText2VideoGenerations
 // @Summary 可灵文生视频
-// @Description 调用可灵AI文生视频接口，生成视频内容
+// @Description 调用可灵AI文生视频接口，生成视频内�?
 // @Tags Video
 // @Accept json
 // @Produce json
@@ -50,9 +50,9 @@ func VideoGenerationsTaskId(c *gin.Context) {
 // @Param request body KlingText2VideoRequest true "视频生成请求参数"
 // @Success 200 {object} dto.VideoTaskResponse "任务状态和结果"
 // @Failure 400 {object} dto.OpenAIError "请求参数错误"
-// @Failure 401 {object} dto.OpenAIError "未授权"
-// @Failure 403 {object} dto.OpenAIError "无权限"
-// @Failure 500 {object} dto.OpenAIError "服务器内部错误"
+// @Failure 401 {object} dto.OpenAIError "未授�?
+// @Failure 403 {object} dto.OpenAIError "无权�?
+// @Failure 500 {object} dto.OpenAIError "服务器内部错�?
 // @Router /kling/v1/videos/text2video [post]
 func KlingText2VideoGenerations(c *gin.Context) {
 }
@@ -86,7 +86,7 @@ type KlingCameraConfig struct {
 
 // KlingImage2VideoGenerations
 // @Summary 可灵官方-图生视频
-// @Description 调用可灵AI图生视频接口，生成视频内容
+// @Description 调用可灵AI图生视频接口，生成视频内�?
 // @Tags Video
 // @Accept json
 // @Produce json
@@ -94,9 +94,9 @@ type KlingCameraConfig struct {
 // @Param request body KlingImage2VideoRequest true "图生视频请求参数"
 // @Success 200 {object} dto.VideoTaskResponse "任务状态和结果"
 // @Failure 400 {object} dto.OpenAIError "请求参数错误"
-// @Failure 401 {object} dto.OpenAIError "未授权"
-// @Failure 403 {object} dto.OpenAIError "无权限"
-// @Failure 500 {object} dto.OpenAIError "服务器内部错误"
+// @Failure 401 {object} dto.OpenAIError "未授�?
+// @Failure 403 {object} dto.OpenAIError "无权�?
+// @Failure 500 {object} dto.OpenAIError "服务器内部错�?
 // @Router /kling/v1/videos/image2video [post]
 func KlingImage2VideoGenerations(c *gin.Context) {
 }

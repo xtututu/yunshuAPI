@@ -5,12 +5,12 @@ import (
 	"strings"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/setting"
-	"xunkecloudAPI/setting/config"
-	"xunkecloudAPI/setting/operation_setting"
-	"xunkecloudAPI/setting/ratio_setting"
-	"xunkecloudAPI/setting/system_setting"
+	"yunshuAPI/common"
+	"yunshuAPI/setting"
+	"yunshuAPI/setting/config"
+	"yunshuAPI/setting/operation_setting"
+	"yunshuAPI/setting/ratio_setting"
+	"yunshuAPI/setting/system_setting"
 )
 
 type Option struct {

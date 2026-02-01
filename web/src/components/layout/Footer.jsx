@@ -63,7 +63,7 @@ const FooterBar = () => {
                 </p>
                 <div className='flex flex-col gap-4'>
                   <a
-                    href='https://token.yishangcloud.cn/docswiki/project-introduction/'
+                    href='https://ai.ysapi.cloud/docswiki/project-introduction/'
                     target='_blank'
                     rel='noopener noreferrer'
                     className='!text-semi-color-text-1'
@@ -71,7 +71,7 @@ const FooterBar = () => {
                     {t('关于项目')}
                   </a>
                   <a
-                    href='https://token.yishangcloud.cn/docssupport/community-interaction/'
+                    href='https://ai.ysapi.cloud/docssupport/community-interaction/'
                     target='_blank'
                     rel='noopener noreferrer'
                     className='!text-semi-color-text-1'
@@ -79,7 +79,7 @@ const FooterBar = () => {
                     {t('联系我们')}
                   </a>
                   <a
-                    href='https://token.yishangcloud.cn/docswiki/features-introduction/'
+                    href='https://ai.ysapi.cloud/docswiki/features-introduction/'
                     target='_blank'
                     rel='noopener noreferrer'
                     className='!text-semi-color-text-1'
@@ -95,7 +95,7 @@ const FooterBar = () => {
                 </p>
                 <div className='flex flex-col gap-4'>
                   <a
-                    href='https://token.yishangcloud.cn/docsgetting-started/'
+                    href='https://ai.ysapi.cloud/docsgetting-started/'
                     target='_blank'
                     rel='noopener noreferrer'
                     className='!text-semi-color-text-1'
@@ -103,7 +103,7 @@ const FooterBar = () => {
                     {t('快速开始')}
                   </a>
                   <a
-                    href='https://token.yishangcloud.cn/docsinstallation/'
+                    href='https://ai.ysapi.cloud/docsinstallation/'
                     target='_blank'
                     rel='noopener noreferrer'
                     className='!text-semi-color-text-1'
@@ -111,7 +111,7 @@ const FooterBar = () => {
                     {t('安装指南')}
                   </a>
                   <a
-                    href='https://token.yishangcloud.cn/docsapi/'
+                    href='https://ai.ysapi.cloud/docsapi/'
                     target='_blank'
                     rel='noopener noreferrer'
                     className='!text-semi-color-text-1'
@@ -200,12 +200,12 @@ const FooterBar = () => {
               {t('设计与开发由')}{' '}
             </span>
             <a
-              href='https://api.xunkecloud.cn/'
+              href='https://ai.ysapi.cloud/'
               target='_blank'
               rel='noopener noreferrer'
               className='!text-semi-color-primary font-medium'
             >
-              迅客 AI
+              云舒 AI
             </a>
           </div>
         </div>
@@ -229,7 +229,7 @@ const FooterBar = () => {
           <div className='absolute bottom-2 right-4 text-xs !text-semi-color-text-2 opacity-70'>
             <span>{t('设计与开发由')} </span>
             <a
-              href='https://token.yishangcloud.cn/'
+              href='https://ai.ysapi.cloud/'
               target='_blank'
               rel='noopener noreferrer'
               className='!text-semi-color-primary font-medium'

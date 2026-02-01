@@ -41,11 +41,11 @@ func ValidateTOTPCode(secret, code string) bool {
 		return false
 	}
 
-	// 验证验证码
+	// 验证验证�?
 	return totp.Validate(cleanCode, secret)
 }
 
-// GenerateBackupCodes 生成备用恢复码
+// GenerateBackupCodes 生成备用恢复�?
 func GenerateBackupCodes() ([]string, error) {
 	codes := make([]string, BackupCodeCount)
 
@@ -60,7 +60,7 @@ func GenerateBackupCodes() ([]string, error) {
 	return codes, nil
 }
 
-// generateRandomBackupCode 生成单个备用码
+// generateRandomBackupCode 生成单个备用�?
 func generateRandomBackupCode() (string, error) {
 	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	code := make([]byte, BackupCodeLength)
@@ -78,15 +78,15 @@ func generateRandomBackupCode() (string, error) {
 	return fmt.Sprintf("%s-%s", string(code[:4]), string(code[4:])), nil
 }
 
-// ValidateBackupCode 验证备用码格式
+// ValidateBackupCode 验证备用码格�?
 func ValidateBackupCode(code string) bool {
-	// 移除所有分隔符并转为大写
+	// 移除所有分隔符并转为大�?
 	cleanCode := strings.ToUpper(strings.ReplaceAll(code, "-", ""))
 	if len(cleanCode) != BackupCodeLength {
 		return false
 	}
 
-	// 检查字符是否合法
+	// 检查字符是否合�?
 	for _, char := range cleanCode {
 		if !((char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9')) {
 			return false
@@ -111,12 +111,12 @@ func HashBackupCode(code string) (string, error) {
 	return Password2Hash(normalizedCode)
 }
 
-// Get2FAIssuer 获取2FA发行者名称
+// Get2FAIssuer 获取2FA发行者名�?
 func Get2FAIssuer() string {
 	return SystemName
 }
 
-// getEnvOrDefault 获取环境变量或默认值
+// getEnvOrDefault 获取环境变量或默认�?
 func getEnvOrDefault(key, defaultValue string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/model"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/logger"
+	"yunshuAPI/model"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/types"
 
 	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/gin-gonic/gin"
@@ -39,21 +39,21 @@ func PreConsumeQuota(c *gin.Context, preConsumedQuota int, relayInfo *relaycommo
 		return types.NewErrorWithStatusCode(fmt.Errorf("用户额度不足, 剩余额度: %s", logger.FormatQuota(userQuota)), types.ErrorCodeInsufficientUserQuota, http.StatusForbidden, types.ErrOptionWithSkipRetry(), types.ErrOptionWithNoRecordErrorLog())
 	}
 	if userQuota-preConsumedQuota < 0 {
-		return types.NewErrorWithStatusCode(fmt.Errorf("预扣费额度失败, 用户剩余额度: %s, 需要预扣费额度: %s", logger.FormatQuota(userQuota), logger.FormatQuota(preConsumedQuota)), types.ErrorCodeInsufficientUserQuota, http.StatusForbidden, types.ErrOptionWithSkipRetry(), types.ErrOptionWithNoRecordErrorLog())
+		return types.NewErrorWithStatusCode(fmt.Errorf("预扣费额度失败 用户剩余额度: %s, 需要预扣费额度: %s", logger.FormatQuota(userQuota), logger.FormatQuota(preConsumedQuota)), types.ErrorCodeInsufficientUserQuota, http.StatusForbidden, types.ErrOptionWithSkipRetry(), types.ErrOptionWithNoRecordErrorLog())
 	}
 
 	trustQuota := common.GetTrustQuota()
 
 	relayInfo.UserQuota = userQuota
 	if userQuota > trustQuota {
-		// 用户额度充足，判断令牌额度是否充足
+		// 用户额度充足，判断令牌额度是否充�?
 		if !relayInfo.TokenUnlimited {
 			// 非无限令牌，判断令牌额度是否充足
 			tokenQuota := c.GetInt("token_quota")
 			if tokenQuota > trustQuota {
-				// 令牌额度充足，信任令牌
+				// 令牌额度充足，信任令�?
 				preConsumedQuota = 0
-				logger.LogInfo(c, fmt.Sprintf("用户 %d 剩余额度 %s 且令牌 %d 额度 %d 充足, 信任且不需要预扣费", relayInfo.UserId, logger.FormatQuota(userQuota), relayInfo.TokenId, tokenQuota))
+				logger.LogInfo(c, fmt.Sprintf("用户 %d 剩余额度 %s 且令�?%d 额度 %d 充足, 信任且不需要预扣费", relayInfo.UserId, logger.FormatQuota(userQuota), relayInfo.TokenId, tokenQuota))
 			}
 		} else {
 			// in this case, we do not pre-consume quota
@@ -72,7 +72,7 @@ func PreConsumeQuota(c *gin.Context, preConsumedQuota int, relayInfo *relaycommo
 		if err != nil {
 			return types.NewError(err, types.ErrorCodeUpdateDataError, types.ErrOptionWithSkipRetry())
 		}
-		logger.LogInfo(c, fmt.Sprintf("用户 %d 预扣费 %s, 预扣费后剩余额度: %s", relayInfo.UserId, logger.FormatQuota(preConsumedQuota), logger.FormatQuota(userQuota-preConsumedQuota)))
+		logger.LogInfo(c, fmt.Sprintf("用户 %d 预扣�?%s, 预扣费后剩余额度: %s", relayInfo.UserId, logger.FormatQuota(preConsumedQuota), logger.FormatQuota(userQuota-preConsumedQuota)))
 	}
 	relayInfo.FinalPreConsumedQuota = preConsumedQuota
 	return nil

@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/relay/channel/openai"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/relay/helper"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/relay/channel/openai"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/relay/helper"
+	"yunshuAPI/service"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -52,7 +52,7 @@ func xAIStreamHandler(c *gin.Context, info *relaycommon.RelayInfo, resp *http.Re
 			return true
 		}
 
-		// 把 xAI 的usage转换为 OpenAI 的usage
+		// 将xAI 的usage转换为OpenAI 的usage
 		if xAIResp.Usage != nil {
 			containStreamUsage = true
 			usage.PromptTokens = xAIResp.Usage.PromptTokens

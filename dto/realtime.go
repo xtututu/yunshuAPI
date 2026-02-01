@@ -1,6 +1,6 @@
 package dto
 
-import "xunkecloudAPI/types"
+import "yunshuAPI/types"
 
 const (
 	RealtimeEventTypeError              = "error"

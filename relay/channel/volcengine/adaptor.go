@@ -10,14 +10,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	channelconstant "xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/relay/channel"
-	"xunkecloudAPI/relay/channel/openai"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/relay/constant"
-	"xunkecloudAPI/setting/model_setting"
-	"xunkecloudAPI/types"
+	channelconstant "yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/relay/channel"
+	"yunshuAPI/relay/channel/openai"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/relay/constant"
+	"yunshuAPI/setting/model_setting"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -103,7 +103,7 @@ func (a *Adaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInf
 	switch info.RelayMode {
 	case constant.RelayModeImagesGenerations:
 		return request, nil
-	// 根据官方文档,并没有发现豆包生图支持表单请求:https://www.volcengine.com/docs/82379/1824121
+	// 根据官方文档,并没有发现豆包生图支持表单请求 https://www.volcengine.com/docs/82379/1824121
 	//case constant.RelayModeImagesEdits:
 	//
 	//	var requestBody bytes.Buffer

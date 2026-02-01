@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/relay/channel"
-	"xunkecloudAPI/relay/channel/openai"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/relay/constant"
-	"xunkecloudAPI/setting/model_setting"
-	"xunkecloudAPI/types"
+	"yunshuAPI/dto"
+	"yunshuAPI/relay/channel"
+	"yunshuAPI/relay/channel/openai"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/relay/constant"
+	"yunshuAPI/setting/model_setting"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

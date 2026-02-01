@@ -1,8 +1,8 @@
 package router
 
 import (
-	"xunkecloudAPI/controller"
-	"xunkecloudAPI/middleware"
+	"yunshuAPI/controller"
+	"yunshuAPI/middleware"
 
 	"github.com/gin-gonic/gin"
 )

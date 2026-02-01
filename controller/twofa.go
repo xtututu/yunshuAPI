@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/model"
+	"yunshuAPI/common"
+	"yunshuAPI/model"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -30,7 +30,7 @@ type Setup2FAResponse struct {
 	BackupCodes []string `json:"backup_codes"`
 }
 
-// Setup2FA 初始化2FA设置
+// Setup2FA 初始�?FA设置
 func Setup2FA(c *gin.Context) {
 	userId := c.GetInt("id")
 
@@ -43,18 +43,18 @@ func Setup2FA(c *gin.Context) {
 	if existing != nil && existing.IsEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "用户已启用2FA，请先禁用后重新设置",
+			"message": "用户已启�?FA，请先禁用后重新设置",
 		})
 		return
 	}
 
-	// 如果存在已禁用的2FA记录，先删除它
+	// 如果存在已禁用的2FA记录，先删除�?
 	if existing != nil && !existing.IsEnabled {
 		if err := existing.Delete(); err != nil {
 			common.ApiError(c, err)
 			return
 		}
-		existing = nil // 重置为nil，后续将创建新记录
+		existing = nil // 重置为nil，后续将创建新记�?
 	}
 
 	// 获取用户信息
@@ -75,21 +75,21 @@ func Setup2FA(c *gin.Context) {
 		return
 	}
 
-	// 生成备用码
+	// 生成备用�?
 	backupCodes, err := common.GenerateBackupCodes()
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "生成备用码失败",
 		})
-		common.SysLog("生成备用码失败: " + err.Error())
+		common.SysLog("生成备用码失败 " + err.Error())
 		return
 	}
 
-	// 生成二维码数据
+	// 生成二维码数�?
 	qrCodeData := common.GenerateQRCodeData(key.Secret(), user.Username)
 
-	// 创建或更新2FA记录（暂未启用）
+	// 创建或更�?FA记录（暂未启用）
 	twoFA := &model.TwoFA{
 		UserId:    userId,
 		Secret:    key.Secret(),
@@ -101,7 +101,7 @@ func Setup2FA(c *gin.Context) {
 		twoFA.Id = existing.Id
 		err = twoFA.Update()
 	} else {
-		// 创建新记录
+		// 创建新记�?
 		err = twoFA.Create()
 	}
 
@@ -110,13 +110,13 @@ func Setup2FA(c *gin.Context) {
 		return
 	}
 
-	// 创建备用码记录
+	// 创建备用码记�?
 	if err := model.CreateBackupCodes(userId, backupCodes); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "保存备用码失败",
 		})
-		common.SysLog("保存备用码失败: " + err.Error())
+		common.SysLog("保存备用码失败 " + err.Error())
 		return
 	}
 
@@ -168,7 +168,7 @@ func Enable2FA(c *gin.Context) {
 		return
 	}
 
-	// 验证TOTP验证码
+	// 验证TOTP验证�?
 	cleanCode, err := common.ValidateNumericCode(req.Code)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -223,12 +223,12 @@ func Disable2FA(c *gin.Context) {
 	if twoFA == nil || !twoFA.IsEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "用户未启用2FA",
+			"message": "用户未启�?FA",
 		})
 		return
 	}
 
-	// 验证TOTP验证码或备用码
+	// 验证TOTP验证码或备用�?
 	cleanCode, err := common.ValidateNumericCode(req.Code)
 	isValidTOTP := false
 	isValidBackup := false
@@ -239,7 +239,7 @@ func Disable2FA(c *gin.Context) {
 	}
 
 	if !isValidTOTP {
-		// 尝试验证备用码
+		// 尝试验证备用�?
 		isValidBackup, err = twoFA.ValidateBackupCodeAndUpdateUsage(req.Code)
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
@@ -292,10 +292,10 @@ func Get2FAStatus(c *gin.Context) {
 		status["enabled"] = twoFA.IsEnabled
 		status["locked"] = twoFA.IsLocked()
 		if twoFA.IsEnabled {
-			// 获取剩余备用码数量
+			// 获取剩余备用码数�?
 			backupCount, err := model.GetUnusedBackupCodeCount(userId)
 			if err != nil {
-				common.SysLog("获取备用码数量失败: " + err.Error())
+				common.SysLog("获取备用码数量失�? " + err.Error())
 			} else {
 				status["backup_codes_remaining"] = backupCount
 			}
@@ -309,7 +309,7 @@ func Get2FAStatus(c *gin.Context) {
 	})
 }
 
-// RegenerateBackupCodes 重新生成备用码
+// RegenerateBackupCodes 重新生成备用�?
 func RegenerateBackupCodes(c *gin.Context) {
 	var req Verify2FARequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -331,12 +331,12 @@ func RegenerateBackupCodes(c *gin.Context) {
 	if twoFA == nil || !twoFA.IsEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "用户未启用2FA",
+			"message": "用户未启�?FA",
 		})
 		return
 	}
 
-	// 验证TOTP验证码
+	// 验证TOTP验证�?
 	cleanCode, err := common.ValidateNumericCode(req.Code)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -362,14 +362,14 @@ func RegenerateBackupCodes(c *gin.Context) {
 		return
 	}
 
-	// 生成新的备用码
+	// 生成新的备用�?
 	backupCodes, err := common.GenerateBackupCodes()
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "生成备用码失败",
 		})
-		common.SysLog("生成备用码失败: " + err.Error())
+		common.SysLog("生成备用码失败 " + err.Error())
 		return
 	}
 
@@ -379,7 +379,7 @@ func RegenerateBackupCodes(c *gin.Context) {
 			"success": false,
 			"message": "保存备用码失败",
 		})
-		common.SysLog("保存备用码失败: " + err.Error())
+		common.SysLog("保存备用码失�? " + err.Error())
 		return
 	}
 
@@ -395,7 +395,7 @@ func RegenerateBackupCodes(c *gin.Context) {
 	})
 }
 
-// Verify2FALogin 登录时验证2FA
+// Verify2FALogin 登录时验�?FA
 func Verify2FALogin(c *gin.Context) {
 	var req Verify2FARequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -443,12 +443,12 @@ func Verify2FALogin(c *gin.Context) {
 	if twoFA == nil || !twoFA.IsEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "用户未启用2FA",
+			"message": "用户未启�?FA",
 		})
 		return
 	}
 
-	// 验证TOTP验证码或备用码
+	// 验证TOTP验证码或备用�?
 	cleanCode, err := common.ValidateNumericCode(req.Code)
 	isValidTOTP := false
 	isValidBackup := false
@@ -459,7 +459,7 @@ func Verify2FALogin(c *gin.Context) {
 	}
 
 	if !isValidTOTP {
-		// 尝试验证备用码
+		// 尝试验证备用�?
 		isValidBackup, err = twoFA.ValidateBackupCodeAndUpdateUsage(req.Code)
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
@@ -486,7 +486,7 @@ func Verify2FALogin(c *gin.Context) {
 	setupLogin(user, c)
 }
 
-// Admin2FAStats 管理员获取2FA统计信息
+// Admin2FAStats 管理员获�?FA统计信息
 func Admin2FAStats(c *gin.Context) {
 	stats, err := model.GetTwoFAStats()
 	if err != nil {
@@ -501,7 +501,7 @@ func Admin2FAStats(c *gin.Context) {
 	})
 }
 
-// AdminDisable2FA 管理员强制禁用用户2FA
+// AdminDisable2FA 管理员强制禁用用�?FA
 func AdminDisable2FA(c *gin.Context) {
 	userIdStr := c.Param("id")
 	userId, err := strconv.Atoi(userIdStr)
@@ -513,7 +513,7 @@ func AdminDisable2FA(c *gin.Context) {
 		return
 	}
 
-	// 检查目标用户权限
+	// 检查目标用户权�?
 	targetUser, err := model.GetUserById(userId, false)
 	if err != nil {
 		common.ApiError(c, err)
@@ -524,7 +524,7 @@ func AdminDisable2FA(c *gin.Context) {
 	if myRole <= targetUser.Role && myRole != common.RoleRootUser {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "无权操作同级或更高级用户的2FA设置",
+			"message": "无权操作同级或更高级用户�?FA设置",
 		})
 		return
 	}
@@ -534,7 +534,7 @@ func AdminDisable2FA(c *gin.Context) {
 		if errors.Is(err, model.ErrTwoFANotEnabled) {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "用户未启用2FA",
+				"message": "用户未启�?FA",
 			})
 			return
 		}
@@ -545,7 +545,7 @@ func AdminDisable2FA(c *gin.Context) {
 	// 记录操作日志
 	adminId := c.GetInt("id")
 	model.RecordLog(userId, model.LogTypeManage,
-		fmt.Sprintf("管理员(ID:%d)强制禁用了用户的两步验证", adminId))
+		fmt.Sprintf("管理�?ID:%d)强制禁用了用户的两步验证", adminId))
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,

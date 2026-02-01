@@ -11,9 +11,9 @@ import (
 // SSRFProtection SSRF防护配置
 type SSRFProtection struct {
 	AllowPrivateIp         bool
-	DomainFilterMode       bool     // true: 白名单, false: 黑名单
+	DomainFilterMode       bool     // true: 白名单 false: 黑名单
 	DomainList             []string // domain format, e.g. example.com, *.example.com
-	IpFilterMode           bool     // true: 白名单, false: 黑名单
+	IpFilterMode           bool     // true: 白名单 false: 黑名单
 	IpList                 []string // CIDR or single IP
 	AllowedPorts           []int    // 允许的端口范围
 	ApplyIPFilterForDomain bool     // 对域名启用IP过滤
@@ -35,7 +35,7 @@ func isPrivateIP(ip net.IP) bool {
 		return true
 	}
 
-	// 检查私有网段
+	// 检查私有网络
 	private := []net.IPNet{
 		{IP: net.IPv4(10, 0, 0, 0), Mask: net.CIDRMask(8, 32)},     // 10.0.0.0/8
 		{IP: net.IPv4(172, 16, 0, 0), Mask: net.CIDRMask(12, 32)},  // 172.16.0.0/12
@@ -132,7 +132,7 @@ func parsePortRanges(portConfigs []string) ([]int, error) {
 // isAllowedPort 检查端口是否被允许
 func (p *SSRFProtection) isAllowedPort(port int) bool {
 	if len(p.AllowedPorts) == 0 {
-		return true // 如果没有配置端口限制，则允许所有端口
+		return true // 如果没有配置端口限制，则允许所有端�?
 	}
 
 	for _, allowedPort := range p.AllowedPorts {
@@ -159,7 +159,7 @@ func isDomainListed(domain string, list []string) bool {
 		if domain == item {
 			return true
 		}
-		// 通配符匹配 (*.example.com)
+		// 通配符匹�?(*.example.com)
 		if strings.HasPrefix(item, "*.") {
 			suffix := strings.TrimPrefix(item, "*.")
 			if strings.HasSuffix(domain, "."+suffix) || domain == suffix {
@@ -172,14 +172,14 @@ func isDomainListed(domain string, list []string) bool {
 
 func (p *SSRFProtection) isDomainAllowed(domain string) bool {
 	listed := isDomainListed(domain, p.DomainList)
-	if p.DomainFilterMode { // 白名单
+	if p.DomainFilterMode { // 白名�?
 		return listed
 	}
-	// 黑名单
+	// 黑名�?
 	return !listed
 }
 
-// isIPWhitelisted 检查IP是否在白名单中
+// isIPWhitelisted 检查IP是否在白名单�?
 
 func isIPListed(ip net.IP, list []string) bool {
 	if len(list) == 0 {
@@ -213,10 +213,10 @@ func (p *SSRFProtection) IsIPAccessAllowed(ip net.IP) bool {
 	}
 
 	listed := isIPListed(ip, p.IpList)
-	if p.IpFilterMode { // 白名单
+	if p.IpFilterMode { // 白名�?
 		return listed
 	}
-	// 黑名单
+	// 黑名�?
 	return !listed
 }
 
@@ -233,10 +233,10 @@ func (p *SSRFProtection) ValidateURL(urlStr string) error {
 		return fmt.Errorf("unsupported protocol: %s (only http/https allowed)", u.Scheme)
 	}
 
-	// 解析主机和端口
+	// 解析主机和端�?
 	host, portStr, err := net.SplitHostPort(u.Host)
 	if err != nil {
-		// 没有端口，使用默认端口
+		// 没有端口，使用默认端�?
 		host = u.Hostname()
 		if u.Scheme == "https" {
 			portStr = "443"
@@ -255,7 +255,7 @@ func (p *SSRFProtection) ValidateURL(urlStr string) error {
 		return fmt.Errorf("port %d is not allowed", port)
 	}
 
-	// 如果 host 是 IP，则跳过域名检查
+	// 如果 host �?IP，则跳过域名检�?
 	if ip := net.ParseIP(host); ip != nil {
 		if !p.IsIPAccessAllowed(ip) {
 			if isPrivateIP(ip) {
@@ -269,7 +269,7 @@ func (p *SSRFProtection) ValidateURL(urlStr string) error {
 		return nil
 	}
 
-	// 先进行域名过滤
+	// 先进行域名过�?
 	if !p.isDomainAllowed(host) {
 		if p.DomainFilterMode {
 			return fmt.Errorf("domain not in whitelist: %s", host)
@@ -282,7 +282,7 @@ func (p *SSRFProtection) ValidateURL(urlStr string) error {
 		return nil
 	}
 
-	// 解析域名对应IP并检查
+	// 解析域名对应IP并检�?
 	ips, err := net.LookupIP(host)
 	if err != nil {
 		return fmt.Errorf("DNS resolution failed for %s: %v", host, err)

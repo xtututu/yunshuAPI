@@ -11,12 +11,12 @@ import (
 	"strconv"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/relay"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	"yunshuAPI/model"
+	"yunshuAPI/relay"
 
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
@@ -27,7 +27,7 @@ func UpdateTaskBulk() {
 	//imageModel := "midjourney"
 	for {
 		time.Sleep(time.Duration(15) * time.Second)
-		common.SysLog("任务进度轮询开始")
+		common.SysLog("任务进度轮询开启")
 		ctx := context.TODO()
 		allTasks := model.GetAllUnFinishSyncTasks(500)
 		platformTask := make(map[constant.TaskPlatform][]*model.Task)
@@ -95,7 +95,7 @@ func UpdateSunoTaskAll(ctx context.Context, taskChannelM map[int][]string, taskM
 }
 
 func updateSunoTaskAll(ctx context.Context, channelId int, taskIds []string, taskM map[string]*model.Task) error {
-	logger.LogInfo(ctx, fmt.Sprintf("渠道 #%d 未完成的任务有: %d", channelId, len(taskIds)))
+	logger.LogInfo(ctx, fmt.Sprintf("渠道 #%d 未完成的任务数： %d", channelId, len(taskIds)))
 	if len(taskIds) == 0 {
 		return nil
 	}
@@ -140,7 +140,7 @@ func updateSunoTaskAll(ctx context.Context, channelId int, taskIds []string, tas
 		return err
 	}
 	if !responseItems.IsSuccess() {
-		common.SysLog(fmt.Sprintf("渠道 #%d 未完成的任务有: %d, 响应内容: %s", channelId, len(taskIds), string(responseBody)))
+		common.SysLog(fmt.Sprintf("渠道 #%d 未完成的任务数： %d, 响应内容: %s", channelId, len(taskIds), string(responseBody)))
 		return err
 	}
 
@@ -156,7 +156,7 @@ func updateSunoTaskAll(ctx context.Context, channelId int, taskIds []string, tas
 		task.StartTime = lo.If(responseItem.StartTime != 0, responseItem.StartTime).Else(task.StartTime)
 		task.FinishTime = lo.If(responseItem.FinishTime != 0, responseItem.FinishTime).Else(task.FinishTime)
 		if responseItem.FailReason != "" || task.Status == model.TaskStatusFailure {
-			logger.LogInfo(ctx, task.TaskID+" 构建失败，"+task.FailReason)
+			logger.LogInfo(ctx, task.TaskID+" 构建失败："+task.FailReason)
 			task.Progress = "100%"
 			//err = model.CacheUpdateUserQuota(task.UserId) ?
 			if err != nil {
@@ -168,7 +168,7 @@ func updateSunoTaskAll(ctx context.Context, channelId int, taskIds []string, tas
 					if err != nil {
 						logger.LogError(ctx, "fail to increase user quota: "+err.Error())
 					}
-					logContent := fmt.Sprintf("异步任务执行失败 %s，补偿 %s", task.TaskID, logger.LogQuota(quota))
+					logContent := fmt.Sprintf("异步任务执行失败 %s，补�?%s", task.TaskID, logger.LogQuota(quota))
 					model.RecordLog(task.UserId, model.LogTypeSystem, logContent)
 				}
 			}
@@ -250,7 +250,7 @@ func GetAllTask(c *gin.Context) {
 	userRole := c.GetInt("role")
 	isRootUser := userRole == common.RoleRootUser
 
-	// 转换为前端响应格式
+	// 转换为前端响应格�?
 	responseItems := make([]*model.TaskResponse, len(tasks))
 	for i, task := range tasks {
 		responseItems[i] = task.ToResponse(isRootUser)
@@ -285,7 +285,7 @@ func GetUserTask(c *gin.Context) {
 	userRole := c.GetInt("role")
 	isRootUser := userRole == common.RoleRootUser
 
-	// 转换为前端响应格式
+	// 转换为前端响应格�?
 	responseItems := make([]*model.TaskResponse, len(tasks))
 	for i, task := range tasks {
 		responseItems[i] = task.ToResponse(isRootUser)

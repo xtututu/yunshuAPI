@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/logger"
+	"yunshuAPI/common"
+	"yunshuAPI/logger"
 
 	"github.com/gin-gonic/gin"
 )

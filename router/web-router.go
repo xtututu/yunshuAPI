@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/controller"
-	"xunkecloudAPI/middleware"
+	"yunshuAPI/common"
+	"yunshuAPI/controller"
+	"yunshuAPI/middleware"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )

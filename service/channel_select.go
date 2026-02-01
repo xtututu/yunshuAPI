@@ -3,11 +3,11 @@ package service
 import (
 	"errors"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/setting"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/logger"
+	"yunshuAPI/model"
+	"yunshuAPI/setting"
 	"github.com/gin-gonic/gin"
 )
 

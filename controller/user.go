@@ -9,13 +9,13 @@ import (
 	"strings"
 	"sync"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/service"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	"yunshuAPI/model"
+	"yunshuAPI/service"
 
-	"xunkecloudAPI/constant"
+	"yunshuAPI/constant"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -65,9 +65,9 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// 检查是否启用2FA
+	// 检查是否启�?FA
 	if model.IsTwoFAEnabled(user.Id) {
-		// 设置pending session，等待2FA验证
+		// 设置pending session，等�?FA验证
 		session := sessions.Default(c)
 		session.Set("pending_username", user.Username)
 		session.Set("pending_user_id", user.Id)
@@ -168,7 +168,7 @@ func Register(c *gin.Context) {
 	if err := common.Validate.Struct(&user); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "输入不合法 " + err.Error(),
+			"message": "输入不合�?" + err.Error(),
 		})
 		return
 	}
@@ -211,7 +211,7 @@ func Register(c *gin.Context) {
 		Password:    user.Password,
 		DisplayName: user.Username,
 		InviterId:   inviterId,
-		Role:        common.RoleCommonUser, // 明确设置角色为普通用户
+		Role:        common.RoleCommonUser, // 明确设置角色为普通用�?
 	}
 	if common.EmailVerificationEnabled {
 		cleanUser.Email = user.Email
@@ -241,7 +241,7 @@ func Register(c *gin.Context) {
 			common.SysLog("failed to generate token key: " + err.Error())
 			return
 		}
-		// 生成默认令牌 - 符合用户需求：分组为"default"，名称为"default"，无限额度为是，永不过期
+		// 生成默认令牌 - 符合用户需求：分组�?default"，名称为"default"，无限额度为是，永不过期
 		token := model.Token{
 			UserId:             insertedUser.Id, // 使用插入后的用户ID
 			Name:               "default",
@@ -252,7 +252,7 @@ func Register(c *gin.Context) {
 			RemainQuota:        0,    // 由于是无限额度，设为0
 			UnlimitedQuota:     true, // 无限额度
 			ModelLimitsEnabled: false,
-			Group:              "default", // 分组为"default"
+			Group:              "default", // 分组�?default"
 		}
 		if err := token.Insert(); err != nil {
 			c.JSON(http.StatusOK, gin.H{
@@ -351,7 +351,7 @@ func GenerateAccessToken(c *gin.Context) {
 	if model.DB.Where("access_token = ?", user.AccessToken).First(user).RowsAffected != 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "请重试，系统生成的 UUID 竟然重复了！",
+			"message": "请重试，系统生成�?UUID 竟然重复了！",
 		})
 		return
 	}
@@ -477,13 +477,13 @@ func GetSelf(c *gin.Context) {
 	return
 }
 
-// 计算用户权限的辅助函数
+// 计算用户权限的辅助函�?
 func calculateUserPermissions(userRole int) map[string]interface{} {
 	permissions := map[string]interface{}{}
 
 	// 根据用户角色计算权限
 	if userRole == common.RoleRootUser {
-		// 超级管理员不需要边栏设置功能
+		// 超级管理员不需要边栏设置功�?
 		permissions["sidebar_settings"] = false
 		permissions["sidebar_modules"] = map[string]interface{}{}
 	} else if userRole == common.RoleAdminUser {
@@ -491,7 +491,7 @@ func calculateUserPermissions(userRole int) map[string]interface{} {
 		permissions["sidebar_settings"] = true
 		permissions["sidebar_modules"] = map[string]interface{}{
 			"admin": map[string]interface{}{
-				"setting": false, // 管理员不能访问系统设置
+				"setting": false, // 管理员不能访问系统设�?
 			},
 		}
 	} else {
@@ -505,7 +505,7 @@ func calculateUserPermissions(userRole int) map[string]interface{} {
 	return permissions
 }
 
-// 根据用户角色生成默认的边栏配置
+// 根据用户角色生成默认的边栏配�?
 func generateDefaultSidebarConfig(userRole int) string {
 	defaultConfig := map[string]interface{}{}
 
@@ -516,7 +516,7 @@ func generateDefaultSidebarConfig(userRole int) string {
 		"chat":       true,
 	}
 
-	// 控制台区域 - 所有用户都可以访问
+	// 控制台区�?- 所有用户都可以访问
 	defaultConfig["console"] = map[string]interface{}{
 		"enabled":    true,
 		"detail":     true,
@@ -533,7 +533,7 @@ func generateDefaultSidebarConfig(userRole int) string {
 		"personal": true,
 	}
 
-	// 管理员区域 - 根据角色决定
+	// 管理员区�?- 根据角色决定
 	if userRole == common.RoleAdminUser {
 		// 管理员可以访问管理员区域，但不能访问系统设置
 		defaultConfig["admin"] = map[string]interface{}{
@@ -542,10 +542,10 @@ func generateDefaultSidebarConfig(userRole int) string {
 			"models":     true,
 			"redemption": true,
 			"user":       true,
-			"setting":    false, // 管理员不能访问系统设置
+			"setting":    false, // 管理员不能访问系统设�?
 		}
 	} else if userRole == common.RoleRootUser {
-		// 超级管理员可以访问所有功能
+		// 超级管理员可以访问所有功�?
 		defaultConfig["admin"] = map[string]interface{}{
 			"enabled":    true,
 			"channel":    true,
@@ -557,7 +557,7 @@ func generateDefaultSidebarConfig(userRole int) string {
 	}
 	// 普通用户不包含admin区域
 
-	// 转换为JSON字符串
+	// 转换为JSON字符�?
 	configBytes, err := json.Marshal(defaultConfig)
 	if err != nil {
 		common.SysLog("生成默认边栏配置失败: " + err.Error())
@@ -610,7 +610,7 @@ func UpdateUser(c *gin.Context) {
 	if err := common.Validate.Struct(&updatedUser); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "输入不合法 " + err.Error(),
+			"message": "输入不合�?" + err.Error(),
 		})
 		return
 	}
@@ -643,7 +643,7 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 	if originUser.Quota != updatedUser.Quota {
-		model.RecordLog(originUser.Id, model.LogTypeManage, fmt.Sprintf("管理员将用户额度从 %s修改为 %s", logger.LogQuota(originUser.Quota), logger.LogQuota(updatedUser.Quota)))
+		model.RecordLog(originUser.Id, model.LogTypeManage, fmt.Sprintf("管理员将用户额度�?%s修改�?%s", logger.LogQuota(originUser.Quota), logger.LogQuota(updatedUser.Quota)))
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -722,7 +722,7 @@ func UpdateSelf(c *gin.Context) {
 	if err := common.Validate.Struct(&user); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "输入不合法 " + err.Error(),
+			"message": "输入不合�?" + err.Error(),
 		})
 		return
 	}
@@ -838,7 +838,7 @@ func CreateUser(c *gin.Context) {
 	if err := common.Validate.Struct(&user); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "输入不合法 " + err.Error(),
+			"message": "输入不合�?" + err.Error(),
 		})
 		return
 	}
@@ -1127,11 +1127,11 @@ func UpdateUserSetting(c *gin.Context) {
 		return
 	}
 
-	// 验证预警阈值
+	// 验证预警阈�?
 	if req.QuotaWarningThreshold <= 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "预警阈值必须大于0",
+			"message": "预警阈值必须大�?",
 		})
 		return
 	}
@@ -1251,7 +1251,7 @@ func UpdateUserSetting(c *gin.Context) {
 		}
 	}
 
-	// 如果提供了通知邮箱，添加到设置中
+	// 如果提供了通知邮箱，添加到设置�?
 	if req.QuotaWarningType == dto.NotifyTypeEmail && req.NotificationEmail != "" {
 		settings.NotificationEmail = req.NotificationEmail
 	}
@@ -1265,7 +1265,7 @@ func UpdateUserSetting(c *gin.Context) {
 	if req.QuotaWarningType == dto.NotifyTypeGotify {
 		settings.GotifyUrl = req.GotifyUrl
 		settings.GotifyToken = req.GotifyToken
-		// Gotify优先级范围0-10，超出范围则使用默认值5
+		// Gotify优先级范�?-10，超出范围则使用默认�?
 		if req.GotifyPriority < 0 || req.GotifyPriority > 10 {
 			settings.GotifyPriority = 5
 		} else {

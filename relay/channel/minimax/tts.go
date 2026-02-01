@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/dto"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/types"
+	"yunshuAPI/dto"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

@@ -8,10 +8,10 @@ import (
 	"sync"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/setting/ratio_setting"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/setting/ratio_setting"
+	"yunshuAPI/types"
 )
 
 type Pricing struct {
@@ -223,7 +223,7 @@ func updatePricing() {
 		modelSupportEndpointTypes[model] = supportedEndpoints
 	}
 
-	// 构建全局 supportedEndpointMap（默认 + 自定义覆盖）
+	// 构建全局 supportedEndpointMap（默�?+ 自定义覆盖）
 	supportedEndpointMap = make(map[string]common.EndpointInfo)
 	// 1. 默认端点
 	for _, endpoints := range modelSupportEndpointTypes {
@@ -272,7 +272,7 @@ func updatePricing() {
 
 		// 补充模型元数据（描述、标签、供应商、状态）
 		if meta, ok := metaMap[model]; ok {
-			// 若模型被禁用(status!=1)，则直接跳过，不返回给前端
+			// 若模型被禁用(status!=1)，则直接跳过，不返回给前�?
 			if meta.Status != 1 {
 				continue
 			}
@@ -294,7 +294,7 @@ func updatePricing() {
 		pricingMap = append(pricingMap, pricing)
 	}
 
-	// 刷新缓存映射，供高并发快速查询
+	// 刷新缓存映射，供高并发快速查�?
 	modelEnableGroupsLock.Lock()
 	modelEnableGroups = make(map[string][]string)
 	modelQuotaTypeMap = make(map[string]int)

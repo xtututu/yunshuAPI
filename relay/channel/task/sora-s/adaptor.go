@@ -11,11 +11,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/relay/channel"
-	relaycommon "xunkecloudAPI/relay/common"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/model"
+	"yunshuAPI/relay/channel"
+	relaycommon "yunshuAPI/relay/common"
 )
 
 // TaskAdaptor 实现任务适配器接口
@@ -26,7 +26,7 @@ type TaskAdaptor struct {
 	baseURL     string
 }
 
-// TaskRequest 请求参数结构体
+// TaskRequest 请求参数结构
 type TaskRequest struct {
 	Prompt      string `json:"prompt"`
 	URL         string `json:"url"`
@@ -35,26 +35,26 @@ type TaskRequest struct {
 	Size        string `json:"size"`
 }
 
-// TaskResponse 响应参数结构体
+// TaskResponse 响应参数结构�?
 type TaskResponse struct {
 	Code int      `json:"code"`
 	Msg  string   `json:"msg"`
 	Data TaskData `json:"data"`
 }
 
-// TaskData 响应数据结构体
+// TaskData 响应数据结构�?
 type TaskData struct {
 	ID string `json:"id"`
 }
 
-// TaskDetailResponse 任务详情响应结构体
+// TaskDetailResponse 任务详情响应结构�?
 type TaskDetailResponse struct {
 	Code int            `json:"code"`
 	Msg  string         `json:"msg"`
 	Data TaskDetailData `json:"data"`
 }
 
-// TaskDetailData 任务详情数据结构体
+// TaskDetailData 任务详情数据结构�?
 type TaskDetailData struct {
 	Content       string `json:"content"`
 	Status        int    `json:"status"`
@@ -72,10 +72,10 @@ type TaskDetailData struct {
 	ID            string `json:"id"`
 }
 
-// Init 初始化任务适配器
+// Init 初始化任务适配�?
 func (a *TaskAdaptor) Init(info *relaycommon.RelayInfo) {
 	a.ChannelType = info.ChannelType
-	// 使用配置的ChannelBaseUrl，如果为空则使用默认值
+	// 使用配置的ChannelBaseUrl，如果为空则使用默认�?
 	if info.ChannelBaseUrl != "" {
 		a.baseURL = info.ChannelBaseUrl
 	} else {
@@ -85,14 +85,14 @@ func (a *TaskAdaptor) Init(info *relaycommon.RelayInfo) {
 	a.channelId = info.ChannelId
 }
 
-// NewTaskAdaptor 创建新的任务适配器
+// NewTaskAdaptor 创建新的任务适配�?
 func NewTaskAdaptor(info *relaycommon.RelayInfo) *TaskAdaptor {
 	a := &TaskAdaptor{}
 	a.Init(info)
 	return a
 }
 
-// ValidateRequestAndSetAction 验证请求并设置操作
+// ValidateRequestAndSetAction 验证请求并设置操�?
 func (a *TaskAdaptor) ValidateRequestAndSetAction(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.TaskError) {
 	return relaycommon.ValidateMultipartDirect(c, info)
 }
@@ -110,7 +110,7 @@ func (a *TaskAdaptor) BuildRequestURL(info *relaycommon.RelayInfo) (string, erro
 	}
 }
 
-// BuildRequestHeader 构建请求头
+// BuildRequestHeader 构建请求�?
 func (a *TaskAdaptor) BuildRequestHeader(c *gin.Context, req *http.Request, info *relaycommon.RelayInfo) error {
 	// 设置API密钥
 	req.Header.Set("X-API-KEY", a.apiKey)
@@ -120,7 +120,7 @@ func (a *TaskAdaptor) BuildRequestHeader(c *gin.Context, req *http.Request, info
 	return nil
 }
 
-// BuildRequestBody 构建请求体
+// BuildRequestBody 构建请求�?
 func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayInfo) (io.Reader, error) {
 	// 获取任务请求参数
 	req, err := relaycommon.GetTaskRequest(c)
@@ -128,7 +128,7 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 		return nil, fmt.Errorf("get_task_request_failed: %w", err)
 	}
 
-	// 根据模型选择不同的请求参数结构
+	// 根据模型选择不同的请求参数结�?
 	var requestPayload interface{}
 
 	// 处理URL
@@ -155,7 +155,7 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 	}
 
 	// 处理duration
-	duration := 10 // 默认10秒
+	duration := 10 // 默认10�?
 	if req.Duration != 0 {
 		duration = req.Duration
 	} else if req.Seconds != "" {
@@ -164,10 +164,10 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 		}
 	}
 
-	// 处理aspectRatio（根据size转换）
+	// 处理aspectRatio（根据size转换�?
 	aspectRatio := "16:9" // 默认16:9
 	if req.Size != "" {
-		// 如果size是720x1280、1024×1792则aspectRatio是9:16，否则是16:9
+		// 如果size�?20x1280�?024×1792则aspectRatio�?:16，否则是16:9
 		if req.Size == "720x1280" || req.Size == "1024x1792" {
 			aspectRatio = "9:16"
 		} else {
@@ -177,13 +177,13 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 			}
 		}
 	} else if req.AspectRatio != "" {
-		// 如果没有size参数但有aspectRatio参数，直接使用
+		// 如果没有size参数但有aspectRatio参数，直接使�?
 		aspectRatio = req.AspectRatio
 	}
 
 	switch info.OriginModelName {
 	case ModelSora2Pro:
-		// sora-2-pro模型的请求参数结构
+		// sora-2-pro模型的请求参数结�?
 		requestPayload = struct {
 			Prompt      string `json:"prompt"`
 			Duration    int    `json:"duration"`
@@ -196,7 +196,7 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 			URL:         referenceURL,
 		}
 	default:
-		// 其他模型的请求参数结构（包含size字段）
+		// 其他模型的请求参数结构（包含size字段�?
 		requestPayload = TaskRequest{
 			Prompt:      req.Prompt,
 			URL:         referenceURL,
@@ -215,9 +215,9 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 	return bytes.NewBuffer(jsonData), nil
 }
 
-// ParseResponse 解析响应（兼容旧接口）
+// ParseResponse 解析响应（兼容旧接口�?
 func (a *TaskAdaptor) ParseResponse(resp *http.Response) (string, *relaycommon.TaskInfo, error) {
-	// 读取响应体
+	// 读取响应�?
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", nil, fmt.Errorf("read_response_body_failed: %w", err)
@@ -229,7 +229,7 @@ func (a *TaskAdaptor) ParseResponse(resp *http.Response) (string, *relaycommon.T
 		return "", nil, fmt.Errorf("unmarshal_response_failed: %w", err)
 	}
 
-	// 检查响应状态
+	// 检查响应状�?
 	if response.Code != 200 {
 		return "", nil, fmt.Errorf("api_error: %s", response.Msg)
 	}
@@ -244,7 +244,7 @@ func (a *TaskAdaptor) ParseResponse(resp *http.Response) (string, *relaycommon.T
 	return response.Data.ID, taskInfo, nil
 }
 
-// GetTaskStatus 获取任务状态
+// GetTaskStatus 获取任务状�?
 func (a *TaskAdaptor) GetTaskStatus(taskID string, info *relaycommon.RelayInfo) (taskInfo *relaycommon.TaskInfo, err error) {
 	// 构建请求URL
 	url := fmt.Sprintf("%s?id=%s", APIEndpointDetail, taskID)
@@ -255,12 +255,12 @@ func (a *TaskAdaptor) GetTaskStatus(taskID string, info *relaycommon.RelayInfo) 
 		return nil, fmt.Errorf("create_request_failed: %w", err)
 	}
 
-	// 设置请求头
+	// 设置请求�?
 	req.Header.Set("X-API-KEY", a.apiKey)
 	// 设置Authorization头，不加Bearer前缀直接传递API密钥
 	req.Header.Set("Authorization", a.apiKey)
 
-	// 发送请求
+	// 发送请�?
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -268,7 +268,7 @@ func (a *TaskAdaptor) GetTaskStatus(taskID string, info *relaycommon.RelayInfo) 
 	}
 	defer resp.Body.Close()
 
-	// 读取响应体
+	// 读取响应�?
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("read_response_body_failed: %w", err)
@@ -280,7 +280,7 @@ func (a *TaskAdaptor) GetTaskStatus(taskID string, info *relaycommon.RelayInfo) 
 		return nil, fmt.Errorf("unmarshal_response_failed: %w", err)
 	}
 
-	// 检查响应状态
+	// 检查响应状�?
 	if response.Code != 200 {
 		return nil, fmt.Errorf("api_error: %s", response.Msg)
 	}
@@ -299,7 +299,7 @@ func (a *TaskAdaptor) GetTaskStatus(taskID string, info *relaycommon.RelayInfo) 
 		taskInfo.RemoteUrl = response.Data.TransferURL
 	}
 
-	// 如果任务失败，添加失败原因
+	// 如果任务失败，添加失败原�?
 	if response.Data.Status == 2 { // API返回的失败状态码
 		taskInfo.Reason = response.Data.FailReason
 	}
@@ -309,7 +309,7 @@ func (a *TaskAdaptor) GetTaskStatus(taskID string, info *relaycommon.RelayInfo) 
 
 // BuildTaskInfo 构建任务信息
 func (a *TaskAdaptor) BuildTaskInfo(c *gin.Context, info *relaycommon.RelayInfo, resp *http.Response) (*relaycommon.TaskInfo, error) {
-	// 读取响应体
+	// 读取响应�?
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -322,7 +322,7 @@ func (a *TaskAdaptor) BuildTaskInfo(c *gin.Context, info *relaycommon.RelayInfo,
 		return nil, err
 	}
 
-	// 检查响应状态
+	// 检查响应状�?
 	if response.Code != 200 {
 		return nil, fmt.Errorf("API error: %s", response.Msg)
 	}
@@ -342,7 +342,7 @@ func (a *TaskAdaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo, req
 
 // DoResponse 处理响应
 func (a *TaskAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *relaycommon.RelayInfo) (taskID string, taskData []byte, taskErr *dto.TaskError) {
-	// 读取响应体
+	// 读取响应�?
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		taskErr = &dto.TaskError{Code: "500", Message: "read_response_body_failed: " + err.Error()}
@@ -357,17 +357,17 @@ func (a *TaskAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *rela
 		return
 	}
 
-	// 检查响应状态
+	// 检查响应状�?
 	if response.Code != 200 {
 		taskErr = &dto.TaskError{Code: fmt.Sprintf("%d", response.Code), Message: response.Msg}
 		return
 	}
 
-	// 返回任务ID和响应数据
+	// 返回任务ID和响应数�?
 	return response.Data.ID, body, nil
 }
 
-// GetModelList 获取支持的模型列表
+// GetModelList 获取支持的模型列�?
 func (a *TaskAdaptor) GetModelList() []string {
 	return []string{ModelSora2, ModelSora2HD, ModelSora2Pro}
 }
@@ -377,7 +377,7 @@ func (a *TaskAdaptor) GetChannelName() string {
 	return "sora-s"
 }
 
-// FetchTask 获取任务状态
+// FetchTask 获取任务状�?
 func (a *TaskAdaptor) FetchTask(baseUrl, key string, body map[string]any) (*http.Response, error) {
 	// 从body中获取task_id
 	taskID, ok := body["task_id"].(string)
@@ -398,7 +398,7 @@ func (a *TaskAdaptor) FetchTask(baseUrl, key string, body map[string]any) (*http
 		return nil, fmt.Errorf("create_request_failed: %w", err)
 	}
 
-	// 设置请求头 - 优先使用传入的key参数
+	// 设置请求�?- 优先使用传入的key参数
 	useApiKey := key
 	if useApiKey == "" {
 		useApiKey = a.apiKey
@@ -407,7 +407,7 @@ func (a *TaskAdaptor) FetchTask(baseUrl, key string, body map[string]any) (*http
 	// 设置Authorization头，不加Bearer前缀直接传递API密钥
 	req.Header.Set("Authorization", useApiKey)
 
-	// 发送请求
+	// 发送请�?
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -425,22 +425,22 @@ func (a *TaskAdaptor) ParseTaskResult(body []byte) (*relaycommon.TaskInfo, error
 		return nil, fmt.Errorf("unmarshal_response_failed: %w", err)
 	}
 
-	// 检查响应状态
+	// 检查响应状�?
 	if response.Code != 200 {
 		return nil, fmt.Errorf("api_error: %s", response.Msg)
 	}
 
-	// 转换任务状态
+	// 转换任务状�?
 	status := "PENDING"
 	progress := "0%"
 	switch response.Data.Status {
 	case 0: // API返回的排队中
 		status = "PENDING"
 		progress = "0%"
-	case 1: // API返回的成功
+	case 1: // API返回的成�?
 		status = "SUCCESS"
 		progress = "100%"
-	case 2: // API返回的失败
+	case 2: // API返回的失�?
 		status = "FAILURE"
 		progress = "100%"
 	case 3: // API返回的生成中
@@ -460,9 +460,9 @@ func (a *TaskAdaptor) ParseTaskResult(body []byte) (*relaycommon.TaskInfo, error
 		Url:       response.Data.URL,
 	}
 
-	// 处理任务状态
+	// 处理任务状�?
 	if status == "SUCCESS" {
-		// 任务成功时，将视频URL存储在Reason字段中（用于视频预览）
+		// 任务成功时，将视频URL存储在Reason字段中（用于视频预览�?
 		taskInfo.Reason = response.Data.RemoteURL
 	} else if status == "FAILURE" {
 		// 任务失败时，添加失败原因
@@ -477,9 +477,9 @@ func convertStatus(status int) string {
 	switch status {
 	case 0: // API返回的排队中
 		return "PENDING"
-	case 1: // API返回的成功
+	case 1: // API返回的成�?
 		return "SUCCESS"
-	case 2: // API返回的失败
+	case 2: // API返回的失�?
 		return "FAILURE"
 	case 3: // API返回的生成中
 		return "PROCESSING"
@@ -488,14 +488,14 @@ func convertStatus(status int) string {
 	}
 }
 
-// 辅助函数：转换进度
+// 辅助函数：转换进�?
 func convertProgress(status int) string {
 	switch status {
 	case 0: // API返回的排队中
 		return "0%"
-	case 1: // API返回的成功
+	case 1: // API返回的成�?
 		return "100%"
-	case 2: // API返回的失败
+	case 2: // API返回的失�?
 		return "100%"
 	case 3: // API返回的生成中
 		return "50%"
@@ -519,32 +519,32 @@ type UserExpectedVideoResponse struct {
 
 // ConvertToOpenAIVideo 转换为用户期望的视频格式
 func (a *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
-	// 解析任务数据以获取视频URL和其他信息
+	// 解析任务数据以获取视频URL和其他信�?
 	var soraResp TaskDetailResponse
 	if err := json.Unmarshal(task.Data, &soraResp); err != nil {
 		// 如果解析失败，返回基本的视频信息
 		response := UserExpectedVideoResponse{
 			ID:        task.TaskID,
-			Size:      "small", // 默认值
+			Size:      "small", // 默认�?
 			Model:     "sora-s",
 			Object:    "video",
 			Status:    task.Status.ToVideoStatus(),
-			Seconds:   "10", // 默认值
+			Seconds:   "10", // 默认�?
 			Progress:  0,
 			CreatedAt: task.CreatedAt,
 		}
 		return common.Marshal(response)
 	}
 
-	// 使用用户期望的响应格式
+	// 使用用户期望的响应格�?
 	response := UserExpectedVideoResponse{
 		ID:        task.TaskID,
 		Size:      soraResp.Data.Size,
 		Model:     "sora-s",
 		Object:    "video",
 		Status:    task.Status.ToVideoStatus(),
-		Seconds:   "10", // 默认值
-		Progress:  100,  // sora-s渠道任务成功时直接返回100%进度
+		Seconds:   "10", // 默认�?
+		Progress:  100,  // sora-s渠道任务成功时直接返�?00%进度
 		CreatedAt: task.CreatedAt,
 	}
 

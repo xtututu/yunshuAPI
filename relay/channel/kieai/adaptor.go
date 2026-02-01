@@ -11,14 +11,14 @@ import (
 	"strings"
 	"time"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/relay/channel"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	"yunshuAPI/model"
+	"yunshuAPI/relay/channel"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/service"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -46,12 +46,12 @@ type KieaiAdaptor struct {
 	apiKey      string
 }
 
-// Adaptor 实现channel.Adaptor接口的适配器类型
+// Adaptor 实现channel.Adaptor接口的适配器类
 type Adaptor struct {
 	KieaiAdaptor
 }
 
-// TaskAdaptor 实现channel.TaskAdaptor接口的适配器类型
+// TaskAdaptor 实现channel.TaskAdaptor接口的适配器类
 type TaskAdaptor struct {
 	KieaiAdaptor
 }
@@ -139,7 +139,7 @@ func (k *KieaiAdaptor) SetupRequestHeader(c *gin.Context, req *http.Header, info
 
 // ConvertOpenAIRequest 转换OpenAI请求到kieAi API请求
 // 实现channel.Adaptor接口的ConvertOpenAIRequest方法
-// 接收gin.Context、relaycommon.RelayInfo和*dto.GeneralOpenAIRequest参数
+// 接收gin.Context、relaycommon.RelayInfo和dto.GeneralOpenAIRequest参数
 // 支持视频生成请求转换
 func (k *KieaiAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon.RelayInfo, request *dto.GeneralOpenAIRequest) (any, error) {
 	ctx := c.Request.Context()
@@ -185,14 +185,14 @@ func (k *KieaiAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon.Re
 			} else if secondsInt, ok := rawRequest["seconds"].(int); ok {
 				videoRequest.Seconds = fmt.Sprintf("%d", secondsInt)
 			} else {
-				// 默认值
+				// 默认15秒
 				videoRequest.Seconds = "15"
 			}
 
 			if size, ok := rawRequest["size"].(string); ok {
 				videoRequest.Size = size
 			} else {
-				// 默认值
+				// 默认�?
 				videoRequest.Size = "720x1280"
 			}
 
@@ -207,7 +207,7 @@ func (k *KieaiAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon.Re
 				}
 			}
 		} else {
-			// 如果无法绑定原始请求体，使用request对象的字段
+			// 如果无法绑定原始请求体，使用request对象的字�?
 			videoRequest.Model = request.Model
 			if request.Prompt != nil {
 				if promptStr, ok := request.Prompt.(string); ok {
@@ -218,7 +218,7 @@ func (k *KieaiAdaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon.Re
 			videoRequest.Seconds = "15"
 		}
 
-		// 构建kieAi API请求体
+		// 构建kieAi API请求�?
 		return k.buildKieaiVideoRequest(videoRequest)
 	}
 
@@ -257,8 +257,8 @@ func (k *KieaiAdaptor) buildKieaiVideoRequest(videoRequest struct {
 		}
 	}
 
-	// 处理n_frames - 直接使用传入的seconds值（只允许"10"或"15"）
-	nFrames := "15" // 默认值
+	// 处理n_frames - 直接使用传入的seconds值（只允�?10"�?15"�?
+	nFrames := "15" // 默认�?
 	if secondsStr := videoRequest.Seconds; secondsStr != "" {
 		// 检查值是否为允许的选项
 		if secondsStr == "10" || secondsStr == "15" {
@@ -266,7 +266,7 @@ func (k *KieaiAdaptor) buildKieaiVideoRequest(videoRequest struct {
 		}
 	}
 
-	// 构建请求体
+	// 构建请求�?
 	kieaiRequest := map[string]interface{}{
 		"model": modelType,
 		"input": map[string]interface{}{
@@ -311,7 +311,7 @@ func (k *KieaiAdaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.Rel
 
 // ConvertOpenAIResponsesRequest 转换OpenAI响应请求
 // 实现channel.Adaptor接口的ConvertOpenAIResponsesRequest方法
-// 目前不支持此功能，直接返回错误
+// 目前不支持此功能，直接返回错�?
 func (k *KieaiAdaptor) ConvertOpenAIResponsesRequest(c *gin.Context, info *relaycommon.RelayInfo, request dto.OpenAIResponsesRequest) (any, error) {
 	return nil, errors.New("OpenAIResponses not implemented for kieai channel")
 }
@@ -319,7 +319,7 @@ func (k *KieaiAdaptor) ConvertOpenAIResponsesRequest(c *gin.Context, info *relay
 // DoRequest 执行请求
 // 实现channel.Adaptor接口的DoRequest方法
 // 接收gin.Context、relaycommon.RelayInfo和io.Reader参数
-// 执行HTTP请求并返回响应
+// 执行HTTP请求并返回响�?
 func (k *KieaiAdaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo, requestBody io.Reader) (any, error) {
 	ctx := c.Request.Context()
 	logger.LogDebug(ctx, "[KIEAI] DoRequest called with RequestURLPath: %s", info.RequestURLPath)
@@ -349,13 +349,13 @@ func (k *KieaiAdaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo, re
 		return nil, err
 	}
 
-	// 设置请求头
+	// 设置请求�?
 	if err := k.SetupRequestHeader(c, &req.Header, info); err != nil {
 		logger.LogError(ctx, fmt.Sprintf("[KIEAI] SetupRequestHeader failed: %v", err))
 		return nil, err
 	}
 
-	// 发送请求
+	// 发送请�?
 	client := service.GetHttpClient()
 	logger.LogDebug(ctx, "[KIEAI] Sending request to URL: %s with method: %s", req.URL.String(), req.Method)
 	logger.LogDebug(ctx, "[KIEAI] Request headers: %v", req.Header)
@@ -370,7 +370,7 @@ func (k *KieaiAdaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo, re
 	// 不要关闭响应体，因为DoResponse方法需要使用它
 	// defer resp.Body.Close()
 
-	// 读取响应体以便记录日志
+	// 读取响应体以便记录日�?
 	respBody, _ := io.ReadAll(resp.Body)
 	logger.LogDebug(ctx, "[KIEAI] Response status: %d", resp.StatusCode)
 	logger.LogDebug(ctx, "[KIEAI] Response headers: %v", resp.Header)
@@ -400,7 +400,7 @@ func (k *KieaiAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *rel
 		logger.LogDebug(ctx, "[KIEAI] Response is nil, returning empty usage")
 		return &dto.Usage{}, nil
 	}
-	// 读取响应体
+	// 读取响应�?
 	var readErr error
 	body, readErr = io.ReadAll(httpResp.Body)
 	if readErr != nil {
@@ -420,7 +420,7 @@ func (k *KieaiAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *rel
 		httpResp.Body = io.NopCloser(bytes.NewBuffer(body))
 	}
 
-	// 检查是否已经是OpenAI格式的响应（检查是否有choices字段）
+	// 检查是否已经是OpenAI格式的响应（检查是否有choices字段�?
 	var openAIRespCheck struct {
 		Choices []any          `json:"choices"`
 		Usage   map[string]any `json:"usage"`
@@ -447,7 +447,7 @@ func (k *KieaiAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *rel
 		return &usage, nil
 	}
 
-	// 从RequestURLPath中提取路径部分
+	// 从RequestURLPath中提取路径部�?
 	path := info.RequestURLPath
 	if idx := strings.Index(path, "?"); idx > 0 {
 		path = path[:idx]
@@ -480,7 +480,7 @@ func (k *KieaiAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *rel
 		pollResult, pollErr := k.pollVideoResult(c, info, kieaiResp.Data.TaskId)
 		if pollErr != nil {
 			logger.LogError(ctx, fmt.Sprintf("[KIEAI] Polling video result failed: %v", pollErr))
-			// 轮询失败时返回错误信息
+			// 轮询失败时返回错误信�?
 			return nil, types.NewErrorWithStatusCode(pollErr, types.ErrorCodeInvalidRequest, 400)
 		}
 
@@ -524,25 +524,25 @@ func (k *KieaiAdaptor) pollVideoResult(c *gin.Context, info *relaycommon.RelayIn
 			return nil, err
 		}
 
-		// 设置请求头
+		// 设置请求�?
 		req.Header.Set("Authorization", "Bearer "+k.apiKey)
 
-		// 发送请求
+		// 发送请�?
 		client := service.GetHttpClient()
 		resp, err := client.Do(req)
 		if err != nil {
 			logger.LogError(ctx, fmt.Sprintf("[KIEAI] Poll request failed: %v", err))
-			// 轮询失败，继续下一次尝试
+			// 轮询失败，继续下一次尝�?
 			time.Sleep(interval)
 			continue
 		}
 
-		// 读取响应体
+		// 读取响应�?
 		respBody, err := io.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
 			logger.LogError(ctx, fmt.Sprintf("[KIEAI] Reading poll response failed: %v", err))
-			// 轮询失败，继续下一次尝试
+			// 轮询失败，继续下一次尝�?
 			time.Sleep(interval)
 			continue
 		}
@@ -569,22 +569,22 @@ func (k *KieaiAdaptor) pollVideoResult(c *gin.Context, info *relaycommon.RelayIn
 
 		if err := json.Unmarshal(respBody, &pollResp); err != nil {
 			logger.LogError(ctx, fmt.Sprintf("[KIEAI] Parsing poll response failed: %v", err))
-			// 轮询失败，继续下一次尝试
+			// 轮询失败，继续下一次尝�?
 			time.Sleep(interval)
 			continue
 		}
 
 		if pollResp.Code != 200 {
 			logger.LogError(ctx, fmt.Sprintf("[KIEAI] Poll request returned error: %s", pollResp.Msg))
-			// 轮询失败，继续下一次尝试
+			// 轮询失败，继续下一次尝�?
 			time.Sleep(interval)
 			continue
 		}
 
-		// 检查任务状态
+		// 检查任务状�?
 		switch pollResp.Data.State {
 		case "success":
-			// 任务完成，解析结果
+			// 任务完成，解析结�?
 			logger.LogDebug(ctx, "[KIEAI] Video generation completed successfully")
 
 			// 解析resultJson获取视频URL
@@ -599,9 +599,9 @@ func (k *KieaiAdaptor) pollVideoResult(c *gin.Context, info *relaycommon.RelayIn
 			}
 
 			// 解析param获取n_frames作为seconds
-			seconds := "15" // 默认值
+			seconds := "15" // 默认�?
 			if pollResp.Data.Param != "" {
-				// 先解析param的外层结构
+				// 先解析param的外层结�?
 				var paramOuter struct {
 					Input string `json:"input"`
 				}
@@ -618,7 +618,7 @@ func (k *KieaiAdaptor) pollVideoResult(c *gin.Context, info *relaycommon.RelayIn
 
 			logger.LogDebug(ctx, "[KIEAI] Extracted video URL: %s, seconds: %s", videoUrl, seconds)
 
-			// 构造OpenAI格式的视频响应
+			// 构造OpenAI格式的视频响�?
 			videoResponse := &dto.OpenAIVideo{
 				ID:        taskId,
 				Status:    dto.VideoStatusCompleted,
@@ -632,7 +632,7 @@ func (k *KieaiAdaptor) pollVideoResult(c *gin.Context, info *relaycommon.RelayIn
 
 			return videoResponse, nil
 		case "fail":
-			// 任务失败，返回错误信息
+			// 任务失败，返回错误信�?
 			errorMsg := "Video generation failed"
 			if pollResp.Data.FailMsg != nil && *pollResp.Data.FailMsg != "" {
 				errorMsg = *pollResp.Data.FailMsg
@@ -661,7 +661,7 @@ func (k *KieaiAdaptor) pollVideoResult(c *gin.Context, info *relaycommon.RelayIn
 	return nil, errors.New(errorMsg)
 }
 
-// GetModelList 获取支持的模型列表
+// GetModelList 获取支持的模型列�?
 // 实现channel.Adaptor接口的GetModelList方法
 // 返回ModelList变量
 func (k *KieaiAdaptor) GetModelList() []string {
@@ -677,24 +677,24 @@ func (k *KieaiAdaptor) GetChannelName() string {
 
 // ConvertClaudeRequest 转换Claude请求
 // 实现channel.Adaptor接口的ConvertClaudeRequest方法
-// 目前不支持Claude请求，直接返回错误
+// 目前不支持Claude请求，直接返回错�?
 func (k *KieaiAdaptor) ConvertClaudeRequest(c *gin.Context, info *relaycommon.RelayInfo, request *dto.ClaudeRequest) (any, error) {
 	return nil, errors.New("ConvertClaudeRequest not implemented for kieai channel")
 }
 
 // ConvertGeminiRequest 转换Gemini请求
 // 实现channel.Adaptor接口的ConvertGeminiRequest方法
-// 目前不支持Gemini请求，直接返回错误
+// 目前不支持Gemini请求，直接返回错�?
 func (k *KieaiAdaptor) ConvertGeminiRequest(c *gin.Context, info *relaycommon.RelayInfo, request *dto.GeminiChatRequest) (any, error) {
 	return nil, errors.New("ConvertGeminiRequest not implemented for kieai channel")
 }
 
 // ============================// TaskAdaptor Implementation// ============================
 
-// ValidateRequestAndSetAction 验证请求并设置操作
+// ValidateRequestAndSetAction 验证请求并设置操�?
 // 实现channel.TaskAdaptor接口的ValidateRequestAndSetAction方法
 func (t *TaskAdaptor) ValidateRequestAndSetAction(c *gin.Context, info *relaycommon.RelayInfo) *dto.TaskError {
-	// 验证请求并设置操作
+	// 验证请求并设置操�?
 	return relaycommon.ValidateMultipartDirect(c, info)
 }
 
@@ -706,7 +706,7 @@ func (t *TaskAdaptor) BuildRequestURL(info *relaycommon.RelayInfo) (string, erro
 	return url, nil
 }
 
-// BuildRequestHeader 构建请求头
+// BuildRequestHeader 构建请求�?
 // 实现channel.TaskAdaptor接口的BuildRequestHeader方法
 func (t *TaskAdaptor) BuildRequestHeader(c *gin.Context, req *http.Request, info *relaycommon.RelayInfo) error {
 	// 设置请求头，需要Bearer拼接
@@ -715,7 +715,7 @@ func (t *TaskAdaptor) BuildRequestHeader(c *gin.Context, req *http.Request, info
 	return nil
 }
 
-// BuildRequestBody 构建请求体
+// BuildRequestBody 构建请求�?
 // 实现channel.TaskAdaptor接口的BuildRequestBody方法
 func (t *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayInfo) (io.Reader, error) {
 	// 获取任务请求
@@ -724,7 +724,7 @@ func (t *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 		return nil, err
 	}
 
-	// 构建视频请求结构体
+	// 构建视频请求结构�?
 	var videoRequest struct {
 		Model          string   `json:"model"`
 		Prompt         string   `json:"prompt"`
@@ -733,7 +733,7 @@ func (t *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 		InputReference []string `json:"input_reference"`
 	}
 
-	// 从TaskSubmitReq中提取字段
+	// 从TaskSubmitReq中提取字�?
 	videoRequest.Model = req.Model
 	videoRequest.Prompt = req.Prompt
 	// 同时检查Seconds和Duration字段
@@ -760,7 +760,7 @@ func (t *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 		}
 	}
 
-	// 构建kieAi API请求体
+	// 构建kieAi API请求�?
 	kieaiRequest, err := t.buildKieaiVideoRequest(videoRequest)
 	if err != nil {
 		return nil, err
@@ -785,7 +785,7 @@ func (t *TaskAdaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo, req
 // DoResponse 处理响应
 // 实现channel.TaskAdaptor接口的DoResponse方法
 func (t *TaskAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *relaycommon.RelayInfo) (taskID string, taskData []byte, taskErr *dto.TaskError) {
-	// 读取响应体
+	// 读取响应�?
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		taskErr = service.TaskErrorWrapper(err, "read_response_body_failed", http.StatusInternalServerError)
@@ -806,17 +806,17 @@ func (t *TaskAdaptor) DoResponse(c *gin.Context, resp *http.Response, info *rela
 		return
 	}
 
-	// 检查响应代码
+	// 检查响应代�?
 	if kieaiResp.Code != 200 {
 		taskErr = service.TaskErrorWrapper(fmt.Errorf(kieaiResp.Msg), "api_request_failed", http.StatusInternalServerError)
 		return
 	}
 
-	// 返回任务ID和响应数据
+	// 返回任务ID和响应数�?
 	return kieaiResp.Data.TaskId, responseBody, nil
 }
 
-// FetchTask 获取任务状态
+// FetchTask 获取任务状�?
 // 实现channel.TaskAdaptor接口的FetchTask方法
 func (t *TaskAdaptor) FetchTask(baseUrl, key string, body map[string]any) (*http.Response, error) {
 	// 构建轮询URL
@@ -833,11 +833,11 @@ func (t *TaskAdaptor) FetchTask(baseUrl, key string, body map[string]any) (*http
 		return nil, err
 	}
 
-	// 设置请求头
+	// 设置请求�?
 	req.Header.Set("Authorization", "Bearer "+key)
 	req.Header.Set("Content-Type", "application/json")
 
-	// 发送请求
+	// 发送请�?
 	client := service.GetHttpClient()
 	return client.Do(req)
 }
@@ -867,7 +867,7 @@ func (t *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 		return nil, err
 	}
 
-	// 检查响应代码
+	// 检查响应代�?
 	if pollResp.Code != 200 {
 		return nil, errors.New(pollResp.Msg)
 	}
@@ -875,7 +875,7 @@ func (t *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 	// 构建任务信息
 	taskInfo := &relaycommon.TaskInfo{}
 
-	// 根据状态设置相应信息
+	// 根据状态设置相应信�?
 	switch pollResp.Data.State {
 	case "success":
 		// 任务成功完成，解析resultJson获取视频URL
@@ -889,7 +889,7 @@ func (t *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 			taskInfo.Url = strings.Trim(resultJson.ResultUrls[0], " `")
 		}
 	case "fail":
-		// 任务失败，设置错误信息
+		// 任务失败，设置错误信�?
 		taskInfo.Status = "FAILURE"
 		if pollResp.Data.FailMsg != nil && *pollResp.Data.FailMsg != "" {
 			taskInfo.Reason = *pollResp.Data.FailMsg
@@ -900,11 +900,11 @@ func (t *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 			taskInfo.Reason = "Video generation failed"
 		}
 	case "waiting", "queuing", "generating":
-		// 任务正在处理中
+		// 任务正在处理�?
 		taskInfo.Status = "PENDING"
 		taskInfo.Reason = "Task is still processing"
 	default:
-		// 未知状态
+		// 未知状�?
 		taskInfo.Status = "PENDING"
 		taskInfo.Reason = "Task is still processing"
 	}
@@ -915,7 +915,7 @@ func (t *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 // ConvertToOpenAIVideo 转换为期望的视频格式
 // 实现channel.OpenAIVideoConverter接口的ConvertToOpenAIVideo方法
 func (t *TaskAdaptor) ConvertToOpenAIVideo(originTask *model.Task) ([]byte, error) {
-	// 构建期望的视频响应格式
+	// 构建期望的视频响应格�?
 	type VideoResponse struct {
 		ID        string `json:"id"`
 		Size      string `json:"size"`
@@ -934,7 +934,7 @@ func (t *TaskAdaptor) ConvertToOpenAIVideo(originTask *model.Task) ([]byte, erro
 	videoResponse.Model = "sora-2"
 	videoResponse.Object = "video"
 
-	// 设置任务状态
+	// 设置任务状�?
 	switch originTask.Status {
 	case model.TaskStatusSuccess:
 		videoResponse.Status = "completed"
@@ -963,7 +963,7 @@ func (t *TaskAdaptor) ConvertToOpenAIVideo(originTask *model.Task) ([]byte, erro
 		videoResponse.VideoURL = strings.Trim(originTask.FailReason, " `")
 	}
 
-	// 序列化响应
+	// 序列化响�?
 	videoResponseJSON, err := json.Marshal(videoResponse)
 	if err != nil {
 		return nil, err

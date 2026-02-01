@@ -16,8 +16,8 @@ import (
 	"github.com/yapingcat/gomedia/go-codec"
 )
 
-// GetAudioDuration 使用纯 Go 库获取音频文件的时长（秒）。
-// 它不再依赖外部的 ffmpeg 或 ffprobe 程序。
+// GetAudioDuration 使用 Go 库获取音频文件的时长（秒）
+// 它不再依赖外部的 ffmpeg 或 ffprobe 程序
 func GetAudioDuration(ctx context.Context, f io.ReadSeeker, ext string) (duration float64, err error) {
 	SysLog(fmt.Sprintf("GetAudioDuration: ext=%s", ext))
 	// 根据文件扩展名选择解析器
@@ -48,9 +48,9 @@ func GetAudioDuration(ctx context.Context, f io.ReadSeeker, ext string) (duratio
 	return duration, err
 }
 
-// getMP3Duration 解析 MP3 文件以获取时长。
-// 注意：对于 VBR (Variable Bitrate) MP3，这个估算可能不完全精确，但通常足够好。
-// FFmpeg 在这种情况下会扫描整个文件来获得精确值，但这里的库提供了快速估算。
+// getMP3Duration 解析 MP3 文件以获取时长�?
+// 注意：对�?VBR (Variable Bitrate) MP3，这个估算可能不完全精确，但通常足够好�?
+// FFmpeg 在这种情况下会扫描整个文件来获得精确值，但这里的库提供了快速估算�?
 func getMP3Duration(r io.Reader) (float64, error) {
 	d := mp3.NewDecoder(r)
 	var f mp3.Frame
@@ -69,7 +69,7 @@ func getMP3Duration(r io.Reader) (float64, error) {
 	return duration, nil
 }
 
-// getWAVDuration 解析 WAV 文件头以获取时长。
+// getWAVDuration 解析 WAV 文件头以获取时长�?
 func getWAVDuration(r io.ReadSeeker) (float64, error) {
 	dec := wav.NewDecoder(r)
 	if !dec.IsValidFile() {
@@ -82,7 +82,7 @@ func getWAVDuration(r io.ReadSeeker) (float64, error) {
 	return d.Seconds(), nil
 }
 
-// getFLACDuration 解析 FLAC 文件的 STREAMINFO 块。
+// getFLACDuration 解析 FLAC 文件�?STREAMINFO 块�?
 func getFLACDuration(r io.Reader) (float64, error) {
 	stream, err := flac.Parse(r)
 	if err != nil {
@@ -90,14 +90,14 @@ func getFLACDuration(r io.Reader) (float64, error) {
 	}
 	defer stream.Close()
 
-	// 时长 = 总采样数 / 采样率
+	// 时长 = 总采样数 / 采样�?
 	duration := float64(stream.Info.NSamples) / float64(stream.Info.SampleRate)
 	return duration, nil
 }
 
-// getM4ADuration 解析 M4A/MP4 文件的 'mvhd' box。
+// getM4ADuration 解析 M4A/MP4 文件�?'mvhd' box�?
 func getM4ADuration(r io.ReadSeeker) (float64, error) {
-	// go-mp4 库需要 ReadSeeker 接口
+	// go-mp4 库需�?ReadSeeker 接口
 	info, err := mp4.Probe(r)
 	if err != nil {
 		return 0, errors.Wrap(err, "failed to probe m4a/mp4 file")
@@ -106,9 +106,9 @@ func getM4ADuration(r io.ReadSeeker) (float64, error) {
 	return float64(info.Duration) / float64(info.Timescale), nil
 }
 
-// getOGGDuration 解析 OGG/Vorbis 文件以获取时长。
+// getOGGDuration 解析 OGG/Vorbis 文件以获取时长�?
 func getOGGDuration(r io.ReadSeeker) (float64, error) {
-	// 重置 reader 到开头
+	// 重置 reader 到开�?
 	if _, err := r.Seek(0, io.SeekStart); err != nil {
 		return 0, errors.Wrap(err, "failed to seek ogg file")
 	}
@@ -118,7 +118,7 @@ func getOGGDuration(r io.ReadSeeker) (float64, error) {
 		return 0, errors.Wrap(err, "failed to create ogg vorbis reader")
 	}
 
-	// 计算时长 = 总采样数 / 采样率
+	// 计算时长 = 总采样数 / 采样�?
 	// 需要读取整个文件来获取总采样数
 	channels := reader.Channels()
 	sampleRate := reader.SampleRate()
@@ -141,17 +141,17 @@ func getOGGDuration(r io.ReadSeeker) (float64, error) {
 	return duration, nil
 }
 
-// getOpusDuration 解析 Opus 文件（在 OGG 容器中）以获取时长。
+// getOpusDuration 解析 Opus 文件（在 OGG 容器中）以获取时长�?
 func getOpusDuration(r io.ReadSeeker) (float64, error) {
-	// Opus 通常封装在 OGG 容器中
-	// 我们需要解析 OGG 页面来获取时长信息
+	// Opus 通常封装�?OGG 容器�?
+	// 我们需要解�?OGG 页面来获取时长信�?
 	if _, err := r.Seek(0, io.SeekStart); err != nil {
 		return 0, errors.Wrap(err, "failed to seek opus file")
 	}
 
 	// 读取 OGG 页面头部
 	var totalGranulePos int64
-	buf := make([]byte, 27) // OGG 页面头部最小大小
+	buf := make([]byte, 27) // OGG 页面头部最小大�?
 
 	for {
 		n, err := r.Read(buf)
@@ -165,16 +165,16 @@ func getOpusDuration(r io.ReadSeeker) (float64, error) {
 			break
 		}
 
-		// 检查 OGG 页面标识 "OggS"
+		// 检�?OGG 页面标识 "OggS"
 		if string(buf[0:4]) != "OggS" {
-			// 跳过一些字节继续寻找
+			// 跳过一些字节继续寻�?
 			if _, err := r.Seek(-26, io.SeekCurrent); err != nil {
 				break
 			}
 			continue
 		}
 
-		// 读取 granule position (字节 6-13, 小端序)
+		// 读取 granule position (字节 6-13, 小端�?
 		granulePos := int64(binary.LittleEndian.Uint64(buf[6:14]))
 		if granulePos > totalGranulePos {
 			totalGranulePos = granulePos
@@ -187,7 +187,7 @@ func getOpusDuration(r io.ReadSeeker) (float64, error) {
 			break
 		}
 
-		// 计算页面数据大小并跳过
+		// 计算页面数据大小并跳�?
 		var pageSize int
 		for _, segSize := range segmentTable {
 			pageSize += int(segSize)
@@ -197,12 +197,12 @@ func getOpusDuration(r io.ReadSeeker) (float64, error) {
 		}
 	}
 
-	// Opus 的采样率固定为 48000 Hz
+	// Opus 的采样率固定�?48000 Hz
 	duration := float64(totalGranulePos) / 48000.0
 	return duration, nil
 }
 
-// getAIFFDuration 解析 AIFF 文件头以获取时长。
+// getAIFFDuration 解析 AIFF 文件头以获取时长�?
 func getAIFFDuration(r io.ReadSeeker) (float64, error) {
 	if _, err := r.Seek(0, io.SeekStart); err != nil {
 		return 0, errors.Wrap(err, "failed to seek aiff file")
@@ -221,31 +221,31 @@ func getAIFFDuration(r io.ReadSeeker) (float64, error) {
 	return d.Seconds(), nil
 }
 
-// getWebMDuration 解析 WebM 文件以获取时长。
+// getWebMDuration 解析 WebM 文件以获取时长�?
 // WebM 使用 Matroska 容器格式
 func getWebMDuration(r io.ReadSeeker) (float64, error) {
 	if _, err := r.Seek(0, io.SeekStart); err != nil {
 		return 0, errors.Wrap(err, "failed to seek webm file")
 	}
 
-	// WebM/Matroska 文件的解析比较复杂
-	// 这里提供一个简化的实现，读取 EBML 头部
-	// 对于完整的 WebM 解析，可能需要使用专门的库
+	// WebM/Matroska 文件的解析比较复�?
+	// 这里提供一个简化的实现，读�?EBML 头部
+	// 对于完整�?WebM 解析，可能需要使用专门的�?
 
 	// 简单实现：查找 Duration 元素
-	// WebM Duration 的 Element ID 是 0x4489
-	// 这是一个简化版本，可能不适用于所有 WebM 文件
+	// WebM Duration �?Element ID �?0x4489
+	// 这是一个简化版本，可能不适用于所�?WebM 文件
 	buf := make([]byte, 8192)
 	n, err := r.Read(buf)
 	if err != nil && err != io.EOF {
 		return 0, errors.Wrap(err, "failed to read webm file")
 	}
 
-	// 尝试查找 Duration 元素（这是一个简化的方法）
-	// 实际的 WebM 解析需要完整的 EBML 解析器
-	// 这里返回错误，建议使用专门的库
+	// 尝试查找 Duration 元素（这是一个简化的方法�?
+	// 实际�?WebM 解析需要完整的 EBML 解析�?
+	// 这里返回错误，建议使用专门的�?
 	if n > 0 {
-		// 检查 EBML 标识
+		// 检�?EBML 标识
 		if len(buf) >= 4 && binary.BigEndian.Uint32(buf[0:4]) == 0x1A45DFA3 {
 			// 这是一个有效的 EBML 文件
 			// 但完整解析需要更复杂的逻辑
@@ -256,8 +256,8 @@ func getWebMDuration(r io.ReadSeeker) (float64, error) {
 	return 0, errors.New("failed to parse webm file")
 }
 
-// getAACDuration 解析 AAC (ADTS格式) 文件以获取时长。
-// 使用 gomedia 库来解析 AAC ADTS 帧
+// getAACDuration 解析 AAC (ADTS格式) 文件以获取时长�?
+// 使用 gomedia 库来解析 AAC ADTS �?
 func getAACDuration(r io.ReadSeeker) (float64, error) {
 	if _, err := r.Seek(0, io.SeekStart); err != nil {
 		return 0, errors.Wrap(err, "failed to seek aac file")
@@ -272,11 +272,11 @@ func getAACDuration(r io.ReadSeeker) (float64, error) {
 	var totalFrames int64
 	var sampleRate int
 
-	// 使用 gomedia 的 SplitAACFrame 函数来分割 AAC 帧
+	// 使用 gomedia �?SplitAACFrame 函数来分�?AAC �?
 	codec.SplitAACFrame(data, func(aac []byte) {
 		// 解析 ADTS 头部以获取采样率信息
 		if len(aac) >= 7 {
-			// 使用 ConvertADTSToASC 来获取音频配置信息
+			// 使用 ConvertADTSToASC 来获取音频配置信�?
 			asc, err := codec.ConvertADTSToASC(aac)
 			if err == nil && sampleRate == 0 {
 				sampleRate = codec.AACSampleIdxToSample(int(asc.Sample_freq_index))
@@ -289,7 +289,7 @@ func getAACDuration(r io.ReadSeeker) (float64, error) {
 		return 0, errors.New("no valid aac frames found")
 	}
 
-	// 每个 AAC ADTS 帧包含 1024 个采样
+	// 每个 AAC ADTS 帧包�?1024 个采�?
 	totalSamples := totalFrames * 1024
 	duration := float64(totalSamples) / float64(sampleRate)
 	return duration, nil

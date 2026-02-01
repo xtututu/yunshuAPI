@@ -3,9 +3,9 @@ package minimax
 import (
 	"fmt"
 
-	channelconstant "xunkecloudAPI/constant"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/relay/constant"
+	channelconstant "yunshuAPI/constant"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/relay/constant"
 )
 
 func GetRequestURL(info *relaycommon.RelayInfo) (string, error) {

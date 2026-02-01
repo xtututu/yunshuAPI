@@ -25,8 +25,8 @@ COPY . .
 # 然后将下面的 RUN 替换为：
 # RUN --mount=type=cache,target=/go/pkg/mod \
 #     --mount=type=cache,target=/root/.cache/go-build \
-#     go build -ldflags "-s -w -X 'xunkecloudAPI/common.Version=$(cat VERSION)'" -o new-api
-RUN go build -ldflags "-s -w -X 'xunkecloudAPI/common.Version=$(cat VERSION)'" -o new-api
+#     go build -ldflags "-s -w -X 'yunshuAPI/common.Version=$(cat VERSION)'" -o new-api
+RUN go build -ldflags "-s -w -X 'yunshuAPI/common.Version=$(cat VERSION)'" -o new-api
 
 
 # 最终运行阶段

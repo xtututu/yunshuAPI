@@ -3,7 +3,7 @@ package setting
 import (
 	"encoding/json"
 
-	"xunkecloudAPI/common"
+	"yunshuAPI/common"
 )
 
 var Chats = []map[string]string{

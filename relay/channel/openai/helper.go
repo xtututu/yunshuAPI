@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/logger"
-	relaycommon "xunkecloudAPI/relay/common"
-	relayconstant "xunkecloudAPI/relay/constant"
-	"xunkecloudAPI/relay/helper"
-	"xunkecloudAPI/service"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/dto"
+	"yunshuAPI/logger"
+	relaycommon "yunshuAPI/relay/common"
+	relayconstant "yunshuAPI/relay/constant"
+	"yunshuAPI/relay/helper"
+	"yunshuAPI/service"
+	"yunshuAPI/types"
 
 	"github.com/samber/lo"
 
@@ -232,11 +232,11 @@ func HandleFinalResponse(c *gin.Context, info *relaycommon.RelayInfo, lastStream
 		// 这里处理的是 openai 最后一个流响应，其 delta 为空，有 finish_reason 字段
 		// 因此相比较于 google 官方的流响应，由 openai 转换而来会多一个 parts 为空，finishReason 为 STOP 的响应
 		// 而包含最后一段文本输出的响应（倒数第二个）的 finishReason 为 null
-		// 暂不知是否有程序会不兼容。
+		// 暂不知是否有程序会不兼容
 
 		geminiResponse := service.StreamResponseOpenAI2Gemini(&streamResponse, info)
 
-		// openai 流响应开头的空数据
+		// openai 流响应开头的空数组
 		if geminiResponse == nil {
 			return
 		}

@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"time"
 
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/relay/channel"
-	"xunkecloudAPI/relay/common"
-	"xunkecloudAPI/types"
+	"yunshuAPI/dto"
+	"yunshuAPI/relay/channel"
+	"yunshuAPI/relay/common"
+	"yunshuAPI/types"
 
 	"github.com/gin-gonic/gin"
 )

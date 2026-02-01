@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"strings"
 
-	"xunkecloudAPI/common"
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/setting/operation_setting"
-	"xunkecloudAPI/types"
+	"yunshuAPI/common"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/model"
+	"yunshuAPI/setting/operation_setting"
+	"yunshuAPI/types"
 )
 
 func formatNotifyType(channelId int, status int) string {

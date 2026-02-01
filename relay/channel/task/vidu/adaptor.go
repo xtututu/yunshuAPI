@@ -9,15 +9,15 @@ import (
 	"strings"
 	"time"
 
-	"xunkecloudAPI/common"
+	"yunshuAPI/common"
 	"github.com/gin-gonic/gin"
 
-	"xunkecloudAPI/constant"
-	"xunkecloudAPI/dto"
-	"xunkecloudAPI/model"
-	"xunkecloudAPI/relay/channel"
-	relaycommon "xunkecloudAPI/relay/common"
-	"xunkecloudAPI/service"
+	"yunshuAPI/constant"
+	"yunshuAPI/dto"
+	"yunshuAPI/model"
+	"yunshuAPI/relay/channel"
+	relaycommon "yunshuAPI/relay/common"
+	"yunshuAPI/service"
 
 	"github.com/pkg/errors"
 )

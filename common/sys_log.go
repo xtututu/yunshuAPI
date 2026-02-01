@@ -42,12 +42,12 @@ func LogStartupSuccess(startTime time.Time, port string) {
 	// Skip fancy startup message in container environments
 	if !IsRunningInContainer() {
 		// Print local URL
-		fmt.Fprintf(gin.DefaultWriter, "  ➜  \033[1mLocal:\033[0m   http://localhost:%s/\n", port)
+		fmt.Fprintf(gin.DefaultWriter, "  🚀 \033[1mLocal:\033[0m   http://localhost:%s/\n", port)
 	}
 
 	// Print network URLs
 	for _, ip := range networkIps {
-		fmt.Fprintf(gin.DefaultWriter, "  ➜  \033[1mNetwork:\033[0m http://%s:%s/\n", ip, port)
+		fmt.Fprintf(gin.DefaultWriter, "  🌐 \033[1mNetwork:\033[0m http://%s:%s/\n", ip, port)
 	}
 
 	// Print blank line for spacing

@@ -87,7 +87,7 @@ func UploadFile(c *gin.Context) {
 	err = c.ShouldBindJSON(&req)
 	if err == nil && req.FileURL != "" {
 		// 通过URL下载文件
-		// 创建一个自定义的HTTP客户端，跳过SSL证书验证，并处理重定向
+		// 创建一个自定义的HTTP客户端，跳过SSL证书验证，并处理重定�?
 		client := &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -110,20 +110,20 @@ func UploadFile(c *gin.Context) {
 		}
 		// 添加浏览器类型的User-Agent
 		httpReq.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
-		// 添加接受任何内容类型的Accept头
+		// 添加接受任何内容类型的Accept�?
 		httpReq.Header.Set("Accept", "*/*")
 		// 添加Connection头
 		httpReq.Header.Set("Connection", "keep-alive")
 		
 		// 特殊处理飞书链接
 		if strings.Contains(req.FileURL, "feishu.cn") || strings.Contains(req.FileURL, "larksuite.com") {
-			// 飞书链接需要额外的请求头
+			// 飞书链接需要额外的请求�?
 			httpReq.Header.Set("Referer", "https://www.feishu.cn/")
 			httpReq.Header.Set("Origin", "https://www.feishu.cn/")
-			// 设置更长的超时时间
+			// 设置更长的超时时�?
 			client.Timeout = 30 * time.Second
 		}
-		// 发送请求
+		// 发送请�?
 		resp, err := client.Do(httpReq)
 		if err != nil {
 			log.Printf("下载文件失败: %v", err)
@@ -135,9 +135,9 @@ func UploadFile(c *gin.Context) {
 		}
 		defer resp.Body.Close()
 
-		// 检查响应状态
+		// 检查响应状�?
 		if resp.StatusCode != http.StatusOK {
-			// 特殊处理飞书链接的认证错误
+			// 特殊处理飞书链接的认证错�?
 			if (strings.Contains(req.FileURL, "feishu.cn") || strings.Contains(req.FileURL, "larksuite.com")) && 
 			   (resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden) {
 				c.JSON(http.StatusOK, gin.H{
@@ -154,28 +154,28 @@ func UploadFile(c *gin.Context) {
 			return
 		}
 
-		// 获取文件扩展名
+		// 获取文件扩展�?
 		ext := filepath.Ext(req.FileURL)
 		if ext == "" {
 			// 尝试从Content-Disposition头获取文件名和扩展名
 			disposition := resp.Header.Get("Content-Disposition")
 			if disposition != "" {
-				// 查找filename="..." 或 filename*="..."
+				// 查找filename="..." �?filename*="..."
 				parts := strings.Split(disposition, ";")
 				for _, part := range parts {
 					part = strings.TrimSpace(part)
 					if strings.HasPrefix(part, "filename=") {
-						// 提取filename的值
+						// 提取filename的�?
 						filenameValue := strings.TrimPrefix(part, "filename=")
 						filenameValue = strings.Trim(filenameValue, `"'`)
 						ext = filepath.Ext(filenameValue)
 						break
 					} else if strings.HasPrefix(part, "filename*") {
-						// 提取filename*的值
+						// 提取filename*的�?
 						filenameValue := strings.TrimPrefix(part, "filename*")
 						filenameValue = strings.TrimPrefix(filenameValue, "=")
 						filenameValue = strings.Trim(filenameValue, `"'`)
-						// 简单处理，直接提取扩展名
+						// 简单处理，直接提取扩展�?
 						ext = filepath.Ext(filenameValue)
 						break
 					}
@@ -207,16 +207,16 @@ func UploadFile(c *gin.Context) {
 				}
 				ext = typeMap[strings.ToLower(contentType)]
 				if ext == "" {
-					ext = ".bin" // 默认使用bin扩展名
+					ext = ".bin" // 默认使用bin扩展�?
 				}
 			}
 		}
 
-		// 生成唯一文件名
+		// 生成唯一文件�?
 		filename := generateUniqueFilename() + ext
 		fullPath := filepath.Join("./files", filename)
 
-		// 创建目录（如果不存在）
+		// 创建目录（如果不存在�?
 		if err := os.MkdirAll(filepath.Dir(fullPath), 0755); err != nil {
 			log.Printf("创建目录失败: %v", err)
 			c.JSON(http.StatusOK, gin.H{
@@ -285,7 +285,7 @@ func GetFile(c *gin.Context) {
 
 	fullPath := filepath.Join("./files", filename)
 
-	// 检查文件是否存在
+	// 检查文件是否存�?
 	_, err := os.Stat(fullPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -369,13 +369,13 @@ func getContentTypeFromExtension(ext string) string {
 
 // CleanupExpiredFiles 定时清理过期文件
 func CleanupExpiredFiles() {
-	// 每天执行一次清理
+	// 每天执行一次清�?
 	cleanupInterval := 24 * time.Hour
-	// 文件有效期为1天
+	// 文件有效期为1�?
 	fileLifetime := 24 * time.Hour
 
 	for {
-		log.Println("开始清理过期文件...")
+		log.Println("开始清理过期文�?..")
 		filesDir := "./files"
 
 		// 遍历files目录
@@ -390,13 +390,13 @@ func CleanupExpiredFiles() {
 				return nil
 			}
 
-			// 检查文件是否过期
+			// 检查文件是否过�?
 			if time.Since(info.ModTime()) > fileLifetime {
 				// 删除过期文件
 				if err := os.Remove(path); err != nil {
 					log.Printf("删除过期文件失败 %s: %v", path, err)
 				} else {
-					log.Printf("已删除过期文件: %s", path)
+					log.Printf("已删除过期文�? %s", path)
 				}
 			}
 
@@ -404,12 +404,12 @@ func CleanupExpiredFiles() {
 		})
 
 		if err != nil {
-			log.Printf("清理过期文件时发生错误: %v", err)
+			log.Printf("清理过期文件时发生错�? %v", err)
 		}
 
 		log.Println("过期文件清理完成")
 
-		// 等待下一次清理
+		// 等待下一次清�?
 		time.Sleep(cleanupInterval)
 	}
 }

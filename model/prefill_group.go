@@ -4,12 +4,12 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 
-	"xunkecloudAPI/common"
+	"yunshuAPI/common"
 
 	"gorm.io/gorm"
 )
 
-// PrefillGroup 用于存储可复用的“组”信息，例如模型组、标签组、端点组等。
+// PrefillGroup 用于存储可复用的"组"信息，例如模型组、标签组、端点组等。
 // Name 字段保持唯一，用于在前端下拉框中展示。
 // Type 字段用于区分组的类别，可选值如：model、tag、endpoint。
 // Items 字段使用 JSON 数组保存对应类型的字符串集合，示例：
@@ -53,7 +53,7 @@ func (j *JSONValue) Scan(value interface{}) error {
 	}
 }
 
-// MarshalJSON 确保在对外编码时与 json.RawMessage 行为一致
+// MarshalJSON 确保在对外编码时�?json.RawMessage 行为一�?
 func (j JSONValue) MarshalJSON() ([]byte, error) {
 	if j == nil {
 		return []byte("null"), nil
@@ -61,7 +61,7 @@ func (j JSONValue) MarshalJSON() ([]byte, error) {
 	return j, nil
 }
 
-// UnmarshalJSON 确保在对外解码时与 json.RawMessage 行为一致
+// UnmarshalJSON 确保在对外解码时�?json.RawMessage 行为一�?
 func (j *JSONValue) UnmarshalJSON(data []byte) error {
 	if data == nil {
 		*j = nil
@@ -84,7 +84,7 @@ type PrefillGroup struct {
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
-// Insert 新建组
+// Insert 新建�?
 func (g *PrefillGroup) Insert() error {
 	now := common.GetTimestamp()
 	g.CreatedTime = now
@@ -92,7 +92,7 @@ func (g *PrefillGroup) Insert() error {
 	return DB.Create(g).Error
 }
 
-// IsPrefillGroupNameDuplicated 检查组名称是否重复（排除自身 ID）
+// IsPrefillGroupNameDuplicated 检查组名称是否重复（排除自�?ID�?
 func IsPrefillGroupNameDuplicated(id int, name string) (bool, error) {
 	if name == "" {
 		return false, nil
@@ -102,18 +102,18 @@ func IsPrefillGroupNameDuplicated(id int, name string) (bool, error) {
 	return cnt > 0, err
 }
 
-// Update 更新组
+// Update 更新�?
 func (g *PrefillGroup) Update() error {
 	g.UpdatedTime = common.GetTimestamp()
 	return DB.Save(g).Error
 }
 
-// DeleteByID 根据 ID 删除组
+// DeleteByID 根据 ID 删除�?
 func DeletePrefillGroupByID(id int) error {
 	return DB.Delete(&PrefillGroup{}, id).Error
 }
 
-// GetAllPrefillGroups 获取全部组，可按类型过滤（为空则返回全部）
+// GetAllPrefillGroups 获取全部组，可按类型过滤（为空则返回全部�?
 func GetAllPrefillGroups(groupType string) ([]*PrefillGroup, error) {
 	var groups []*PrefillGroup
 	query := DB.Model(&PrefillGroup{})

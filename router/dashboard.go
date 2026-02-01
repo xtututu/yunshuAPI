@@ -1,14 +1,14 @@
 package router
 
 import (
-	"xunkecloudAPI/controller"
-	"xunkecloudAPI/middleware"
+	"yunshuAPI/controller"
+	"yunshuAPI/middleware"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 )
 
 func SetDashboardRouter(router *gin.Engine) {
-	// 将dashboard路由组前缀从"/"改为"/dashboard"，避免影响根路由下的图片和文件访问
+	// 将dashboard路由组前缀由/改为/dashboard，避免影响根路由下的图片和文件访问
 	apiRouter := router.Group("/dashboard")
 	apiRouter.Use(gzip.Gzip(gzip.DefaultCompression))
 	apiRouter.Use(middleware.GlobalAPIRateLimit())
