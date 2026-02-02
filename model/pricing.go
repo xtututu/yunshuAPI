@@ -23,6 +23,7 @@ type Pricing struct {
 	QuotaType              int                     `json:"quota_type"`
 	ModelRatio             float64                 `json:"model_ratio"`
 	ModelPrice             float64                 `json:"model_price"`
+	SecondPrice            float64                 `json:"second_price"`
 	OwnerBy                string                  `json:"owner_by"`
 	CompletionRatio        float64                 `json:"completion_ratio"`
 	EnableGroup            []string                `json:"enable_groups"`
@@ -281,15 +282,21 @@ func updatePricing() {
 			pricing.Tags = meta.Tags
 			pricing.VendorID = meta.VendorID
 		}
-		modelPrice, findPrice := ratio_setting.GetModelPrice(model, false)
-		if findPrice {
-			pricing.ModelPrice = modelPrice
-			pricing.QuotaType = 1
+		secondPrice, findSecondPrice := ratio_setting.GetModelSecondPrice(model, false)
+		if findSecondPrice {
+			pricing.SecondPrice = secondPrice
+			pricing.QuotaType = 2
 		} else {
-			modelRatio, _, _ := ratio_setting.GetModelRatio(model)
-			pricing.ModelRatio = modelRatio
-			pricing.CompletionRatio = ratio_setting.GetCompletionRatio(model)
-			pricing.QuotaType = 0
+			modelPrice, findPrice := ratio_setting.GetModelPrice(model, false)
+			if findPrice {
+				pricing.ModelPrice = modelPrice
+				pricing.QuotaType = 1
+			} else {
+				modelRatio, _, _ := ratio_setting.GetModelRatio(model)
+				pricing.ModelRatio = modelRatio
+				pricing.CompletionRatio = ratio_setting.GetCompletionRatio(model)
+				pricing.QuotaType = 0
+			}
 		}
 		pricingMap = append(pricingMap, pricing)
 	}

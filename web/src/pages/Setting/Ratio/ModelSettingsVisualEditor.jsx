@@ -49,7 +49,7 @@ export default function ModelSettingsVisualEditor(props) {
   const [searchText, setSearchText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [pricingMode, setPricingMode] = useState('per-token'); // 'per-token' or 'per-request'
+  const [pricingMode, setPricingMode] = useState('per-token'); // 'per-token', 'per-request' or 'per-second'
   const [pricingSubMode, setPricingSubMode] = useState('ratio'); // 'ratio' or 'token-price'
   const [conflictOnly, setConflictOnly] = useState(false);
   const formRef = useRef(null);
@@ -59,18 +59,21 @@ export default function ModelSettingsVisualEditor(props) {
   useEffect(() => {
     try {
       const modelPrice = JSON.parse(props.options.ModelPrice || '{}');
+      const modelSecondPrice = JSON.parse(props.options.ModelSecondPrice || '{}');
       const modelRatio = JSON.parse(props.options.ModelRatio || '{}');
       const completionRatio = JSON.parse(props.options.CompletionRatio || '{}');
 
       // 合并所有模型名称
       const modelNames = new Set([
         ...Object.keys(modelPrice),
+        ...Object.keys(modelSecondPrice),
         ...Object.keys(modelRatio),
         ...Object.keys(completionRatio),
       ]);
 
       const modelData = Array.from(modelNames).map((name) => {
         const price = modelPrice[name] === undefined ? '' : modelPrice[name];
+        const secondPrice = modelSecondPrice[name] === undefined ? '' : modelSecondPrice[name];
         const ratio = modelRatio[name] === undefined ? '' : modelRatio[name];
         const comp =
           completionRatio[name] === undefined ? '' : completionRatio[name];
@@ -78,9 +81,10 @@ export default function ModelSettingsVisualEditor(props) {
         return {
           name,
           price,
+          secondPrice,
           ratio,
           completionRatio: comp,
-          hasConflict: price !== '' && (ratio !== '' || comp !== ''),
+          hasConflict: (price !== '' || secondPrice !== '') && (ratio !== '' || comp !== ''),
         };
       });
 
@@ -111,6 +115,7 @@ export default function ModelSettingsVisualEditor(props) {
     setLoading(true);
     const output = {
       ModelPrice: {},
+      ModelSecondPrice: {},
       ModelRatio: {},
       CompletionRatio: {},
     };
@@ -120,7 +125,10 @@ export default function ModelSettingsVisualEditor(props) {
       // 数据转换
       models.forEach((model) => {
         currentConvertModelName = model.name;
-        if (model.price !== '') {
+        if (model.secondPrice !== '') {
+          // 如果秒价格不为空，则转换为浮点数，忽略其他参数
+          output.ModelSecondPrice[model.name] = parseFloat(model.secondPrice);
+        } else if (model.price !== '') {
           // 如果价格不为空，则转换为浮点数，忽略倍率参数
           output.ModelPrice[model.name] = parseFloat(model.price);
         } else {
@@ -136,6 +144,7 @@ export default function ModelSettingsVisualEditor(props) {
       // 准备API请求数组
       const finalOutput = {
         ModelPrice: JSON.stringify(output.ModelPrice, null, 2),
+        ModelSecondPrice: JSON.stringify(output.ModelSecondPrice, null, 2),
         ModelRatio: JSON.stringify(output.ModelRatio, null, 2),
         CompletionRatio: JSON.stringify(output.CompletionRatio, null, 2),
       };
@@ -200,7 +209,21 @@ export default function ModelSettingsVisualEditor(props) {
         <Input
           value={text}
           placeholder={t('按量计费')}
+          disabled={record.secondPrice !== ''}
           onChange={(value) => updateModel(record.name, 'price', value)}
+        />
+      ),
+    },
+    {
+      title: t('模型秒价格'),
+      dataIndex: 'secondPrice',
+      key: 'secondPrice',
+      render: (text, record) => (
+        <Input
+          value={text}
+          placeholder={t('按秒计费')}
+          disabled={record.price !== ''}
+          onChange={(value) => updateModel(record.name, 'secondPrice', value)}
         />
       ),
     },
@@ -211,8 +234,8 @@ export default function ModelSettingsVisualEditor(props) {
       render: (text, record) => (
         <Input
           value={text}
-          placeholder={record.price !== '' ? t('模型倍率') : t('默认补全倍率')}
-          disabled={record.price !== ''}
+          placeholder={(record.price !== '' || record.secondPrice !== '') ? t('模型倍率') : t('默认补全倍率')}
+          disabled={record.price !== '' || record.secondPrice !== ''}
           onChange={(value) => updateModel(record.name, 'ratio', value)}
         />
       ),
@@ -224,8 +247,8 @@ export default function ModelSettingsVisualEditor(props) {
       render: (text, record) => (
         <Input
           value={text}
-          placeholder={record.price !== '' ? t('补全倍率') : t('默认补全倍率')}
-          disabled={record.price !== ''}
+          placeholder={(record.price !== '' || record.secondPrice !== '') ? t('补全倍率') : t('默认补全倍率')}
+          disabled={record.price !== '' || record.secondPrice !== ''}
           onChange={(value) =>
             updateModel(record.name, 'completionRatio', value)
           }
@@ -262,8 +285,11 @@ export default function ModelSettingsVisualEditor(props) {
         if (model.name !== name) return model;
         const updated = { ...model, [field]: value };
         updated.hasConflict =
-          updated.price !== '' &&
+          (updated.price !== '' || updated.secondPrice !== '') &&
           (updated.ratio !== '' || updated.completionRatio !== '');
+        if (updated.price !== '' && updated.secondPrice !== '') {
+          updated.hasConflict = true;
+        }
         return updated;
       }),
     );
@@ -345,12 +371,16 @@ export default function ModelSettingsVisualEditor(props) {
           const updated = {
             name: values.name,
             price: values.price || '',
+            secondPrice: values.secondPrice || '',
             ratio: values.ratio || '',
             completionRatio: values.completionRatio || '',
           };
           updated.hasConflict =
-            updated.price !== '' &&
+            (updated.price !== '' || updated.secondPrice !== '') &&
             (updated.ratio !== '' || updated.completionRatio !== '');
+          if (updated.price !== '' && updated.secondPrice !== '') {
+            updated.hasConflict = true;
+          }
           return updated;
         }),
       );
@@ -368,12 +398,16 @@ export default function ModelSettingsVisualEditor(props) {
         const newModel = {
           name: values.name,
           price: values.price || '',
+          secondPrice: values.secondPrice || '',
           ratio: values.ratio || '',
           completionRatio: values.completionRatio || '',
         };
         newModel.hasConflict =
-          newModel.price !== '' &&
+          (newModel.price !== '' || newModel.secondPrice !== '') &&
           (newModel.ratio !== '' || newModel.completionRatio !== '');
+        if (newModel.price !== '' && newModel.secondPrice !== '') {
+          newModel.hasConflict = true;
+        }
         return [newModel, ...prev];
       });
       setVisible(false);
@@ -398,7 +432,9 @@ export default function ModelSettingsVisualEditor(props) {
     let initialPricingMode = 'per-token';
     let initialPricingSubMode = 'ratio';
 
-    if (record.price !== '') {
+    if (record.secondPrice !== '') {
+      initialPricingMode = 'per-second';
+    } else if (record.price !== '') {
       initialPricingMode = 'per-request';
     } else {
       initialPricingMode = 'per-token';
@@ -439,7 +475,9 @@ export default function ModelSettingsVisualEditor(props) {
           name: modelCopy.name,
         };
 
-        if (initialPricingMode === 'per-request') {
+        if (initialPricingMode === 'per-second') {
+          formValues.secondPriceInput = modelCopy.secondPrice;
+        } else if (initialPricingMode === 'per-request') {
           formValues.priceInput = modelCopy.price;
         } else if (initialPricingMode === 'per-token') {
           formValues.ratioInput = modelCopy.ratio;
@@ -545,8 +583,15 @@ export default function ModelSettingsVisualEditor(props) {
             // Clear price if we're in per-token mode
             if (pricingMode === 'per-token') {
               valuesToSave.price = '';
-            } else {
+              valuesToSave.secondPrice = '';
+            } else if (pricingMode === 'per-request') {
               // Clear ratios if we're in per-request mode
+              valuesToSave.ratio = '';
+              valuesToSave.completionRatio = '';
+              valuesToSave.secondPrice = '';
+            } else if (pricingMode === 'per-second') {
+              // Clear price and ratios if we're in per-second mode
+              valuesToSave.price = '';
               valuesToSave.ratio = '';
               valuesToSave.completionRatio = '';
             }
@@ -597,6 +642,8 @@ export default function ModelSettingsVisualEditor(props) {
                           updatedModel.tokenPrice || '';
                         formValues.completionTokenPrice =
                           updatedModel.completionTokenPrice || '';
+                      } else if (newMode === 'per-second') {
+                        formValues.secondPriceInput = updatedModel.secondPrice || '';
                       }
 
                       formRef.current.setValues(formValues);
@@ -609,6 +656,7 @@ export default function ModelSettingsVisualEditor(props) {
               >
                 <Radio value='per-token'>{t('按量计费')}</Radio>
                 <Radio value='per-request'>{t('按次计费')}</Radio>
+                <Radio value='per-second'>{t('按秒计费')}</Radio>
               </RadioGroup>
             </div>
           </Form.Section>
@@ -748,6 +796,21 @@ export default function ModelSettingsVisualEditor(props) {
                 }))
               }
               initValue={currentModel?.price || ''}
+            />
+          )}
+
+          {pricingMode === 'per-second' && (
+            <Form.Input
+              field='secondPriceInput'
+              label={t('固定价格(每秒)')}
+              placeholder={t('输入每秒价格')}
+              onChange={(value) =>
+                setCurrentModel((prev) => ({
+                  ...(prev || {}),
+                  secondPrice: value,
+                }))
+              }
+              initValue={currentModel?.secondPrice || ''}
             />
           )}
         </Form>

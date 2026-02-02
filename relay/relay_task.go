@@ -87,42 +87,146 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 		mappedModelName = modelName
 	}
 
-	modelPrice, success := ratio_setting.GetModelPrice(mappedModelName, true)
-	if !success {
-		defaultPrice, ok := ratio_setting.GetDefaultModelPriceMap()[mappedModelName]
-		if !ok {
-			modelPrice = 0.1
-		} else {
-			modelPrice = defaultPrice
+	// 获取分组倍率
+	groupRatio := ratio_setting.GetGroupRatio(info.UsingGroup)
+	userGroupRatio, hasUserGroupRatio := ratio_setting.GetGroupGroupRatio(info.UserGroup, info.UsingGroup)
+	var finalGroupRatio float64
+	if hasUserGroupRatio {
+		finalGroupRatio = userGroupRatio
+	} else {
+		finalGroupRatio = groupRatio
+	}
+
+	// 检查是否是按秒计费的模型
+	var modelPrice float64
+	var isPerSecondBilling bool
+	var seconds float64 = 1
+
+	// 尝试获取视频时长
+	if req, err := relaycommon.GetTaskRequest(c); err == nil {
+		if req.Seconds != "" {
+			if sec, err := strconv.Atoi(req.Seconds); err == nil {
+				seconds = float64(sec)
+			}
+		} else if req.Duration != 0 {
+			seconds = float64(req.Duration)
+		}
+	} else if len(info.PriceData.OtherRatios) > 0 {
+		if sec, ok := info.PriceData.OtherRatios["seconds"]; ok {
+			seconds = sec
 		}
 	}
 
-	// 预扣
-	groupRatio := ratio_setting.GetGroupRatio(info.UsingGroup)
-	var ratio float64
-	userGroupRatio, hasUserGroupRatio := ratio_setting.GetGroupGroupRatio(info.UserGroup, info.UsingGroup)
-	if hasUserGroupRatio {
-		ratio = modelPrice * userGroupRatio
-	} else {
-		ratio = modelPrice * groupRatio
+	// 调试日志：打印模型名称信息
+	println(fmt.Sprintf("DEBUG: Original model name: %s, mapped model name: %s", modelName, mappedModelName))
+
+	// 打印modelSecondPriceMap的内容，检查是否包含sora-3
+	modelSecondPriceMap := ratio_setting.GetModelSecondPriceMap()
+	println(fmt.Sprintf("DEBUG: modelSecondPriceMap contents: %v", modelSecondPriceMap))
+	println(fmt.Sprintf("DEBUG: Checking if sora-3 exists in modelSecondPriceMap: %v", modelSecondPriceMap["sora-3"]))
+
+	// 先尝试获取按秒计费的价格（使用原始模型名称）
+	secondPrice, hasSecondPrice := ratio_setting.GetModelSecondPrice(modelName, true)
+	println(fmt.Sprintf("DEBUG: Per-second price check - model: %s, hasSecondPrice: %v, secondPrice: %.4f", modelName, hasSecondPrice, secondPrice))
+
+	// 如果没有找到，尝试使用映射后的模型名称
+	if !hasSecondPrice && mappedModelName != modelName {
+		secondPrice, hasSecondPrice = ratio_setting.GetModelSecondPrice(mappedModelName, true)
+		println(fmt.Sprintf("DEBUG: Per-second price check with mapped model - model: %s, hasSecondPrice: %v, secondPrice: %.4f", mappedModelName, hasSecondPrice, secondPrice))
 	}
-	// FIXME: 临时修补，支持任务仅按次计费
-	if !common.StringsContains(constant.TaskPricePatches, modelName) {
-		if len(info.PriceData.OtherRatios) > 0 {
-			for _, ra := range info.PriceData.OtherRatios {
-				if 1.0 != ra {
-					ratio *= ra
-				}
+
+	// 如果还是没有找到，直接从modelSecondPriceMap中查找
+	if !hasSecondPrice {
+		if price, ok := modelSecondPriceMap[modelName]; ok {
+			secondPrice = price
+			hasSecondPrice = true
+			println(fmt.Sprintf("DEBUG: Found second price directly from modelSecondPriceMap - model: %s, secondPrice: %.4f", modelName, secondPrice))
+		} else if price, ok := modelSecondPriceMap[mappedModelName]; ok {
+			secondPrice = price
+			hasSecondPrice = true
+			println(fmt.Sprintf("DEBUG: Found second price directly from modelSecondPriceMap using mapped model - model: %s, secondPrice: %.4f", mappedModelName, secondPrice))
+		}
+	}
+
+	if hasSecondPrice {
+		// 按秒计费
+		modelPrice = secondPrice * seconds
+		isPerSecondBilling = true
+		println(fmt.Sprintf("DEBUG: Using per-second billing - secondPrice: %.4f, seconds: %.2f, calculated modelPrice: %.4f", secondPrice, seconds, modelPrice))
+	} else {
+		// 按次计费（使用原始模型名称）
+		success := false
+		modelPrice, success = ratio_setting.GetModelPrice(modelName, true)
+		println(fmt.Sprintf("DEBUG: Per-call price check - model: %s, success: %v, modelPrice: %.4f", modelName, success, modelPrice))
+
+		if !success {
+			defaultPrice, ok := ratio_setting.GetDefaultModelPriceMap()[modelName]
+			println(fmt.Sprintf("DEBUG: Default price check - model: %s, ok: %v, defaultPrice: %.4f", modelName, ok, defaultPrice))
+			if !ok {
+				modelPrice = 0.1
+				println(fmt.Sprintf("DEBUG: Using fallback default price: %.4f", modelPrice))
+			} else {
+				modelPrice = defaultPrice
+				println(fmt.Sprintf("DEBUG: Using default price: %.4f", modelPrice))
 			}
 		}
 	}
-	println(fmt.Sprintf("model: %s, model_price: %.4f, group: %s, group_ratio: %.4f, final_ratio: %.4f", modelName, modelPrice, info.UsingGroup, groupRatio, ratio))
+
+	// 打印分组倍率信息
+	println(fmt.Sprintf("DEBUG: Group ratio info - UsingGroup: %s, groupRatio: %.4f, UserGroup: %s, hasUserGroupRatio: %v, userGroupRatio: %.4f, finalGroupRatio: %.4f",
+		info.UsingGroup, groupRatio, info.UserGroup, hasUserGroupRatio, userGroupRatio, finalGroupRatio))
+
+	// 计算最终价格
+	var ratio float64
+	ratio = modelPrice * finalGroupRatio
+	println(fmt.Sprintf("DEBUG: After group ratio - modelPrice: %.4f, finalGroupRatio: %.4f, ratio: %.4f", modelPrice, finalGroupRatio, ratio))
+
+	// FIXME: 临时修补，支持任务仅按次计费
+	if !common.StringsContains(constant.TaskPricePatches, modelName) {
+		if len(info.PriceData.OtherRatios) > 0 {
+			println(fmt.Sprintf("DEBUG: OtherRatios found: %v", info.PriceData.OtherRatios))
+			for key, ra := range info.PriceData.OtherRatios {
+				// 跳过 seconds，因为已经在按秒计费中处理
+				if key != "seconds" && 1.0 != ra {
+					ratio *= ra
+					println(fmt.Sprintf("DEBUG: Applying OtherRatio - key: %s, value: %.4f, new ratio: %.4f", key, ra, ratio))
+				}
+			}
+		} else {
+			println("DEBUG: No OtherRatios found")
+		}
+	} else {
+		println(fmt.Sprintf("DEBUG: Model %s is in TaskPricePatches, skipping OtherRatios", modelName))
+	}
+
+	// 准备日志信息
+	billingType := "per-call"
+	priceToLog := modelPrice
+	if isPerSecondBilling {
+		billingType = "per-second"
+		priceToLog = secondPrice
+	}
+
+	println(fmt.Sprintf("DEBUG: Final price calculation - model: %s, billing_type: %s, base_price: %.4f, seconds: %.2f, group: %s, group_ratio: %.4f, final_ratio: %.4f, quota: %d",
+		modelName,
+		billingType,
+		priceToLog,
+		seconds,
+		info.UsingGroup,
+		groupRatio,
+		ratio,
+		int(ratio*common.QuotaPerUnit)))
+
+	// 计算并打印最终的额度
+	quota := int(ratio * common.QuotaPerUnit)
+	println(fmt.Sprintf("DEBUG: Quota calculation - ratio: %.4f, QuotaPerUnit: %.4f, quota: %d", ratio, common.QuotaPerUnit, quota))
+	println(fmt.Sprintf("DEBUG: Quota in USD: %.6f", float64(quota)/common.QuotaPerUnit))
+
 	userQuota, err := model.GetUserQuota(info.UserId, false)
 	if err != nil {
 		taskErr = service.TaskErrorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
 		return
 	}
-	quota := int(ratio * common.QuotaPerUnit)
 	if userQuota-quota < 0 {
 		taskErr = service.TaskErrorWrapperLocal(errors.New("user quota is not enough"), "quota_not_enough", http.StatusForbidden)
 		return

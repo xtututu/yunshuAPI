@@ -73,13 +73,15 @@ const ModelPricingTable = ({
             ? t('按量计费')
             : modelData?.quota_type === 1
               ? t('按次计费')
-              : '-',
+              : modelData?.quota_type === 2
+                ? t('按秒计费')
+                : '-',
         inputPrice: modelData?.quota_type === 0 ? priceData.inputPrice : '-',
         outputPrice:
           modelData?.quota_type === 0
             ? priceData.completionPrice || priceData.outputPrice
             : '-',
-        fixedPrice: modelData?.quota_type === 1 ? priceData.price : '-',
+        fixedPrice: (modelData?.quota_type === 1 || modelData?.quota_type === 2) ? priceData.price : '-',
       };
     });
 
@@ -114,16 +116,17 @@ const ModelPricingTable = ({
     columns.push({
       title: t('计费类型'),
       dataIndex: 'billingType',
-      render: (text) => {
-        let color = 'white';
-        if (text === t('按量计费')) color = 'violet';
-        else if (text === t('按次计费')) color = 'teal';
-        return (
-          <Tag color={color} size='small' shape='circle'>
-            {text || '-'}
-          </Tag>
-        );
-      },
+        render: (text) => {
+          let color = 'white';
+          if (text === t('按量计费')) color = 'violet';
+          else if (text === t('按次计费')) color = 'teal';
+          else if (text === t('按秒计费')) color = 'blue';
+          return (
+            <Tag color={color} size='small' shape='circle'>
+              {text || '-'}
+            </Tag>
+          );
+        },
     });
 
     // 根据计费类型添加价格列
@@ -156,14 +159,16 @@ const ModelPricingTable = ({
         },
       );
     } else {
-      // 按次计费
+      // 按次计费或按秒计费
       columns.push({
         title: t('价格'),
         dataIndex: 'fixedPrice',
         render: (text) => (
           <>
             <div className='font-semibold text-orange-600'>{text}</div>
-            <div className='text-xs text-gray-500'>/ 次</div>
+            <div className='text-xs text-gray-500'>
+              / {modelData?.quota_type === 2 ? '秒' : '次'}
+            </div>
           </>
         ),
       });

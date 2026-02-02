@@ -27,6 +27,7 @@ import {
   Space,
   Typography,
   Radio,
+  RadioGroup,
   Notification,
 } from '@douyinfe/semi-ui';
 import {
@@ -56,6 +57,7 @@ export default function ModelRatioNotSetEditor(props) {
   const [batchRatioValue, setBatchRatioValue] = useState('');
   const [batchCompletionRatioValue, setBatchCompletionRatioValue] =
     useState('');
+  const [pricingMode, setPricingMode] = useState('per-token'); // 'per-token', 'per-request' or 'per-second'
   const { Text } = Typography;
   // 定义可选的每页显示条数
   const pageSizeOptions = [10, 20, 50, 100];
@@ -83,22 +85,25 @@ export default function ModelRatioNotSetEditor(props) {
   useEffect(() => {
     try {
       const modelPrice = JSON.parse(props.options.ModelPrice || '{}');
+      const modelSecondPrice = JSON.parse(props.options.ModelSecondPrice || '{}');
       const modelRatio = JSON.parse(props.options.ModelRatio || '{}');
       const completionRatio = JSON.parse(props.options.CompletionRatio || '{}');
 
-      // 找出所有未设置价格和倍率的模型
+      // 找出所有未设置价格、秒价格和倍率的模型
       const unsetModels = enabledModels.filter((modelName) => {
         const hasPrice = modelPrice[modelName] !== undefined;
+        const hasSecondPrice = modelSecondPrice[modelName] !== undefined;
         const hasRatio = modelRatio[modelName] !== undefined;
 
-        // 如果模型没有价格或者没有倍率设置，则显示
-        return !hasPrice && !hasRatio;
+        // 如果模型没有价格、没有秒价格、没有倍率设置，则显示
+        return !hasPrice && !hasSecondPrice && !hasRatio;
       });
 
       // 创建模型数据
       const modelData = unsetModels.map((name) => ({
         name,
         price: modelPrice[name] || '',
+        secondPrice: modelSecondPrice[name] || '',
         ratio: modelRatio[name] || '',
         completionRatio: completionRatio[name] || '',
       }));
@@ -140,6 +145,7 @@ export default function ModelRatioNotSetEditor(props) {
     setLoading(true);
     const output = {
       ModelPrice: JSON.parse(props.options.ModelPrice || '{}'),
+      ModelSecondPrice: JSON.parse(props.options.ModelSecondPrice || '{}'),
       ModelRatio: JSON.parse(props.options.ModelRatio || '{}'),
       CompletionRatio: JSON.parse(props.options.CompletionRatio || '{}'),
     };
@@ -148,7 +154,10 @@ export default function ModelRatioNotSetEditor(props) {
       // 数据转换 - 只处理已修改的模型
       models.forEach((model) => {
         // 只有当用户设置了值时才更新
-        if (model.price !== '') {
+        if (model.secondPrice !== '') {
+          // 如果秒价格不为空，则转换为浮点数，忽略其他参数
+          output.ModelSecondPrice[model.name] = parseFloat(model.secondPrice);
+        } else if (model.price !== '') {
           // 如果价格不为空，则转换为浮点数，忽略倍率参数
           output.ModelPrice[model.name] = parseFloat(model.price);
         } else {
@@ -164,6 +173,7 @@ export default function ModelRatioNotSetEditor(props) {
       // 准备API请求数组
       const finalOutput = {
         ModelPrice: JSON.stringify(output.ModelPrice, null, 2),
+        ModelSecondPrice: JSON.stringify(output.ModelSecondPrice, null, 2),
         ModelRatio: JSON.stringify(output.ModelRatio, null, 2),
         CompletionRatio: JSON.stringify(output.CompletionRatio, null, 2),
       };
@@ -220,7 +230,21 @@ export default function ModelRatioNotSetEditor(props) {
         <Input
           value={text}
           placeholder={t('按量计费')}
+          disabled={record.secondPrice !== ''}
           onChange={(value) => updateModel(record.name, 'price', value)}
+        />
+      ),
+    },
+    {
+      title: t('模型秒价格'),
+      dataIndex: 'secondPrice',
+      key: 'secondPrice',
+      render: (text, record) => (
+        <Input
+          value={text}
+          placeholder={t('按秒计费')}
+          disabled={record.price !== ''}
+          onChange={(value) => updateModel(record.name, 'secondPrice', value)}
         />
       ),
     },
@@ -231,8 +255,8 @@ export default function ModelRatioNotSetEditor(props) {
       render: (text, record) => (
         <Input
           value={text}
-          placeholder={record.price !== '' ? t('模型倍率') : t('输入模型倍率')}
-          disabled={record.price !== ''}
+          placeholder={(record.price !== '' || record.secondPrice !== '') ? t('模型倍率') : t('输入模型倍率')}
+          disabled={record.price !== '' || record.secondPrice !== ''}
           onChange={(value) => updateModel(record.name, 'ratio', value)}
         />
       ),
@@ -244,8 +268,8 @@ export default function ModelRatioNotSetEditor(props) {
       render: (text, record) => (
         <Input
           value={text}
-          placeholder={record.price !== '' ? t('补全倍率') : t('输入补全倍率')}
-          disabled={record.price !== ''}
+          placeholder={(record.price !== '' || record.secondPrice !== '') ? t('补全倍率') : t('输入补全倍率')}
+          disabled={record.price !== '' || record.secondPrice !== ''}
           onChange={(value) =>
             updateModel(record.name, 'completionRatio', value)
           }
@@ -276,12 +300,14 @@ export default function ModelRatioNotSetEditor(props) {
       {
         name: values.name,
         price: values.price || '',
+        secondPrice: values.secondPrice || '',
         ratio: values.ratio || '',
         completionRatio: values.completionRatio || '',
       },
       ...prev,
     ]);
     setVisible(false);
+    setPricingMode('per-token'); // 重置定价模式
     showSuccess(t('添加成功'));
   };
 
@@ -452,9 +478,30 @@ export default function ModelRatioNotSetEditor(props) {
       <Modal
         title={t('添加模型')}
         visible={visible}
-        onCancel={() => setVisible(false)}
+        onCancel={() => {
+          setVisible(false);
+          setPricingMode('per-token'); // 重置定价模式
+        }}
         onOk={() => {
-          currentModel && addModel(currentModel);
+          if (currentModel) {
+            // 根据定价模式清空其他字段
+            const valuesToSave = { ...currentModel };
+            
+            if (pricingMode === 'per-token') {
+              valuesToSave.price = '';
+              valuesToSave.secondPrice = '';
+            } else if (pricingMode === 'per-request') {
+              valuesToSave.ratio = '';
+              valuesToSave.completionRatio = '';
+              valuesToSave.secondPrice = '';
+            } else if (pricingMode === 'per-second') {
+              valuesToSave.price = '';
+              valuesToSave.ratio = '';
+              valuesToSave.completionRatio = '';
+            }
+            
+            addModel(valuesToSave);
+          }
         }}
       >
         <Form>
@@ -467,34 +514,47 @@ export default function ModelRatioNotSetEditor(props) {
               setCurrentModel((prev) => ({ ...prev, name: value }))
             }
           />
-          <Form.Switch
-            field='priceMode'
-            label={
-              <>
-                {t('定价模式')}：
-                {currentModel?.priceMode ? t('固定价格') : t('倍率模式')}
-              </>
-            }
-            onChange={(checked) => {
-              setCurrentModel((prev) => ({
-                ...prev,
-                price: '',
-                ratio: '',
-                completionRatio: '',
-                priceMode: checked,
-              }));
-            }}
-          />
-          {currentModel?.priceMode ? (
-            <Form.Input
-              field='price'
-              label={t('固定价格(每次)')}
-              placeholder={t('输入每次价格')}
-              onChange={(value) =>
-                setCurrentModel((prev) => ({ ...prev, price: value }))
-              }
-            />
-          ) : (
+
+          <Form.Section text={t('定价模式')}>
+            <div style={{ marginBottom: '16px' }}>
+              <RadioGroup
+                type='button'
+                value={pricingMode}
+                onChange={(e) => {
+                  const newMode = e.target.value;
+                  setPricingMode(newMode);
+                  
+                  // 清空其他字段
+                  if (currentModel) {
+                    const updatedModel = { ...currentModel };
+                    if (newMode === 'per-request') {
+                      updatedModel.price = '';
+                      updatedModel.ratio = '';
+                      updatedModel.completionRatio = '';
+                      updatedModel.secondPrice = '';
+                    } else if (newMode === 'per-token') {
+                      updatedModel.price = '';
+                      updatedModel.ratio = '';
+                      updatedModel.completionRatio = '';
+                      updatedModel.secondPrice = '';
+                    } else if (newMode === 'per-second') {
+                      updatedModel.price = '';
+                      updatedModel.ratio = '';
+                      updatedModel.completionRatio = '';
+                      updatedModel.secondPrice = '';
+                    }
+                    setCurrentModel(updatedModel);
+                  }
+                }}
+              >
+                <Radio value='per-token'>{t('按量计费')}</Radio>
+                <Radio value='per-request'>{t('按次计费')}</Radio>
+                <Radio value='per-second'>{t('按秒计费')}</Radio>
+              </RadioGroup>
+            </div>
+          </Form.Section>
+
+          {pricingMode === 'per-token' && (
             <>
               <Form.Input
                 field='ratio'
@@ -507,7 +567,7 @@ export default function ModelRatioNotSetEditor(props) {
               <Form.Input
                 field='completionRatio'
                 label={t('补全倍率')}
-                placeholder={t('输入补全价格')}
+                placeholder={t('输入补全倍率')}
                 onChange={(value) =>
                   setCurrentModel((prev) => ({
                     ...prev,
@@ -516,6 +576,28 @@ export default function ModelRatioNotSetEditor(props) {
                 }
               />
             </>
+          )}
+
+          {pricingMode === 'per-request' && (
+            <Form.Input
+              field='price'
+              label={t('固定价格(每次)')}
+              placeholder={t('输入每次价格')}
+              onChange={(value) =>
+                setCurrentModel((prev) => ({ ...prev, price: value }))
+              }
+            />
+          )}
+
+          {pricingMode === 'per-second' && (
+            <Form.Input
+              field='secondPrice'
+              label={t('固定价格(每秒)')}
+              placeholder={t('输入每秒价格')}
+              onChange={(value) =>
+                setCurrentModel((prev) => ({ ...prev, secondPrice: value }))
+              }
+            />
           )}
         </Form>
       </Modal>

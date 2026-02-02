@@ -170,6 +170,12 @@ const PricingCardView = ({
           {t('按量计费')}
         </Tag>
       );
+    } else if (record.quota_type === 2) {
+      billingTag = (
+        <Tag key='billing' shape='circle' color='blue' size='small'>
+          {t('按秒计费')}
+        </Tag>
+      );
     }
 
     // 自定义标签（右边）

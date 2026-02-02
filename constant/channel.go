@@ -36,7 +36,7 @@ const (
 	ChannelTypeSunoAPI        = 36
 	ChannelTypeDify           = 37
 	ChannelTypeJina           = 38
-	ChannelCloudflare         = 39
+	ChannelTypeCloudflare     = 39
 	ChannelTypeSiliconFlow    = 40
 	ChannelTypeVertexAi       = 41
 	ChannelTypeMistral        = 42
@@ -59,75 +59,73 @@ const (
 	ChannelTypeOpenAIS        = 59
 	ChannelTypeSuchuang       = 60
 	ChannelTypeKieai          = 61
-	ChannelTypeYushu          = 62
 	ChannelTypeDummy          // this one is only for count, do not add any channel after this
 
 )
 
 var ChannelBaseURLs = []string{
-	"",                           // 0
-	"https://api.chatfire.cn",    // 1
-	"https://api.chatfire.cn",    // 2
-	"https://api.chatfire.cn",    // 3
-	"https://api.chatfire.cn",    // 4
-	"https://api.chatfire.cn",    // 5
-	"https://api.chatfire.cn",    // 6
-	"https://api.chatfire.cn",    // 7
-	"https://api.chatfire.cn",    // 8
-	"https://api.chatfire.cn",    // 9
-	"https://api.chatfire.cn",    // 10
-	"https://api.chatfire.cn",    // 11
-	"https://api.chatfire.cn",    // 12
-	"https://api.chatfire.cn",    // 13
-	"https://api.chatfire.cn",    // 14
-	"https://api.chatfire.cn",    // 15
-	"https://api.chatfire.cn",    // 16
-	"https://api.chatfire.cn",    // 17
-	"https://api.chatfire.cn",    // 18
-	"https://api.chatfire.cn",    // 19
-	"https://api.chatfire.cn",    // 20
-	"https://api.chatfire.cn",    // 21
-	"https://api.chatfire.cn",    // 22
-	"https://api.chatfire.cn",    // 23
-	"https://api.chatfire.cn",    // 24
-	"https://api.chatfire.cn",    // 25
-	"https://api.chatfire.cn",    // 26
-	"https://api.chatfire.cn",    // 27
-	"https://api.chatfire.cn",    // 28
-	"https://api.chatfire.cn",    // 29
-	"https://api.chatfire.cn",    // 30
-	"https://api.chatfire.cn",    // 31
-	"https://api.chatfire.cn",    // 32
-	"https://api.chatfire.cn",    // 33
-	"https://api.chatfire.cn",    // 34
-	"https://api.chatfire.cn",    // 35
-	"https://api.chatfire.cn",    // 36
-	"https://api.chatfire.cn",    // 37
-	"https://api.chatfire.cn",    // 38
-	"https://api.chatfire.cn",    // 39
-	"https://api.chatfire.cn",    // 40
-	"https://api.chatfire.cn",    // 41
-	"https://api.chatfire.cn",    // 42
-	"https://api.chatfire.cn",    // 43
-	"https://api.chatfire.cn",    // 44
-	"https://api.chatfire.cn",    // 45
-	"https://api.chatfire.cn",    // 46
-	"https://api.chatfire.cn",    // 47
-	"https://api.chatfire.cn",    // 48
-	"https://api.chatfire.cn",    // 49
-	"https://api.chatfire.cn",    // 50
-	"https://api.chatfire.cn",    // 51
-	"https://api.chatfire.cn",    // 52
-	"https://api.chatfire.cn",    // 53
-	"https://api.chatfire.cn",    // 54
-	"https://api.chatfire.cn",    // 55
-	"https://api.chatfire.cn",    // 56
-	"https://grsai.dakka.com.cn", // 57
-	"https://api.wuyinkeji.com",  // 58
-	"https://api.wuyinkeji.com",  // 59
-	"https://api.wuyinkeji.com",  // 60
-	"https://api.kie.ai",         // 61
-	"https://api.vectorengine.ai", // 62
+	"",                            // 0
+	"https://api.vectorengine.ai", // 1
+	"https://api.vectorengine.ai", // 2
+	"https://api.vectorengine.ai", // 3
+	"https://api.vectorengine.ai", // 4
+	"https://api.vectorengine.ai", // 5
+	"https://api.vectorengine.ai", // 6
+	"https://api.vectorengine.ai", // 7
+	"https://api.vectorengine.ai", // 8
+	"https://api.vectorengine.ai", // 9
+	"https://api.vectorengine.ai", // 10
+	"https://api.vectorengine.ai", // 11
+	"https://api.vectorengine.ai", // 12
+	"https://api.vectorengine.ai", // 13
+	"https://api.vectorengine.ai", // 14
+	"https://api.vectorengine.ai", // 15
+	"https://api.vectorengine.ai", // 16
+	"https://api.vectorengine.ai", // 17
+	"https://api.vectorengine.ai", // 18
+	"https://api.vectorengine.ai", // 19
+	"https://api.vectorengine.ai", // 20
+	"https://api.vectorengine.ai", // 21
+	"https://api.vectorengine.ai", // 22
+	"https://api.vectorengine.ai", // 23
+	"https://api.vectorengine.ai", // 24
+	"https://api.vectorengine.ai", // 25
+	"https://api.vectorengine.ai", // 26
+	"https://api.vectorengine.ai", // 27
+	"https://api.vectorengine.ai", // 28
+	"https://api.vectorengine.ai", // 29
+	"https://api.vectorengine.ai", // 30
+	"https://api.vectorengine.ai", // 31
+	"https://api.vectorengine.ai", // 32
+	"https://api.vectorengine.ai", // 33
+	"https://api.vectorengine.ai", // 34
+	"https://api.vectorengine.ai", // 35
+	"https://api.vectorengine.ai", // 36
+	"https://api.vectorengine.ai", // 37
+	"https://api.vectorengine.ai", // 38
+	"https://api.vectorengine.ai", // 39
+	"https://api.vectorengine.ai", // 40
+	"https://api.vectorengine.ai", // 41
+	"https://api.vectorengine.ai", // 42
+	"https://api.vectorengine.ai", // 43
+	"https://api.vectorengine.ai", // 44
+	"https://api.vectorengine.ai", // 45
+	"https://api.vectorengine.ai", // 46
+	"https://api.vectorengine.ai", // 47
+	"https://api.vectorengine.ai", // 48
+	"https://api.vectorengine.ai", // 49
+	"https://api.vectorengine.ai", // 50
+	"https://api.vectorengine.ai", // 51
+	"https://api.vectorengine.ai", // 52
+	"https://api.vectorengine.ai", // 53
+	"https://api.vectorengine.ai", // 54
+	"https://api.vectorengine.ai", // 55
+	"https://api.vectorengine.ai", // 56
+	"https://grsai.dakka.com.cn",  // 57
+	"https://api.wuyinkeji.com",   // 58
+	"https://api.wuyinkeji.com",   // 59
+	"https://api.wuyinkeji.com",   // 60
+	"https://api.kie.ai",          // 61
 }
 
 var ChannelTypeNames = map[int]string{
@@ -166,7 +164,7 @@ var ChannelTypeNames = map[int]string{
 	ChannelTypeSunoAPI:        "SunoAPI",
 	ChannelTypeDify:           "Dify",
 	ChannelTypeJina:           "Jina",
-	ChannelCloudflare:         "Cloudflare",
+	ChannelTypeCloudflare:     "Cloudflare",
 	ChannelTypeSiliconFlow:    "SiliconFlow",
 	ChannelTypeVertexAi:       "VertexAI",
 	ChannelTypeMistral:        "Mistral",
@@ -189,7 +187,6 @@ var ChannelTypeNames = map[int]string{
 	ChannelTypeOpenAIS:        "OpenAI-s",
 	ChannelTypeSuchuang:       "Suchuang",
 	ChannelTypeKieai:          "KieAI",
-	ChannelTypeYushu:          "Yushu",
 }
 
 func GetChannelTypeName(channelType int) string {

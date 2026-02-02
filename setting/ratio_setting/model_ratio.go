@@ -297,6 +297,14 @@ var defaultModelPrice = map[string]float64{
 	"sora-2-pro":                     0.5,
 }
 
+var defaultModelSecondPrice = map[string]float64{
+	"gpt-4o-realtime-preview":         0.001,
+	"gpt-4o-realtime-preview-2024-10-01": 0.001,
+	"gpt-4o-realtime-preview-2024-12-17": 0.001,
+	"gpt-4o-mini-realtime-preview":    0.0002,
+	"gpt-4o-mini-realtime-preview-2024-12-17": 0.0002,
+}
+
 var defaultAudioRatio = map[string]float64{
 	"gpt-4o-audio-preview":         16,
 	"gpt-4o-mini-audio-preview":    66.67,
@@ -312,6 +320,10 @@ var defaultAudioCompletionRatio = map[string]float64{
 var (
 	modelPriceMap      map[string]float64 = nil
 	modelPriceMapMutex                    = sync.RWMutex{}
+)
+var (
+	modelSecondPriceMap      map[string]float64 = nil
+	modelSecondPriceMapMutex                    = sync.RWMutex{}
 )
 var (
 	modelRatioMap      map[string]float64 = nil
@@ -336,6 +348,11 @@ func InitRatioSettings() {
 	modelPriceMapMutex.Lock()
 	modelPriceMap = defaultModelPrice
 	modelPriceMapMutex.Unlock()
+
+	// Initialize modelSecondPriceMap
+	modelSecondPriceMapMutex.Lock()
+	modelSecondPriceMap = defaultModelSecondPrice
+	modelSecondPriceMapMutex.Unlock()
 
 	// Initialize modelRatioMap
 	modelRatioMapMutex.Lock()
@@ -413,6 +430,51 @@ func GetModelPrice(name string, printErr bool) (float64, bool) {
 	return price, true
 }
 
+func GetModelSecondPriceMap() map[string]float64 {
+	modelSecondPriceMapMutex.RLock()
+	defer modelSecondPriceMapMutex.RUnlock()
+	return modelSecondPriceMap
+}
+
+func ModelSecondPrice2JSONString() string {
+	modelSecondPriceMapMutex.RLock()
+	defer modelSecondPriceMapMutex.RUnlock()
+
+	jsonBytes, err := common.Marshal(modelSecondPriceMap)
+	if err != nil {
+		common.SysError("error marshalling model second price: " + err.Error())
+	}
+	return string(jsonBytes)
+}
+
+func UpdateModelSecondPriceByJSONString(jsonStr string) error {
+	modelSecondPriceMapMutex.Lock()
+	defer modelSecondPriceMapMutex.Unlock()
+	modelSecondPriceMap = make(map[string]float64)
+	err := json.Unmarshal([]byte(jsonStr), &modelSecondPriceMap)
+	if err == nil {
+		InvalidateExposedDataCache()
+	}
+	return err
+}
+
+// GetModelSecondPrice 返回模型的秒价格，如果模型不存在则返回-1，false
+func GetModelSecondPrice(name string, printErr bool) (float64, bool) {
+	modelSecondPriceMapMutex.RLock()
+	defer modelSecondPriceMapMutex.RUnlock()
+
+	name = FormatMatchingModelName(name)
+
+	price, ok := modelSecondPriceMap[name]
+	if !ok {
+		if printErr {
+			common.SysError("model second price not found: " + name)
+		}
+		return -1, false
+	}
+	return price, true
+}
+
 func UpdateModelRatioByJSONString(jsonStr string) error {
 	modelRatioMapMutex.Lock()
 	defer modelRatioMapMutex.Unlock()
@@ -459,6 +521,10 @@ func GetDefaultModelRatioMap() map[string]float64 {
 
 func GetDefaultModelPriceMap() map[string]float64 {
 	return defaultModelPrice
+}
+
+func GetDefaultModelSecondPriceMap() map[string]float64 {
+	return defaultModelSecondPrice
 }
 
 func GetDefaultImageRatioMap() map[string]float64 {
@@ -790,6 +856,16 @@ func GetModelPriceCopy() map[string]float64 {
 	defer modelPriceMapMutex.RUnlock()
 	copyMap := make(map[string]float64, len(modelPriceMap))
 	for k, v := range modelPriceMap {
+		copyMap[k] = v
+	}
+	return copyMap
+}
+
+func GetModelSecondPriceCopy() map[string]float64 {
+	modelSecondPriceMapMutex.RLock()
+	defer modelSecondPriceMapMutex.RUnlock()
+	copyMap := make(map[string]float64, len(modelSecondPriceMap))
+	for k, v := range modelSecondPriceMap {
 		copyMap[k] = v
 	}
 	return copyMap

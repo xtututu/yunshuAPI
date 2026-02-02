@@ -49,7 +49,6 @@ import (
 	"yunshuAPI/relay/channel/xunfei"
 	"yunshuAPI/relay/channel/zhipu"
 	"yunshuAPI/relay/channel/zhipu_4v"
-	"yunshuAPI/relay/channel/yushu"
 
 	"github.com/gin-gonic/gin"
 )
@@ -171,8 +170,6 @@ func GetTaskAdaptor(platform constant.TaskPlatform) channel.TaskAdaptor {
 			return &suchuang.TaskAdaptor{}
 		case constant.ChannelTypeKieai:
 			return &kieai.TaskAdaptor{}
-		case constant.ChannelTypeYushu:
-			return &yushu.TaskAdaptor{}
 		}
 	}
 	return nil

@@ -689,6 +689,19 @@ export const calculateModelPrice = ({
     };
   }
 
+  if (record.quota_type === 2) {
+    // 按秒计费
+    const priceUSD = parseFloat(record.second_price) * usedGroupRatio;
+    const displayVal = displayPrice(priceUSD);
+
+    return {
+      price: displayVal,
+      isPerToken: false,
+      usedGroup,
+      usedGroupRatio,
+    };
+  }
+
   // 未知计费类型，返回占位信息
   return {
     price: '-',

@@ -351,9 +351,8 @@ export function getChannelIcon(channelType) {
     case 22: // 知识库：FastGPT
       return <FastGPT.Color size={iconSize} />;
     case 21: // 知识库：AI Proxy
-    case 44: // 嵌入模型：MokaAI M3E
-    case 62: // 云舒
-      return null; // 云舒渠道暂不显示图标
+	case 44: // 嵌入模型：MokaAI M3E
+		return null;
     default:
       return null; // 未知类型或自定义渠道不显示图标
   }
