@@ -394,6 +394,18 @@ func (user *User) Insert(inviterId int) error {
 	//user.SetAccessToken(common.GetUUID())
 	user.AffCode = common.GetRandomString(4)
 
+	// 生成随机5位数ID
+	for {
+		randomId := 10000 + common.GetRandomInt(90000) // 生成10000-99999的随机数
+		var existingUser User
+		if err := DB.First(&existingUser, randomId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+			// 该ID不存在，可以使用
+			user.Id = randomId
+			break
+		}
+		// 如果ID已存在，继续循环生成
+	}
+
 	// 初始化用户设置，包括默认的边栏配置
 	if user.Setting == "" {
 		defaultSetting := dto.UserSetting{}

@@ -273,7 +273,7 @@
     "使用认证器应用（如 Google Authenticator、Microsoft Authenticator）扫描下方二维码：": "Google Authenticator、Microsoft Authenticatorなどの認証アプリで、以下のQRコードをスキャンしてください：",
     "使用认证器应用扫描二维码": " 認証アプリスキャン",
     "例如 €, £, Rp, ₩, ₹...": "例：€, £, Rp, ₩, ₹...",
-    "例如 https://docs.newapi.pro": "例：https://docs.newapi.pro",
+    "例如 https://yscloud.apifox.cn": "例：https://yscloud.apifox.cn",
     "例如：": "例：",
     "例如: socks5://user:pass@host:port": "（例：socks5://user:pass@host:port）",
     "例如：0001": "例：0001",

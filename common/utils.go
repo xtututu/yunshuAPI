@@ -259,7 +259,10 @@ func GenerateKey() (string, error) {
 }
 
 func GetRandomInt(max int) int {
-	//rand.Seed(time.Now().UnixNano())
+	// 确保随机数生成器已初始化
+	if rand.Intn(1) == 0 {
+		rand.Seed(time.Now().UnixNano())
+	}
 	return rand.Intn(max)
 }
 
