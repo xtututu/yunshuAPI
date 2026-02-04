@@ -111,7 +111,7 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 	}
 
 	contentType := c.GetHeader("Content-Type")
-	
+
 	// 处理JSON请求，将input_reference转换为base64附件
 	if strings.HasPrefix(contentType, "application/json") {
 		// 解析JSON请求
@@ -132,7 +132,7 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 
 			// 处理input_reference中的图片URL
 			var urls []string
-			
+
 			// 支持多种格式：字符串、字符串数组
 			switch v := inputReference.(type) {
 			case string:
@@ -170,14 +170,14 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 
 				// 生成文件名
 				filename := fmt.Sprintf("image_%d.jpg", i+1)
-				
+
 				// 创建form文件并写入图片内容
 				part, err := writer.CreateFormFile("input_reference", filename)
 				if err != nil {
 					writer.Close()
 					return nil, errors.Wrapf(err, "create_form_file_failed: %s", filename)
 				}
-				
+
 				// 写入图片内容
 				if _, err := part.Write(imageData); err != nil {
 					writer.Close()
@@ -427,15 +427,16 @@ func (a *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 
 // 定义用户期望的视频响应结构体
 type UserExpectedVideoResponse struct {
-	ID        string `json:"id"`
-	Size      string `json:"size"`
-	Model     string `json:"model"`
-	Object    string `json:"object"`
-	Status    string `json:"status"`
-	Seconds   string `json:"seconds"`
-	Progress  int    `json:"progress"`
-	VideoURL  string `json:"video_url"`
-	CreatedAt int64  `json:"created_at"`
+	ID         string `json:"id"`
+	Size       string `json:"size"`
+	Model      string `json:"model"`
+	Object     string `json:"object"`
+	Status     string `json:"status"`
+	Seconds    string `json:"seconds"`
+	Progress   int    `json:"progress"`
+	VideoURL   string `json:"video_url"`
+	CreatedAt  int64  `json:"created_at"`
+	FailReason string `json:"fail_reason,omitempty"`
 }
 
 func (a *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
@@ -463,6 +464,15 @@ func (a *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
 		} else {
 			// 如果API响应中没有video_url，使用原有的构建方式作为 fallback
 			response.VideoURL = fmt.Sprintf("%s/v1/videos/%s/content", a.baseURL, task.TaskID)
+		}
+	} else if task.Status == model.TaskStatusFailure {
+		// 填充失败原因
+		if soraResp.Error != nil && soraResp.Error.Message != "" {
+			response.FailReason = soraResp.Error.Message
+		} else if task.FailReason != "" {
+			response.FailReason = task.FailReason
+		} else {
+			response.FailReason = "Unknown error"
 		}
 	}
 
