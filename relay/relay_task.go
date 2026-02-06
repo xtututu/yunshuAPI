@@ -554,8 +554,14 @@ func RelayTaskSubmit(c *gin.Context, info *relaycommon.RelayInfo) (taskErr *dto.
 		openAIVideo.ID = taskID
 		openAIVideo.Status = "queued"                                           // 新提交的任务默认为queued状�?
 		openAIVideo.CreatedAt = time.Now().UnixNano() / int64(time.Millisecond) // 当前时间戳（毫秒�?
-		openAIVideo.Model = "sora-2"                                            // 根据实际情况设置模型名称
 
+		var Model string = "video" // 默认视频时长
+		if req, err := relaycommon.GetTaskRequest(c); err == nil {
+			if req.Model != "" {
+				Model = req.Model
+			}
+		}
+		openAIVideo.Model = Model
 		// 获取用户输入的秒�?
 		var seconds string = "10" // 默认视频时长
 		if req, err := relaycommon.GetTaskRequest(c); err == nil {
