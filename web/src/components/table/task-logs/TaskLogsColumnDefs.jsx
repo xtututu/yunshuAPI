@@ -263,7 +263,7 @@ export const getTaskLogsColumns = ({
   isAdminUser,
   openVideoModal,
 }) => {
-  return [
+  const columns = [
     {
       key: COLUMN_KEYS.SUBMIT_TIME,
       title: t('提交时间'),
@@ -318,22 +318,6 @@ export const getTaskLogsColumns = ({
       dataIndex: 'platform',
       render: (text, record, index) => {
         return <div>{renderPlatform(text, t, isAdminUser)}</div>;
-      },
-    },
-    {
-      key: COLUMN_KEYS.USERNAME,
-      title: t('用户名称'),
-      dataIndex: 'username',
-      render: (text, record, index) => {
-        return <div>{text || '-'}</div>;
-      },
-    },
-    {
-      key: COLUMN_KEYS.UPSTREAM_MODEL,
-      title: t('实际调用模型'),
-      dataIndex: 'properties',
-      render: (properties, record, index) => {
-        return <div>{properties?.upstream_model_name || '-'}</div>;
       },
     },
     {
@@ -439,4 +423,26 @@ export const getTaskLogsColumns = ({
       },
     },
   ];
+
+  // 仅管理员用户显示用户名称和实际调用模型列
+  if (isAdminUser) {
+    columns.splice(5, 0, {
+      key: COLUMN_KEYS.USERNAME,
+      title: t('用户名称'),
+      dataIndex: 'username',
+      render: (text, record, index) => {
+        return <div>{text || '-'}</div>;
+      },
+    });
+    columns.splice(6, 0, {
+      key: COLUMN_KEYS.UPSTREAM_MODEL,
+      title: t('实际调用模型'),
+      dataIndex: 'properties',
+      render: (properties, record, index) => {
+        return <div>{properties?.upstream_model_name || '-'}</div>;
+      },
+    });
+  }
+
+  return columns;
 };
