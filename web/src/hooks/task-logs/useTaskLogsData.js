@@ -195,6 +195,7 @@ export const useTaskLogsData = () => {
       task_id: formValues.task_id || '',
       username: formValues.username || '',
       upstream_model_name: formValues.upstream_model_name || '',
+      status: formValues.status || '',
       start_timestamp,
       end_timestamp,
     };
@@ -221,14 +222,14 @@ export const useTaskLogsData = () => {
   // Load logs function
   const loadLogs = async (page = 1, size = pageSize) => {
     setLoading(true);
-    const { channel_id, task_id, username, upstream_model_name, start_timestamp, end_timestamp } = getFormValues();
+    const { channel_id, task_id, username, upstream_model_name, status, start_timestamp, end_timestamp } = getFormValues();
     let localStartTimestamp = parseInt(Date.parse(start_timestamp) / 1000);
     let localEndTimestamp = parseInt(Date.parse(end_timestamp) / 1000);
     let url;
     if (isAdminUser) {
-      url = `/api/task/?p=${page}&page_size=${size}&channel_id=${channel_id}&task_id=${task_id}&username=${username}&upstream_model_name=${upstream_model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
+      url = `/api/task/?p=${page}&page_size=${size}&channel_id=${channel_id}&task_id=${task_id}&username=${username}&upstream_model_name=${upstream_model_name}&status=${status}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     } else {
-      url = `/api/task/self?p=${page}&page_size=${size}&task_id=${task_id}&username=${username}&upstream_model_name=${upstream_model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
+      url = `/api/task/self?p=${page}&page_size=${size}&task_id=${task_id}&username=${username}&upstream_model_name=${upstream_model_name}&status=${status}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     }
     const res = await API.get(url);
     const { success, message, data } = res.data;

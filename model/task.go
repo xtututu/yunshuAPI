@@ -71,7 +71,7 @@ type TaskResponse struct {
 	TaskID     string                `json:"task_id"`
 	Platform   constant.TaskPlatform `json:"platform,omitempty"` // 仅root用户可见
 	UserId     int                   `json:"user_id"`
-	Username   string                `json:"username"`
+	Username   string                `json:"username,omitempty"` // 仅root用户可见
 	Group      string                `json:"group"`
 	ChannelId  int                   `json:"channel_id,omitempty"` // 仅root用户可见
 	Quota      int                   `json:"quota"`
@@ -90,9 +90,21 @@ type TaskResponse struct {
 func (t *Task) ToResponse(isRootUser bool) *TaskResponse {
 	// 获取用户名
 	username := ""
-	user, err := GetUserById(t.UserId, false)
-	if err == nil && user != nil {
-		username = user.Username
+	if isRootUser {
+		user, err := GetUserById(t.UserId, false)
+		if err == nil && user != nil {
+			username = user.Username
+		}
+	}
+
+	// 处理properties，仅root用户可见模型信息
+	properties := Properties{}
+	if t.Properties.Input != "" {
+		properties.Input = t.Properties.Input
+	}
+	if isRootUser {
+		properties.UpstreamModelName = t.Properties.UpstreamModelName
+		properties.OriginModelName = t.Properties.OriginModelName
 	}
 
 	response := &TaskResponse{
@@ -111,7 +123,7 @@ func (t *Task) ToResponse(isRootUser bool) *TaskResponse {
 		StartTime:  t.StartTime,
 		FinishTime: t.FinishTime,
 		Progress:   t.Progress,
-		Properties: t.Properties,
+		Properties: properties,
 		Data:       t.Data,
 	}
 

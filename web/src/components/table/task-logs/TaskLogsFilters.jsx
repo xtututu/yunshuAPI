@@ -93,6 +93,18 @@ const TaskLogsFilters = ({
             pure
             size='small'
           />
+
+          {/* 任务状态 */}
+          <Form.Select
+            field='status'
+            placeholder={t('任务状态')}
+            showClear
+            pure
+            size='small'
+          >
+            <Form.Select.Option value='SUCCESS'>{t('成功')}</Form.Select.Option>
+            <Form.Select.Option value='FAILURE'>{t('失败')}</Form.Select.Option>
+          </Form.Select>
         </div>
 
         {/* 操作按钮区域 */}
