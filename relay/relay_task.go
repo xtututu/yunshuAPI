@@ -715,7 +715,7 @@ func videoFetchByIDRespBodyBuilder(c *gin.Context) (respBody []byte, taskResp *d
 		if err2 != nil {
 			return
 		}
-		if channelModel.Type != constant.ChannelTypeVertexAi && channelModel.Type != constant.ChannelTypeGemini {
+		if channelModel.Type != constant.ChannelTypeVertexAi && channelModel.Type != constant.ChannelTypeGemini && channelModel.Type != constant.ChannelTypeSora {
 			return
 		}
 		baseURL := constant.ChannelBaseURLs[channelModel.Type]
@@ -752,29 +752,11 @@ func videoFetchByIDRespBodyBuilder(c *gin.Context) (respBody []byte, taskResp *d
 			} else if originTask.Status == model.TaskStatusSuccess {
 				// 任务成功时，将相关URL填入FailReason
 				if ti.Reason != "" {
-					originTask.FailReason = ti.Reason // 优先使用Reason字段（通常是remote_url�?
+					originTask.FailReason = ti.Reason
 				} else if ti.RemoteUrl != "" {
-					originTask.FailReason = ti.RemoteUrl // 使用remote_url
+					originTask.FailReason = ti.RemoteUrl
 				} else if ti.Url != "" {
-					originTask.FailReason = ti.Url // 使用url字段（video_url�?
-				} else {
-					// 尝试从任务data字段中解析URL（处理实时响应中URL缺失的情况）
-					var soraResp struct {
-						Data struct {
-							RemoteURL   string `json:"remote_url"`
-							TransferURL string `json:"transfer_url"`
-							URL         string `json:"url"`
-						} `json:"data"`
-					}
-					if err := json.Unmarshal(originTask.Data, &soraResp); err == nil {
-						if soraResp.Data.RemoteURL != "" {
-							originTask.FailReason = soraResp.Data.RemoteURL
-						} else if soraResp.Data.TransferURL != "" {
-							originTask.FailReason = soraResp.Data.TransferURL
-						} else if soraResp.Data.URL != "" {
-							originTask.FailReason = soraResp.Data.URL
-						}
-					}
+					originTask.FailReason = ti.Url
 				}
 			}
 

@@ -55,13 +55,41 @@ type responseTask struct {
 	} `json:"error,omitempty"`
 }
 
+type grokResponseTask struct {
+	ID               string `json:"id"`
+	Mode             string `json:"mode"`
+	Type             string `json:"type"`
+	Error            string `json:"error"`
+	Model            string `json:"model"`
+	Ratio            string `json:"ratio"`
+	Prompt           string `json:"prompt"`
+	Status           string `json:"status"`
+	PostID           string `json:"post_id"`
+	AssetID          string `json:"asset_id"`
+	Progress         int    `json:"progress"`
+	TraceID          string `json:"trace_id"`
+	Upscaled         bool   `json:"upscaled"`
+	VideoID          string `json:"video_id"`
+	VideoURL         string `json:"video_url"`
+	CompletedAt      int64  `json:"completed_at"`
+	ThumbnailURL     string `json:"thumbnail_url"`
+	VideoFileID      string `json:"video_file_id"`
+	ThumbnailFileID  string `json:"thumbnail_file_id"`
+	StatusUpdateTime int64  `json:"status_update_time"`
+	UpscaleOnComplete bool  `json:"upscale_on_complete"`
+}
+
 // ============================// Adaptor implementation// ============================
 
 type TaskAdaptor struct {
 	ChannelType int
 	apiKey      string
 	baseURL     string
-	newBoundary string // 用于存储重新构建multipart请求体时生成的新boundary
+	newBoundary string
+}
+
+func isGrokModel(model string) bool {
+	return model == "grok-video-3" || model == "grok-video-3-10s"
 }
 
 func (a *TaskAdaptor) Init(info *relaycommon.RelayInfo) {
@@ -75,6 +103,10 @@ func (a *TaskAdaptor) ValidateRequestAndSetAction(c *gin.Context, info *relaycom
 }
 
 func (a *TaskAdaptor) BuildRequestURL(info *relaycommon.RelayInfo) (string, error) {
+	modelName := info.UpstreamModelName
+	if isGrokModel(modelName) {
+		return fmt.Sprintf("%s/v1/video/create", a.baseURL), nil
+	}
 	return fmt.Sprintf("%s/v1/videos", a.baseURL), nil
 }
 
@@ -104,7 +136,8 @@ func (a *TaskAdaptor) BuildRequestHeader(c *gin.Context, req *http.Request, info
 }
 
 func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayInfo) (io.Reader, error) {
-	// 统一使用缓存的请求体，避免重复读取
+	modelName := info.UpstreamModelName
+	
 	cachedBody, err := common.GetRequestBody(c)
 	if err != nil {
 		return nil, errors.Wrap(err, "get_request_body_failed")
@@ -112,28 +145,73 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 
 	contentType := c.GetHeader("Content-Type")
 
-	// 处理JSON请求，将input_reference转换为base64附件
-	if strings.HasPrefix(contentType, "application/json") {
-		// 解析JSON请求
+	if isGrokModel(modelName) {
 		var jsonReq map[string]interface{}
 		if err := json.Unmarshal(cachedBody, &jsonReq); err != nil {
 			return nil, errors.Wrap(err, "parse_json_request_failed")
 		}
 
-		// 检查是否有input_reference字段
+		grokReq := make(map[string]interface{})
+		
+		grokReq["model"] = modelName
+		
+		if prompt, ok := jsonReq["prompt"].(string); ok {
+			grokReq["prompt"] = prompt 
+		}
+		
+		if size, ok := jsonReq["size"].(string); ok {
+			grokReq["aspect_ratio"] = size
+		}
+		
+		grokReq["size"] = "720P"
+		
+		if inputRef, hasInputRef := jsonReq["input_reference"]; hasInputRef {
+			var images []string
+			switch v := inputRef.(type) {
+			case string:
+				cleanURL := strings.Trim(v, " `")
+				if cleanURL != "" {
+					images = append(images, cleanURL)
+				}
+			case []interface{}:
+				for _, item := range v {
+					if url, ok := item.(string); ok {
+						cleanURL := strings.Trim(url, " `")
+						if cleanURL != "" {
+							images = append(images, cleanURL)
+						}
+					}
+				}
+			}
+			if len(images) > 0 {
+				grokReq["images"] = images
+			}
+		}
+
+		updatedBody, err := json.Marshal(grokReq)
+		if err != nil {
+			return nil, errors.Wrap(err, "marshal_grok_request_failed")
+		}
+
+		bodyCopy := bytes.NewBuffer(updatedBody)
+		return bodyCopy, nil
+	}
+
+	if strings.HasPrefix(contentType, "application/json") {
+		var jsonReq map[string]interface{}
+		if err := json.Unmarshal(cachedBody, &jsonReq); err != nil {
+			return nil, errors.Wrap(err, "parse_json_request_failed")
+		}
+
 		inputReference, hasInputRef := jsonReq["input_reference"]
 		if hasInputRef {
-			// 创建multipart请求体
 			var newBody bytes.Buffer
 			writer := multipart.NewWriter(&newBody)
 
-			// 保存新的boundary
 			a.newBoundary = writer.Boundary()
 
-			// 处理input_reference中的图片URL
 			var urls []string
 
-			// 支持多种格式：字符串、字符串数组
 			switch v := inputReference.(type) {
 			case string:
 				urls = []string{v}
@@ -145,15 +223,12 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 				}
 			}
 
-			// 下载图片并添加为附件
 			for i, url := range urls {
-				// 清理URL（去掉首尾空格和反引号）
 				cleanURL := strings.Trim(url, " `")
 				if cleanURL == "" {
 					continue
 				}
 
-				// 下载图片
 				resp, err := service.DoDownloadRequest(cleanURL)
 				if err != nil {
 					writer.Close()
@@ -161,36 +236,29 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 				}
 				defer resp.Body.Close()
 
-				// 读取图片内容
 				imageData, err := io.ReadAll(resp.Body)
 				if err != nil {
 					writer.Close()
 					return nil, errors.Wrapf(err, "read_image_failed: %s", cleanURL)
 				}
 
-				// 生成文件名
 				filename := fmt.Sprintf("image_%d.jpg", i+1)
 
-				// 创建form文件并写入图片内容
 				part, err := writer.CreateFormFile("input_reference", filename)
 				if err != nil {
 					writer.Close()
 					return nil, errors.Wrapf(err, "create_form_file_failed: %s", filename)
 				}
 
-				// 写入图片内容
 				if _, err := part.Write(imageData); err != nil {
 					writer.Close()
 					return nil, errors.Wrapf(err, "write_image_failed: %s", filename)
 				}
 			}
 
-			// 移除input_reference字段，因为已经转换为附件
 			delete(jsonReq, "input_reference")
 
-			// 添加其他JSON字段到multipart请求体
 			for key, value := range jsonReq {
-				// 转换值为字符串
 				var strValue string
 				switch v := value.(type) {
 				case string:
@@ -200,7 +268,6 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 				case bool:
 					strValue = fmt.Sprintf("%t", v)
 				default:
-					// 对于复杂类型，序列化为JSON字符串
 					jsonBytes, err := json.Marshal(v)
 					if err != nil {
 						writer.Close()
@@ -214,18 +281,13 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 
 			writer.Close()
 
-			// 创建一个新的 bytes.Buffer 来支持多次读取
 			bodyCopy := bytes.NewBuffer(newBody.Bytes())
 			return bodyCopy, nil
 		}
 	}
 
-	// 检查是否需要更新模型名
 	if info.IsModelMapped && info.UpstreamModelName != "" {
-		// 检查请求是否是multipart/form-data格式
 		if strings.HasPrefix(contentType, "multipart/form-data") {
-			// 对于multipart请求，需要重新构建请求体
-			// 先解析原始请求体
 			_, params, err := mime.ParseMediaType(contentType)
 			if err != nil {
 				return nil, errors.Wrap(err, "parse_content_type_failed")
@@ -235,23 +297,19 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 				return nil, errors.New("boundary_not_found_in_content_type")
 			}
 			reader := multipart.NewReader(bytes.NewReader(cachedBody), boundary)
-			parts, err := reader.ReadForm(10 << 20) // 10MB
+			parts, err := reader.ReadForm(10 << 20)
 			if err != nil {
 				return nil, errors.Wrap(err, "parse_multipart_form_failed")
 			}
 
-			// 创建新的multipart请求体
 			var newBody bytes.Buffer
 			writer := multipart.NewWriter(&newBody)
 
-			// 保存新的boundary
 			a.newBoundary = writer.Boundary()
 
-			// 复制所有字段，更新model字段
 			for key, values := range parts.Value {
 				for _, value := range values {
 					if key == "model" {
-						// 使用映射后的模型名
 						writer.WriteField(key, info.UpstreamModelName)
 					} else {
 						writer.WriteField(key, value)
@@ -259,16 +317,13 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 				}
 			}
 
-			// 复制所有文�?
 			for key, files := range parts.File {
 				for _, file := range files {
-					// 打开文件
 					fileContent, err := file.Open()
 					if err != nil {
 						return nil, errors.Wrap(err, "open_file_failed")
 					}
 
-					// 读取文件内容
 					fileHeader := make([]byte, file.Size)
 					_, err = fileContent.Read(fileHeader)
 					if err != nil {
@@ -276,49 +331,39 @@ func (a *TaskAdaptor) BuildRequestBody(c *gin.Context, info *relaycommon.RelayIn
 						return nil, errors.Wrap(err, "read_file_failed")
 					}
 
-					// 关闭文件
 					fileContent.Close()
 
-					// 创建新的form文件
 					part, err := writer.CreateFormFile(key, file.Filename)
 					if err != nil {
 						return nil, errors.Wrap(err, "create_form_file_failed")
 					}
 
-					// 写入文件内容
 					part.Write(fileHeader)
 				}
 			}
 
 			writer.Close()
 
-			// 创建一个新�?bytes.Buffer 来支持多次读�?
 			bodyCopy := bytes.NewBuffer(newBody.Bytes())
 			return bodyCopy, nil
 		} else if strings.HasPrefix(contentType, "application/json") {
-			// 对于JSON请求，更新模型名
 			var jsonReq map[string]interface{}
 			if err := json.Unmarshal(cachedBody, &jsonReq); err != nil {
 				return nil, errors.Wrap(err, "parse_json_request_failed")
 			}
 
-			// 更新模型�?
 			jsonReq["model"] = info.UpstreamModelName
 
-			// 重新序列化JSON
 			updatedBody, err := json.Marshal(jsonReq)
 			if err != nil {
 				return nil, errors.Wrap(err, "marshal_json_request_failed")
 			}
 
-			// 创建一个新�?bytes.Buffer 来支持多次读�?
 			bodyCopy := bytes.NewBuffer(updatedBody)
 			return bodyCopy, nil
 		}
 	}
 
-	// 如果不需要更新模型名，直接返回缓存的请求�?
-	// 创建一个新�?bytes.Buffer 来支持多次读�?
 	bodyCopy := bytes.NewBuffer(cachedBody)
 	return bodyCopy, nil
 }
@@ -337,7 +382,14 @@ func (a *TaskAdaptor) DoResponse(c *gin.Context, resp *http.Response, _ *relayco
 	}
 	_ = resp.Body.Close()
 
-	// Parse Sora response
+	var grokResp grokResponseTask
+	if err := common.Unmarshal(responseBody, &grokResp); err == nil && grokResp.ID != "" {
+		if grokResp.VideoID != "" {
+			return grokResp.VideoID, responseBody, nil
+		}
+		return grokResp.ID, responseBody, nil
+	}
+
 	var dResp responseTask
 	if err := common.Unmarshal(responseBody, &dResp); err != nil {
 		taskErr = service.TaskErrorWrapper(errors.Wrapf(err, "body: %s", responseBody), "unmarshal_response_body_failed", http.StatusInternalServerError)
@@ -384,13 +436,41 @@ func (a *TaskAdaptor) GetChannelName() string {
 }
 
 func (a *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, error) {
+	taskResult := relaycommon.TaskInfo{
+		Code: 0,
+	}
+
+	var grokResp grokResponseTask
+	if err := common.Unmarshal(respBody, &grokResp); err == nil && grokResp.ID != "" {
+		switch grokResp.Status {
+		case "queued", "pending":
+			taskResult.Status = model.TaskStatusQueued
+		case "processing", "in_progress":
+			taskResult.Status = model.TaskStatusInProgress
+		case "completed":
+			taskResult.Status = model.TaskStatusSuccess
+			if grokResp.VideoURL != "" {
+				taskResult.Url = grokResp.VideoURL
+				taskResult.Reason = grokResp.VideoURL
+			}
+		case "failed", "cancelled":
+			taskResult.Status = model.TaskStatusFailure
+			if grokResp.Error != "" {
+				taskResult.Reason = grokResp.Error
+			} else {
+				taskResult.Reason = "task failed"
+			}
+		default:
+		}
+		if grokResp.Progress > 0 && grokResp.Progress < 100 {
+			taskResult.Progress = fmt.Sprintf("%d%%", grokResp.Progress)
+		}
+		return &taskResult, nil
+	}
+
 	resTask := responseTask{}
 	if err := common.Unmarshal(respBody, &resTask); err != nil {
 		return nil, errors.Wrap(err, "unmarshal task result failed")
-	}
-
-	taskResult := relaycommon.TaskInfo{
-		Code: 0,
 	}
 
 	switch resTask.Status {
@@ -400,12 +480,10 @@ func (a *TaskAdaptor) ParseTaskResult(respBody []byte) (*relaycommon.TaskInfo, e
 		taskResult.Status = model.TaskStatusInProgress
 	case "completed":
 		taskResult.Status = model.TaskStatusSuccess
-		// 使用API响应中的video_url，而不是使用baseURL构建
 		if resTask.VideoURL != "" {
 			taskResult.Url = resTask.VideoURL
-			taskResult.Reason = resTask.VideoURL // 任务日志中fail_reason使用video_url
+			taskResult.Reason = resTask.VideoURL
 		} else {
-			// 如果API响应中没有video_url，使用原有的构建方式作为 fallback
 			taskResult.Url = fmt.Sprintf("%s/v1/videos/%s/content", a.baseURL, resTask.ID)
 			taskResult.Reason = taskResult.Url
 		}
@@ -440,33 +518,52 @@ type UserExpectedVideoResponse struct {
 }
 
 func (a *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
+	response := UserExpectedVideoResponse{
+		ID:        task.TaskID,
+		Object:    "video",
+		Status:    task.Status.ToVideoStatus(),
+		Progress:  100,
+		CreatedAt: task.CreatedAt,
+	}
+
+	var grokResp grokResponseTask
+	if err := json.Unmarshal(task.Data, &grokResp); err == nil && grokResp.ID != "" {
+		response.Model = grokResp.Model
+		response.Seconds = ""
+		response.Size = grokResp.Ratio
+
+		if task.Status == model.TaskStatusSuccess {
+			if grokResp.VideoURL != "" {
+				response.VideoURL = grokResp.VideoURL
+			}
+		} else if task.Status == model.TaskStatusFailure {
+			if grokResp.Error != "" {
+				response.FailReason = grokResp.Error
+			} else if task.FailReason != "" {
+				response.FailReason = task.FailReason
+			} else {
+				response.FailReason = "Unknown error"
+			}
+		}
+		return common.Marshal(response)
+	}
+
 	var soraResp responseTask
 	if err := json.Unmarshal(task.Data, &soraResp); err != nil {
 		return nil, errors.Wrap(err, "unmarshal sora task data failed")
 	}
 
-	// 使用用户期望的响应格�?
-	response := UserExpectedVideoResponse{
-		ID:        task.TaskID,
-		Size:      soraResp.Size,
-		Model:     soraResp.Model,
-		Object:    "video",
-		Status:    task.Status.ToVideoStatus(),
-		Seconds:   soraResp.Seconds,
-		Progress:  100, // sora渠道直接返回100%进度
-		CreatedAt: task.CreatedAt,
-	}
+	response.Size = soraResp.Size
+	response.Model = soraResp.Model
+	response.Seconds = soraResp.Seconds
 
 	if task.Status == model.TaskStatusSuccess {
-		// 使用API响应中的video_url，而不是使用baseURL构建
 		if soraResp.VideoURL != "" {
 			response.VideoURL = soraResp.VideoURL
 		} else {
-			// 如果API响应中没有video_url，使用原有的构建方式作为 fallback
 			response.VideoURL = fmt.Sprintf("%s/v1/videos/%s/content", a.baseURL, task.TaskID)
 		}
 	} else if task.Status == model.TaskStatusFailure {
-		// 填充失败原因
 		if soraResp.Error != nil && soraResp.Error.Message != "" {
 			response.FailReason = soraResp.Error.Message
 		} else if task.FailReason != "" {
